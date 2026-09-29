@@ -1,0 +1,206 @@
+@model tieudaobadminton.Areas.Admin.ViewModels.StockReceiptFormVM
+@{
+    ViewData["Title"] = "Tạo phiếu nhập hàng vào kho";
+}
+
+<div class="container-fluid py-3" style="max-width: 920px;">
+
+    <!-- BACK -->
+    <div class="mb-3">
+        <a asp-action="Index" class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold">
+            ← Quay lại danh sách phiếu nhập
+        </a>
+    </div>
+
+    <form method="post" id="stockReceiptForm">
+        @Html.AntiForgeryToken()
+
+        <!-- 1. THÔNG TIN SẢN PHẨM & SỐ LƯỢNG NHẬP -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+                <div class="fs-2 text-success">📥</div>
+                <div>
+                    <h4 class="fw-black text-dark m-0">Tạo Phiếu Nhập Hàng Vào Kho</h4>
+                    <div class="text-muted small">Khai báo lô hàng nhập mới, nguồn gốc xuất xứ và chi phí vốn nhập kho</div>
+                </div>
+            </div>
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="row g-3">
+                <!-- CHỌN SẢN PHẨM -->
+                <div class="col-md-7">
+                    <label asp-for="ProductId" class="form-label fw-bold text-dark">Sản phẩm cần nhập kho <span class="text-danger">*</span></label>
+                    <select asp-for="ProductId" class="form-select rounded-3 py-2 fw-semibold" id="productSelect" asp-items="Model.ProductsList">
+                        <option value="">-- Chọn sản phẩm trong hệ thống --</option>
+                    </select>
+                    <span asp-validation-for="ProductId" class="text-danger small"></span>
+                </div>
+
+                <!-- CHỌN PHÂN LOẠI SIZE/MÀU -->
+                <div class="col-md-5">
+                    <label asp-for="ProductVariantId" class="form-label fw-bold text-dark">Phân loại kích cỡ / Size</label>
+                    <select asp-for="ProductVariantId" class="form-select rounded-3 py-2" id="variantSelect" asp-items="Model.VariantsList">
+                        <option value="">-- Phân loại tiêu chuẩn / Tất cả --</option>
+                    </select>
+                    <small class="text-muted">Chọn phân loại nếu sản phẩm có nhiều size.</small>
+                </div>
+
+                <!-- SỐ LƯỢNG NHẬP -->
+                <div class="col-md-4">
+                    <label asp-for="Quantity" class="form-label fw-bold text-dark">Số lượng nhập (+) <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-success text-white fw-bold">+</span>
+                        <input asp-for="Quantity" type="number" min="1" class="form-control rounded-end-3 py-2 fw-bold text-primary fs-5" id="inputQuantity" />
+                    </div>
+                    <span asp-validation-for="Quantity" class="text-danger small"></span>
+                </div>
+
+                <!-- ĐƠN GIÁ NHẬP HÀNG -->
+                <div class="col-md-4">
+                    <label asp-for="UnitImportPrice" class="form-label fw-bold text-dark">Đơn giá nhập 1 chiếc (VNĐ) <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <input asp-for="UnitImportPrice" type="number" min="1000" step="1000" class="form-control rounded-start-3 py-2 fw-bold text-dark fs-5" id="inputUnitPrice" placeholder="Ví dụ: 2500000" />
+                        <span class="input-group-text bg-light border-start-0">đ</span>
+                    </div>
+                    <span asp-validation-for="UnitImportPrice" class="text-danger small"></span>
+                </div>
+
+                <!-- TỔNG TIỀN NHẬP LÔ HÀNG (TÍNH TỰ ĐỘNG) -->
+                <div class="col-md-4">
+                    <label class="form-label fw-bold text-muted">Tổng chi phí nhập lô hàng</label>
+                    <div class="p-2 px-3 bg-light rounded-3 border d-flex align-items-center justify-content-between" style="min-height: 44px;">
+                        <span class="text-muted small">Thành tiền:</span>
+                        <span class="fw-black text-danger fs-5 font-monospace" id="totalCostDisplay">0 đ</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. NGUỒN GỐC & NHÀ CUNG CẤP -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4 border-start border-4 border-primary">
+            <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
+                <div class="fs-2 text-primary">🏷️</div>
+                <div>
+                    <h5 class="fw-black text-dark m-0">Nguồn Gốc & Thông Tin Nhà Cung Cấp</h5>
+                    <div class="text-muted small">Lưu trữ minh bạch nguồn gốc sản phẩm phục vụ bảo hành chính hãng và đối chiếu chứng từ</div>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="SupplierName" class="form-label fw-bold text-dark">
+                        Tên nhà cung cấp / Nhà phân phối <span class="text-danger">*</span>
+                    </label>
+                    <input asp-for="SupplierName" class="form-control rounded-3 py-2 fw-semibold" id="inputSupplier" placeholder="Ví dụ: Công ty TNHH Sunrise Việt Nam (Yonex)..." />
+                    <span asp-validation-for="SupplierName" class="text-danger small"></span>
+
+                    <!-- Gợi ý nhanh nhà cung cấp -->
+                    <div class="mt-2 d-flex flex-wrap gap-1 align-items-center">
+                        <small class="text-muted me-1">Gợi ý nhanh:</small>
+                        <button type="button" class="btn btn-sm btn-light border rounded-pill px-2 py-0 small supplier-chip" data-val="Yonex Sunrise Vietnam (Chính Hãng)">Yonex Sunrise</button>
+                        <button type="button" class="btn btn-sm btn-light border rounded-pill px-2 py-0 small supplier-chip" data-val="Victor Taiwan Distribution VN">Victor Taiwan</button>
+                        <button type="button" class="btn btn-sm btn-light border rounded-pill px-2 py-0 small supplier-chip" data-val="Li-Ning Sports Vietnam">Li-Ning VN</button>
+                        <button type="button" class="btn btn-sm btn-light border rounded-pill px-2 py-0 small supplier-chip" data-val="Mizuno Sports Official">Mizuno</button>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="OriginCountry" class="form-label fw-bold text-dark">Xuất xứ / Nước sản xuất</label>
+                    <select asp-for="OriginCountry" class="form-select rounded-3 py-2" id="originSelect">
+                        <option value="Nhật Bản (Made in Japan)">Nhật Bản (Japan)</option>
+                        <option value="Đài Loan (Made in Taiwan)">Đài Loan (Taiwan)</option>
+                        <option value="Việt Nam (Made in Vietnam)">Việt Nam</option>
+                        <option value="Trung Quốc (Made in China)">Trung Quốc (China)</option>
+                        <option value="Chính hãng phân phối">Chính hãng khác</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="BatchNumber" class="form-label fw-bold text-dark">Mã lô hàng / Số HĐ</label>
+                    <input asp-for="BatchNumber" class="form-control rounded-3 py-2 font-monospace" placeholder="VD: LÔ-2026/09-01" />
+                    <small class="text-muted">Để trống hệ thống sẽ tự sinh.</small>
+                </div>
+
+                <div class="col-md-12">
+                    <label asp-for="Note" class="form-label fw-bold text-dark">Ghi chú nhập kho / Tình trạng kiểm định</label>
+                    <textarea asp-for="Note" class="form-control rounded-3" rows="3" placeholder="Nhập ghi chú tem chống giả, tình trạng bao bì, thỏa thuận bảo hành của nhà cung cấp..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="d-flex justify-content-end gap-2 mb-5">
+            <a asp-action="Index" class="btn btn-light rounded-pill px-4 fw-bold">Hủy bỏ</a>
+            <button type="submit" class="btn btn-success rounded-pill px-5 fw-bold shadow-sm">
+                ✓ Hoàn tất nhập kho & Tăng tồn kho
+            </button>
+        </div>
+    </form>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const productSelect = document.getElementById('productSelect');
+            const variantSelect = document.getElementById('variantSelect');
+            const qtyInput = document.getElementById('inputQuantity');
+            const unitPriceInput = document.getElementById('inputUnitPrice');
+            const totalDisplay = document.getElementById('totalCostDisplay');
+            const supplierInput = document.getElementById('inputSupplier');
+
+            // 1. Tự động tính tổng tiền nhập
+            function updateTotal() {
+                const qty = parseFloat(qtyInput.value) || 0;
+                const price = parseFloat(unitPriceInput.value) || 0;
+                const total = qty * price;
+                totalDisplay.innerText = new Intl.NumberFormat('vi-VN').format(total) + ' đ';
+            }
+
+            qtyInput.addEventListener('input', updateTotal);
+            unitPriceInput.addEventListener('input', updateTotal);
+            updateTotal();
+
+            // 2. Gợi ý nhanh nhà cung cấp
+            document.querySelectorAll('.supplier-chip').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    supplierInput.value = this.getAttribute('data-val');
+                });
+            });
+
+            // 3. Tải các biến thể size & gợi ý giá khi đổi sản phẩm
+            productSelect.addEventListener('change', function () {
+                const prodId = this.value;
+                if (!prodId) return;
+
+                fetch(`/Admin/StockReceipts/GetProductVariants?productId=${prodId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        // Cập nhật dropdown phân loại
+                        variantSelect.innerHTML = '<option value="">-- Phân loại tiêu chuẩn / Tất cả --</option>';
+                        if (data.variants && data.variants.length > 0) {
+                            data.variants.forEach(v => {
+                                const opt = document.createElement('option');
+                                opt.value = v.id;
+                                opt.textContent = v.name;
+                                variantSelect.appendChild(opt);
+                            });
+                        }
+
+                        // Gợi ý giá vốn và NCC
+                        if (data.suggestedCost && (!unitPriceInput.value || unitPriceInput.value === '0')) {
+                            unitPriceInput.value = data.suggestedCost;
+                        }
+                        if (data.supplier && !supplierInput.value) {
+                            supplierInput.value = data.supplier;
+                        }
+                        updateTotal();
+                    })
+                    .catch(err => console.error(err));
+            });
+        });
+    </script>
+}

@@ -1,0 +1,215 @@
+@model tieudaobadminton.ViewModel.Auth.RegisterVM
+@{
+    ViewData["Title"] = "Đăng ký tài khoản thành viên";
+}
+
+<div class="auth-page-wrapper">
+    <div class="auth-card-master">
+        <div class="row g-0">
+
+            <!-- LEFT PANEL: BRAND VISUAL & MEMBER PERKS -->
+            <div class="col-lg-5 auth-visual-panel">
+                <a asp-controller="Home" asp-action="Index" class="auth-brand-logo">
+                    <div class="auth-logo-badge">🏸</div>
+                    <div>
+                        <div class="auth-brand-title">TIÊU ĐAO SPORT</div>
+                        <div class="auth-brand-subtitle">Badminton Pro Center</div>
+                    </div>
+                </a>
+
+                <div class="auth-visual-body">
+                    <h2 class="auth-visual-headline">
+                        Gia Nhập Cộng Đồng Cầu Lông Tiêu Đao Pro
+                    </h2>
+
+                    <ul class="auth-feature-list">
+                        <li class="auth-feature-item">
+                            <div class="auth-feature-icon">🎁</div>
+                            <div class="auth-feature-text">
+                                <strong>Đặc Quyền Thành Viên:</strong> Tích lũy điểm thưởng trên mọi đơn hàng, đổi quà phụ kiện cuốn cán, tất thi đấu.
+                            </div>
+                        </li>
+                        <li class="auth-feature-item">
+                            <div class="auth-feature-icon">🏸</div>
+                            <div class="auth-feature-text">
+                                <strong>Lưu Hồ Sơ Lối Đánh:</strong> Lưu trữ lịch sử thông số căng cước và kết quả phân tích chọn vợt từ Trợ lý AI.
+                            </div>
+                        </li>
+                        <li class="auth-feature-item">
+                            <div class="auth-feature-icon">🚚</div>
+                            <div class="auth-feature-text">
+                                <strong>Quản Lý Đơn Hàng Dễ Dàng:</strong> Tra cứu hành trình giao hàng và bảo hành thiết bị chính hãng chỉ bằng 1 chạm.
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="auth-social-proof-card">
+                    <div class="proof-avatar-stack">
+                        <div class="proof-avatar">🏸</div>
+                        <div class="proof-avatar" style="background:#0284c7;">👟</div>
+                        <div class="proof-avatar" style="background:#f97316;">🔥</div>
+                    </div>
+                    <div class="proof-text">
+                        <div class="fw-bold text-white">Miễn phí công đan cước lần đầu</div>
+                        <div class="text-white-50 small">Áp dụng cho mọi thành viên mới đăng ký</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT PANEL: REGISTER FORM -->
+            <div class="col-lg-7 auth-form-panel">
+                <div class="auth-form-header">
+                    <h3 class="auth-form-title">Tạo tài khoản mới 🏸</h3>
+                    <p class="auth-form-desc">
+                        Chỉ mất 30 giây để hoàn tất và bắt đầu nhận các ưu đãi hấp dẫn.
+                    </p>
+                </div>
+
+                <form method="post" id="registerForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="ReturnUrl" />
+
+                    @if (!ViewData.ModelState.IsValid && ViewData.ModelState[""]?.Errors.Count > 0)
+                    {
+                        <div class="alert alert-danger py-2 px-3 rounded-3 small mb-3 border-0 bg-danger bg-opacity-10 text-danger fw-semibold d-flex align-items-center gap-2">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <div>@Html.ValidationSummary(true)</div>
+                        </div>
+                    }
+
+                    <!-- EMAIL INPUT -->
+                    <div class="auth-input-group">
+                        <label asp-for="Email" class="auth-input-label">Địa chỉ Email <span class="text-danger">*</span></label>
+                        <div class="auth-field-wrap">
+                            <i class="bi bi-envelope auth-field-icon"></i>
+                            <input asp-for="Email" class="auth-input-control" placeholder="name@example.com" required autocomplete="email" />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <!-- PASSWORD INPUT -->
+                    <div class="auth-input-group">
+                        <label asp-for="Password" class="auth-input-label">Mật khẩu <span class="text-danger">*</span> (Tối thiểu 6 ký tự)</label>
+                        <div class="auth-field-wrap">
+                            <i class="bi bi-lock auth-field-icon"></i>
+                            <input asp-for="Password" type="password" class="auth-input-control" placeholder="Nhập mật khẩu an toàn..." id="regPassword" required autocomplete="new-password" />
+                            <button type="button" class="auth-toggle-password-btn" id="toggleRegPasswordBtn" title="Hiện / Ẩn mật khẩu">
+                                <i class="bi bi-eye" id="toggleRegEyeIcon"></i>
+                            </button>
+                        </div>
+                        <div class="password-strength-bar">
+                            <div class="password-strength-fill" id="strengthFill"></div>
+                        </div>
+                        <span class="password-strength-label" id="strengthLabel">Độ mạnh mật khẩu</span>
+                        <span asp-validation-for="Password" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <!-- CONFIRM PASSWORD INPUT -->
+                    <div class="auth-input-group">
+                        <label asp-for="ConfirmPassword" class="auth-input-label">Xác nhận lại mật khẩu <span class="text-danger">*</span></label>
+                        <div class="auth-field-wrap">
+                            <i class="bi bi-shield-check auth-field-icon"></i>
+                            <input asp-for="ConfirmPassword" type="password" class="auth-input-control" placeholder="Nhập lại mật khẩu phía trên..." id="regConfirmPassword" required autocomplete="new-password" />
+                            <button type="button" class="auth-toggle-password-btn" id="toggleRegConfirmBtn" title="Hiện / Ẩn mật khẩu">
+                                <i class="bi bi-eye" id="toggleRegConfirmEyeIcon"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="ConfirmPassword" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <div class="form-check mb-3 mt-1">
+                        <input class="form-check-input rounded-2" type="checkbox" id="termsCheck" required checked />
+                        <label class="form-check-label small text-secondary" for="termsCheck">
+                            Tôi đồng ý với <a href="#" class="text-primary text-decoration-none">Điều khoản dịch vụ</a> và <a href="#" class="text-primary text-decoration-none">Chính sách bảo mật</a> của Tiêu Đao Badminton.
+                        </label>
+                    </div>
+
+                    <!-- SUBMIT BUTTON -->
+                    <button type="submit" class="btn-auth-submit">
+                        <span>Hoàn tất đăng ký tài khoản</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </button>
+
+                    <!-- SWITCH TO LOGIN -->
+                    <div class="auth-bottom-switch">
+                        Đã có tài khoản thành viên?
+                        <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Model.ReturnUrl">
+                            Đăng nhập ngay →
+                        </a>
+                    </div>
+
+                    <div class="auth-trust-note">
+                        <i class="bi bi-shield-lock-fill text-success"></i>
+                        <span>Thông tin của bạn được bảo mật tuyệt đối 100%</span>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1. PASSWORD TOGGLE
+            function setupToggle(btnId, inputId, iconId) {
+                const btn = document.getElementById(btnId);
+                const input = document.getElementById(inputId);
+                const icon = document.getElementById(iconId);
+
+                btn?.addEventListener('click', function() {
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        icon.className = 'bi bi-eye-slash';
+                    } else {
+                        input.type = 'password';
+                        icon.className = 'bi bi-eye';
+                    }
+                });
+            }
+
+            setupToggle('toggleRegPasswordBtn', 'regPassword', 'toggleRegEyeIcon');
+            setupToggle('toggleRegConfirmBtn', 'regConfirmPassword', 'toggleRegConfirmEyeIcon');
+
+            // 2. INTERACTIVE PASSWORD STRENGTH METER
+            const passInput = document.getElementById('regPassword');
+            const fill = document.getElementById('strengthFill');
+            const label = document.getElementById('strengthLabel');
+
+            passInput?.addEventListener('input', function() {
+                const val = this.value;
+                let score = 0;
+
+                if (val.length >= 6) score += 1;
+                if (val.length >= 8) score += 1;
+                if (/[A-Z]/.test(val)) score += 1;
+                if (/[0-9]/.test(val)) score += 1;
+                if (/[^A-Za-z0-9]/.test(val)) score += 1;
+
+                if (val.length === 0) {
+                    fill.style.width = '0%';
+                    label.innerText = 'Độ mạnh mật khẩu';
+                    label.style.color = '#94a3b8';
+                } else if (score <= 2) {
+                    fill.style.width = '33%';
+                    fill.style.backgroundColor = '#ef4444';
+                    label.innerText = 'Mật khẩu yếu (cần chữ hoa & số)';
+                    label.style.color = '#ef4444';
+                } else if (score <= 4) {
+                    fill.style.width = '66%';
+                    fill.style.backgroundColor = '#f59e0b';
+                    label.innerText = 'Mật khẩu trung bình';
+                    label.style.color = '#f59e0b';
+                } else {
+                    fill.style.width = '100%';
+                    fill.style.backgroundColor = '#10b981';
+                    label.innerText = 'Mật khẩu rất mạnh! ✅';
+                    label.style.color = '#10b981';
+                }
+            });
+        });
+    </script>
+}

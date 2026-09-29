@@ -1,0 +1,467 @@
+@model List<tieudaobadminton.Models.Product>
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    ViewData["Title"] = "Quản lý sản phẩm & Kho hàng";
+    var categories = ViewBag.Categories as List<SelectListItem> ?? new();
+    var search = (string)(ViewBag.Search ?? "");
+    var status = (string)(ViewBag.Status ?? "");
+    var stockFilter = (string)(ViewBag.StockFilter ?? "");
+
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    int totalCount = ViewBag.TotalCount ?? 0;
+    int startItem = ViewBag.StartItem ?? 0;
+    int endItem = ViewBag.EndItem ?? 0;
+}
+
+<div class="container-fluid py-3">
+
+    <!-- HEADER & ACTION -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+        <div>
+            <h4 class="fw-black text-dark m-0">🏸 Quản lý sản phẩm & Kho hàng</h4>
+            <div class="text-muted small">Theo dõi danh sách sản phẩm, nhập thêm hàng vào kho và quản lý phân loại kích cỡ</div>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-outline-success rounded-pill px-3 fw-bold shadow-sm" asp-area="Admin" asp-controller="StockReceipts" asp-action="Create">
+                <i class="bi bi-box-arrow-in-down me-1"></i> Lập phiếu nhập hàng
+            </a>
+            <a class="btn btn-outline-primary rounded-pill px-3 fw-bold shadow-sm" asp-area="Admin" asp-controller="StockReceipts" asp-action="Report">
+                <i class="bi bi-graph-up-arrow me-1"></i> Đối chiếu lãi suất (%)
+            </a>
+            <a class="btn btn-dark rounded-pill px-4 fw-bold shadow-sm" asp-area="Admin" asp-controller="Products" asp-action="Create">
+                <i class="bi bi-plus-lg me-1"></i> Thêm sản phẩm mới
+            </a>
+        </div>
+    </div>
+
+    <!-- ALERTS -->
+    @if (TempData["Ok"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Ok"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- 4 INVENTORY KPI CARDS -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm p-3 rounded-4 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-bold text-uppercase">TỔNG MẪU SẢN PHẨM</div>
+                        <div class="fs-3 fw-bold text-dark mt-1">@ViewBag.TotalProducts <small class="fs-6 text-muted fw-normal">mẫu</small></div>
+                    </div>
+                    <div class="kpi-icon-badge bg-primary bg-opacity-10 text-primary fs-3">🏸</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm p-3 rounded-4 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-bold text-uppercase">TỔNG LƯỢNG HÀNG TRONG KHO</div>
+                        <div class="fs-3 fw-bold text-primary mt-1">@ViewBag.TotalInventoryUnits <small class="fs-6 text-muted fw-normal">chiếc/đôi</small></div>
+                    </div>
+                    <div class="kpi-icon-badge bg-info bg-opacity-10 text-info fs-3">📦</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm p-3 rounded-4 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-bold text-uppercase">CẢNH BÁO SẮP HẾT HÀNG</div>
+                        <div class="fs-3 fw-bold text-warning mt-1">@ViewBag.LowStockCount <small class="fs-6 text-muted fw-normal">mẫu (≤5)</small></div>
+                    </div>
+                    <div class="kpi-icon-badge bg-warning bg-opacity-10 text-warning fs-3">⚠️</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm p-3 rounded-4 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-bold text-uppercase">ĐÃ HẾT HÀNG TRONG KHO</div>
+                        <div class="fs-3 fw-bold text-danger mt-1">@ViewBag.OutOfStockCount <small class="fs-6 text-muted fw-normal">mẫu (=0)</small></div>
+                    </div>
+                    <div class="kpi-icon-badge bg-danger bg-opacity-10 text-danger fs-3">🚫</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FILTER & SEARCH BAR -->
+    <div class="card border-0 shadow-sm p-3 rounded-4 mb-4 bg-white">
+        <form class="row g-2 align-items-center" method="get">
+            <div class="col-lg-4 col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
+                    <input name="search" value="@search" class="form-control border-start-0" placeholder="Tìm theo tên sản phẩm, mã SKU..." />
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <select name="categoryId" class="form-select">
+                    <option value="">-- Tất cả danh mục --</option>
+                    @foreach (var c in categories)
+                    {
+                        <option value="@c.Value" selected="@c.Selected">@c.Text</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-lg-2 col-md-4">
+                <select name="status" class="form-select">
+                    <option value="" selected="@(string.IsNullOrEmpty(status))">-- Trạng thái bán --</option>
+                    <option value="active" selected="@(status == "active")">Đang mở bán</option>
+                    <option value="inactive" selected="@(status == "inactive")">Tạm ẩn</option>
+                </select>
+            </div>
+
+            <div class="col-lg-2 col-md-4">
+                <select name="stockFilter" class="form-select">
+                    <option value="" selected="@(string.IsNullOrEmpty(stockFilter))">-- Tình trạng kho --</option>
+                    <option value="instock" selected="@(stockFilter == "instock")">Còn hàng (> 5)</option>
+                    <option value="lowstock" selected="@(stockFilter == "lowstock")">Sắp hết hàng (1 - 5)</option>
+                    <option value="outofstock" selected="@(stockFilter == "outofstock")">Hết hàng (= 0)</option>
+                </select>
+            </div>
+
+            <div class="col-lg-1 col-md-4 d-grid">
+                <button class="btn btn-dark fw-bold rounded-pill">Lọc</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- PRODUCTS TABLE -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white mb-4">
+        @if (Model.Count == 0)
+        {
+            <div class="text-center py-5 text-muted">
+                <div class="fs-1">📦</div>
+                <div class="mt-2">Không tìm thấy sản phẩm nào phù hợp điều kiện lọc.</div>
+                <a asp-action="Index" class="btn btn-outline-dark rounded-pill px-4 mt-3">Xóa bộ lọc</a>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-muted small">
+                        <tr>
+                            <th class="ps-4" style="width: 60px;">ID</th>
+                            <th style="width: 75px;">ẢNH</th>
+                            <th>TÊN SẢN PHẨM & HÃNG</th>
+                            <th>DANH MỤC</th>
+                            <th class="text-end">GIÁ BÁN</th>
+                            <th class="text-center">TỒN KHO HIỆN TẠI</th>
+                            <th class="text-center">TRẠNG THÁI</th>
+                            <th class="text-end pe-4" style="width: 250px;">THAO TÁC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in Model)
+                        {
+                            var totalStock = p.Variants.Sum(v => v.Stock);
+                            var variantCount = p.Variants.Count;
+
+                            <tr>
+                                <td class="ps-4 fw-bold text-muted font-monospace">#@p.Id</td>
+                                <td>
+                                    <img src="@(p.MainImageUrl ?? "/img/demo/placeholder.jpg")"
+                                         style="width: 52px; height: 52px; object-fit: cover; border-radius: 10px; border: 1px solid rgba(0,0,0,.08);"
+                                         alt="@p.Name" onerror="this.src='/img/demo/placeholder.jpg';" />
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-dark fs-6">@p.Name</div>
+                                    <div class="small text-muted d-flex align-items-center gap-2 mt-1">
+                                        <span class="badge bg-light text-dark border font-monospace">@p.Brand?.Name</span>
+                                        @if (p.Variants.Any(v => !string.IsNullOrEmpty(v.Sku)))
+                                        {
+                                            <span class="text-muted" style="font-size: 0.75rem;">SKU: @p.Variants.First().Sku</span>
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary-subtle text-primary fw-medium px-2 py-1 rounded">
+                                        @p.Category?.Name
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    @if (p.SalePrice.HasValue)
+                                    {
+                                        <div class="fw-bold text-danger">@p.SalePrice.Value.ToString("n0") đ</div>
+                                        <div class="small text-muted text-decoration-line-through">@p.Price.ToString("n0") đ</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="fw-bold text-dark">@p.Price.ToString("n0") đ</div>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @if (totalStock == 0)
+                                    {
+                                        <span class="badge bg-danger text-white rounded-pill px-3 py-1 fw-bold">
+                                            🚫 Hết hàng (0)
+                                        </span>
+                                    }
+                                    else if (totalStock <= 5)
+                                    {
+                                        <span class="badge bg-warning text-dark rounded-pill px-3 py-1 fw-bold">
+                                            ⚠️ Sắp hết (@totalStock)
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success-subtle text-success fw-bold rounded-pill px-3 py-1">
+                                            ✓ Còn @totalStock chiếc
+                                        </span>
+                                    }
+
+                                    <div class="text-muted" style="font-size: 0.75rem; margin-top: 3px;">
+                                        @(variantCount > 1 ? $"{variantCount} phân loại kích cỡ" : "1 phân loại chuẩn")
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    @if (p.IsActive)
+                                    {
+                                        <span class="badge bg-success-subtle text-success rounded-pill px-2 py-1">Đang bán</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary-subtle text-muted rounded-pill px-2 py-1">Tạm ẩn</span>
+                                    }
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="d-inline-flex gap-1 align-items-center">
+                                        <!-- NÚT NHẬP HÀNG (MỞ MODAL) -->
+                                        <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold"
+                                                data-bs-toggle="modal" data-bs-target="#restockModal-@p.Id"
+                                                title="Nhập thêm hàng vào kho">
+                                            <i class="bi bi-box-arrow-in-down me-1"></i> Nhập hàng
+                                        </button>
+
+                                        <!-- NÚT SỬA SẢN PHẨM -->
+                                        <a class="btn btn-sm btn-outline-dark rounded-pill px-3 fw-semibold"
+                                           asp-area="Admin" asp-controller="Products" asp-action="Edit" asp-route-id="@p.Id"
+                                           title="Chỉnh sửa thông tin">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+
+                                        <!-- NÚT XÓA -->
+                                        <form method="post"
+                                              asp-area="Admin" asp-controller="Products" asp-action="Delete" asp-route-id="@p.Id"
+                                              class="d-inline"
+                                              onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle p-1" style="width: 32px; height: 32px;" title="Xóa">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <!-- MODAL NHẬP HÀNG CHO SẢN PHẨM NÀY -->
+                                    <div class="modal fade text-start" id="restockModal-@p.Id" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content rounded-4 border-0 shadow">
+                                                <form method="post" asp-action="Restock">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="productId" value="@p.Id" />
+                                                    <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+
+                                                    <div class="modal-header border-bottom pb-3">
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <div class="fs-4 text-success">📥</div>
+                                                            <div>
+                                                                <h5 class="modal-title fw-black text-dark m-0">Phiếu Nhập Hàng Vào Kho</h5>
+                                                                <small class="text-muted">Cộng dồn số lượng tồn kho sản phẩm</small>
+                                                            </div>
+                                                        </div>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+
+                                                    <div class="modal-body p-4">
+                                                        <!-- THÔNG TIN SẢN PHẨM -->
+                                                        <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3 mb-3">
+                                                            <img src="@(p.MainImageUrl ?? "/img/demo/placeholder.jpg")"
+                                                                 style="width: 48px; height: 48px; object-fit: cover; border-radius: 8px;"
+                                                                 alt="@p.Name" onerror="this.src='/img/demo/placeholder.jpg';" />
+                                                            <div>
+                                                                <div class="fw-bold text-dark">@p.Name</div>
+                                                                <div class="small text-muted">
+                                                                    Tồn kho hiện tại: <strong class="text-primary">@totalStock chiếc</strong>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- CHỌN PHÂN LOẠI NẾU CÓ NHIỀU SIZE -->
+                                                        @if (p.Variants.Count > 1)
+                                                        {
+                                                            <div class="mb-3">
+                                                                <label class="form-label fw-bold small text-dark">CHỌN PHÂN LOẠI CẦN NHẬP</label>
+                                                                <select name="variantId" class="form-select rounded-3 py-2">
+                                                                    <option value="">-- Nhập đồng loạt cho tất cả phân loại --</option>
+                                                                    @foreach (var v in p.Variants)
+                                                                    {
+                                                                        <option value="@v.Id">
+                                                                            @(v.Size ?? "Chuẩn") @(string.IsNullOrWhiteSpace(v.Color) ? "" : $"- {v.Color}") (Hiện có: @v.Stock chiếc)
+                                                                        </option>
+                                                                    }
+                                                                </select>
+                                                            </div>
+                                                        }
+                                                        else if (p.Variants.Count == 1)
+                                                        {
+                                                            <input type="hidden" name="variantId" value="@p.Variants.First().Id" />
+                                                        }
+
+                                                        <!-- SỐ LƯỢNG NHẬP THÊM -->
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold text-dark">SỐ LƯỢNG NHẬP THÊM (+) <span class="text-danger">*</span></label>
+                                                            <div class="input-group">
+                                                                <span class="input-group-text bg-success text-white fw-bold">+</span>
+                                                                <input type="number" name="quantity" min="1" value="10" class="form-control form-control-lg fw-bold text-primary" required />
+                                                                <span class="input-group-text bg-light">chiếc</span>
+                                                            </div>
+                                                            <small class="text-muted">Số lượng này sẽ được cộng dồn vào tồn kho hiện tại.</small>
+                                                        </div>
+
+                                                        <!-- GHI CHÚ NHẬP HÀNG -->
+                                                        <div class="mb-2">
+                                                            <label class="form-label small fw-bold text-muted">GHI CHÚ NHẬP KHO</label>
+                                                            <input type="text" name="note" class="form-control rounded-3" placeholder="Ví dụ: Nhập bổ sung từ Yonex Sunrise, đợt cuối tháng..." />
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="modal-footer border-top pt-3 d-flex justify-content-between">
+                                                        <a asp-area="Admin" asp-controller="StockReceipts" asp-action="Create" asp-route-productId="@p.Id" class="btn btn-outline-primary btn-sm rounded-pill fw-bold">
+                                                            <i class="bi bi-file-earmark-spreadsheet me-1"></i> Nhập đầy đủ nguồn gốc & giá vốn &rarr;
+                                                        </a>
+                                                        <div class="d-flex gap-2">
+                                                            <button type="button" class="btn btn-light rounded-pill px-3 fw-bold" data-bs-dismiss="modal">Đóng</button>
+                                                            <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold">
+                                                                ✓ Nhập nhanh (+)
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- PHÂN TRANG (PAGINATION) -->
+            <div class="p-3 border-top d-flex flex-wrap justify-content-between align-items-center gap-2 bg-light bg-opacity-50">
+                <div class="text-muted small">
+                    Hiển thị <strong>@startItem</strong> - <strong>@endItem</strong> trên tổng số <strong>@totalCount</strong> sản phẩm
+                </div>
+
+                @if (totalPages > 1)
+                {
+                    <nav aria-label="Phân trang danh sách sản phẩm">
+                        <ul class="pagination pagination-sm m-0 gap-1">
+                            <!-- NÚT TRANG ĐẦU -->
+                            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                <a class="page-link rounded-pill px-2 border"
+                                   asp-action="Index"
+                                   asp-route-page="1"
+                                   asp-route-search="@search"
+                                   asp-route-categoryId="@Context.Request.Query["categoryId"]"
+                                   asp-route-status="@status"
+                                   asp-route-stockFilter="@stockFilter"
+                                   title="Trang đầu">
+                                    «
+                                </a>
+                            </li>
+
+                            <!-- NÚT TRANG TRƯỚC -->
+                            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                <a class="page-link rounded-pill px-3 border"
+                                   asp-action="Index"
+                                   asp-route-page="@(currentPage - 1)"
+                                   asp-route-search="@search"
+                                   asp-route-categoryId="@Context.Request.Query["categoryId"]"
+                                   asp-route-status="@status"
+                                   asp-route-stockFilter="@stockFilter">
+                                    ‹ Trước
+                                </a>
+                            </li>
+
+                            <!-- CÁC TRANG SỐ -->
+                            @{
+                                int maxDisplay = 5;
+                                int startPage = Math.Max(1, currentPage - 2);
+                                int endPage = Math.Min(totalPages, startPage + maxDisplay - 1);
+                                if (endPage - startPage < maxDisplay - 1)
+                                {
+                                    startPage = Math.Max(1, endPage - maxDisplay + 1);
+                                }
+                            }
+
+                            @for (int i = startPage; i <= endPage; i++)
+                            {
+                                <li class="page-item @(i == currentPage ? "active" : "")">
+                                    <a class="page-link rounded-pill px-3 border @(i == currentPage ? "bg-dark border-dark text-white fw-bold" : "")"
+                                       asp-action="Index"
+                                       asp-route-page="@i"
+                                       asp-route-search="@search"
+                                       asp-route-categoryId="@Context.Request.Query["categoryId"]"
+                                       asp-route-status="@status"
+                                       asp-route-stockFilter="@stockFilter">
+                                        @i
+                                    </a>
+                                </li>
+                            }
+
+                            <!-- NÚT TRANG TIẾP THEO -->
+                            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                <a class="page-link rounded-pill px-3 border"
+                                   asp-action="Index"
+                                   asp-route-page="@(currentPage + 1)"
+                                   asp-route-search="@search"
+                                   asp-route-categoryId="@Context.Request.Query["categoryId"]"
+                                   asp-route-status="@status"
+                                   asp-route-stockFilter="@stockFilter">
+                                    Tiếp ›
+                                </a>
+                            </li>
+
+                            <!-- NÚT TRANG CUỐI -->
+                            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                <a class="page-link rounded-pill px-2 border"
+                                   asp-action="Index"
+                                   asp-route-page="@totalPages"
+                                   asp-route-search="@search"
+                                   asp-route-categoryId="@Context.Request.Query["categoryId"]"
+                                   asp-route-status="@status"
+                                   asp-route-stockFilter="@stockFilter"
+                                   title="Trang cuối (@totalPages)">
+                                    »
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                }
+            </div>
+        }
+    </div>
+
+</div>

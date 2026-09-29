@@ -1,0 +1,213 @@
+/* ========================================================
+   TIÊU ĐAO SPORT - ADMIN PRO CONTROL PANEL STYLING
+   ======================================================== */
+.admin-body {
+    background: #f1f5f9;
+    color: #1e293b;
+    font-family: 'Be Vietnam Pro', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    letter-spacing: -0.012em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    padding: 0;
+}
+
+.admin-body h1, .admin-body h2, .admin-body h3, .admin-body h4, .admin-body h5, .admin-body h6,
+.admin-brand-title, .kpi-card h4 {
+    font-family: 'Outfit', 'Be Vietnam Pro', system-ui, sans-serif;
+    letter-spacing: -0.025em;
+    font-weight: 700;
+}
+
+.admin-wrap {
+    display: grid;
+    grid-template-columns: 270px 1fr;
+    min-height: 100vh;
+}
+
+@media (max-width: 991.98px) {
+    .admin-wrap {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 1. LEFT SIDEBAR */
+.admin-sidebar {
+    background: linear-gradient(180deg, #090d16 0%, #0f172a 100%);
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.admin-brand-header {
+    padding: 22px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-brand-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+}
+
+.admin-brand-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #0284c7, #0369a1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4);
+    flex-shrink: 0;
+}
+
+.admin-brand-title {
+    font-size: 1rem;
+    font-weight: 900;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+    line-height: 1.2;
+}
+
+.admin-brand-badge {
+    font-size: 0.65rem;
+    color: #38bdf8;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.admin-nav-menu {
+    padding: 18px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-grow: 1;
+}
+
+.admin-nav-group-title {
+    font-size: 0.68rem;
+    font-weight: 800;
+    color: #64748b;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding: 8px 12px 4px 12px;
+}
+
+.admin-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.admin-nav-item:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateX(3px);
+}
+
+.admin-nav-item.active {
+    color: #ffffff;
+    background: #0284c7;
+    font-weight: 700;
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+}
+
+.admin-nav-item .nav-icon {
+    font-size: 1.15rem;
+    line-height: 1;
+}
+
+.admin-sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.admin-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.admin-user-name {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #ffffff;
+    max-width: 140px;
+}
+
+.admin-role-badge {
+    font-size: 0.68rem;
+    color: #38bdf8;
+    display: block;
+}
+
+/* 2. MAIN ADMIN CONTENT */
+.admin-main {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.admin-topbar {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 14px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
+    margin-bottom: 24px;
+}
+
+/* KPI CARDS */
+.kpi-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1.5px solid #e2e8f0 !important;
+}
+
+.kpi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px -5px rgba(15, 23, 42, 0.08) !important;
+}
+
+.kpi-icon-badge {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+}
+
+.card-soft {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 18px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+}

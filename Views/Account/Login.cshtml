@@ -1,0 +1,202 @@
+@model tieudaobadminton.ViewModel.Auth.LoginVM
+@{
+    ViewData["Title"] = "Đăng nhập tài khoản";
+}
+
+<div class="auth-page-wrapper">
+    <div class="auth-card-master">
+        <div class="row g-0">
+
+            <!-- LEFT PANEL: BRAND VISUAL & SOCIAL PROOF -->
+            <div class="col-lg-5 auth-visual-panel">
+                <a asp-controller="Home" asp-action="Index" class="auth-brand-logo">
+                    <div class="auth-logo-badge">🏸</div>
+                    <div>
+                        <div class="auth-brand-title">TIÊU ĐAO SPORT</div>
+                        <div class="auth-brand-subtitle">Badminton Pro Center</div>
+                    </div>
+                </a>
+
+                <div class="auth-visual-body">
+                    <h2 class="auth-visual-headline">
+                        Nâng Tầm Lối Đánh Với Trang Thiết Bị Cầu Lông Đỉnh Cao
+                    </h2>
+
+                    <ul class="auth-feature-list">
+                        <li class="auth-feature-item">
+                            <div class="auth-feature-icon">🛡️</div>
+                            <div class="auth-feature-text">
+                                <strong>100% Chính Hãng:</strong> Phân phối Yonex, Victor, Li-Ning bồi hoàn 200% nếu phát hiện hàng giả.
+                            </div>
+                        </li>
+                        <li class="auth-feature-item">
+                            <div class="auth-feature-icon">⚡</div>
+                            <div class="auth-feature-text">
+                                <strong>Căng Cước Điện Tử 4 Nút:</strong> Tiêu chuẩn thi đấu quốc tế, không méo khung, hoàn thành trong 15 phút.
+                            </div>
+                        </li>
+                        <li class="auth-feature-item">
+                            <div class="auth-feature-icon">🤖</div>
+                            <div class="auth-feature-text">
+                                <strong>Trợ Lý AI Chọn Vợt:</strong> Phân tích lực tay và phong cách để tìm kiếm cây vợt hoàn hảo nhất.
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="auth-social-proof-card">
+                    <div class="proof-avatar-stack">
+                        <div class="proof-avatar">🏸</div>
+                        <div class="proof-avatar" style="background:#f97316;">⚡</div>
+                        <div class="proof-avatar" style="background:#10b981;">🥇</div>
+                    </div>
+                    <div class="proof-text">
+                        <div class="fw-bold text-white">⭐ 4.9/5 Đánh giá hài lòng</div>
+                        <div class="text-white-50 small">Hơn 15.000+ tay vợt tin tưởng đồng hành</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT PANEL: LOGIN FORM -->
+            <div class="col-lg-7 auth-form-panel">
+                <div class="auth-form-header">
+                    <h3 class="auth-form-title">Chào mừng bạn trở lại! 👋</h3>
+                    <p class="auth-form-desc">
+                        Đăng nhập để theo dõi đơn hàng, quản lý bài viết và hưởng ưu đãi thành viên.
+                    </p>
+                </div>
+
+                <!-- ADMIN QUICK-FILL HELPER -->
+                <div class="admin-quickfill-box">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fs-4">🔑</span>
+                        <div>
+                            <div class="admin-quickfill-text">Tài khoản Quản trị viên (Admin):</div>
+                            <small class="text-muted"><code>admin@shop.com</code> • Mật khẩu: <code>Admin@12345</code></small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-quickfill-action shadow-sm" id="btnFillAdmin">
+                        ⚡ Điền nhanh
+                    </button>
+                </div>
+
+                <form method="post" id="loginForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="ReturnUrl" />
+
+                    @if (!ViewData.ModelState.IsValid && ViewData.ModelState[""]?.Errors.Count > 0)
+                    {
+                        <div class="alert alert-danger py-2 px-3 rounded-3 small mb-3 border-0 bg-danger bg-opacity-10 text-danger fw-semibold d-flex align-items-center gap-2">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <div>@Html.ValidationSummary(true)</div>
+                        </div>
+                    }
+
+                    <!-- EMAIL INPUT -->
+                    <div class="auth-input-group">
+                        <label asp-for="Email" class="auth-input-label">Địa chỉ Email</label>
+                        <div class="auth-field-wrap">
+                            <i class="bi bi-envelope auth-field-icon"></i>
+                            <input asp-for="Email" class="auth-input-control" placeholder="name@example.com" id="loginEmail" required autocomplete="email" />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <!-- PASSWORD INPUT -->
+                    <div class="auth-input-group">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label asp-for="Password" class="auth-input-label m-0">Mật khẩu</label>
+                        </div>
+                        <div class="auth-field-wrap">
+                            <i class="bi bi-lock auth-field-icon"></i>
+                            <input asp-for="Password" type="password" class="auth-input-control" placeholder="Nhập mật khẩu..." id="loginPassword" required autocomplete="current-password" />
+                            <button type="button" class="auth-toggle-password-btn" id="togglePasswordBtn" title="Hiện / Ẩn mật khẩu">
+                                <i class="bi bi-eye" id="toggleEyeIcon"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <!-- REMEMBER ME & FORGOT PASSWORD -->
+                    <div class="d-flex align-items-center justify-content-between mb-3 mt-2">
+                        <div class="form-check m-0">
+                            <input asp-for="RememberMe" class="form-check-input rounded-2" id="rememberMeCheck" />
+                            <label asp-for="RememberMe" class="form-check-label small text-secondary fw-semibold cursor-pointer" for="rememberMeCheck">
+                                Ghi nhớ đăng nhập
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- SUBMIT BUTTON -->
+                    <button type="submit" class="btn-auth-submit">
+                        <span>Đăng nhập ngay</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </button>
+
+                    <!-- SWITCH TO REGISTER -->
+                    <div class="auth-bottom-switch">
+                        Chưa có tài khoản thành viên?
+                        <a asp-controller="Account" asp-action="Register" asp-route-returnUrl="@Model.ReturnUrl">
+                            Đăng ký tài khoản mới →
+                        </a>
+                    </div>
+
+                    <div class="auth-trust-note">
+                        <i class="bi bi-shield-lock-fill text-success"></i>
+                        <span>Kết nối an toàn được mã hóa 256-bit SSL</span>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1. SHOW/HIDE PASSWORD TOGGLE
+            const toggleBtn = document.getElementById('togglePasswordBtn');
+            const passInput = document.getElementById('loginPassword');
+            const eyeIcon = document.getElementById('toggleEyeIcon');
+
+            toggleBtn?.addEventListener('click', function() {
+                if (passInput.type === 'password') {
+                    passInput.type = 'text';
+                    eyeIcon.className = 'bi bi-eye-slash';
+                } else {
+                    passInput.type = 'password';
+                    eyeIcon.className = 'bi bi-eye';
+                }
+            });
+
+            // 2. ADMIN QUICK-FILL SHORTCUT
+            const fillAdminBtn = document.getElementById('btnFillAdmin');
+            fillAdminBtn?.addEventListener('click', function() {
+                const emailInput = document.getElementById('loginEmail');
+                const passInput = document.getElementById('loginPassword');
+                const rememberCheck = document.getElementById('rememberMeCheck');
+
+                if (emailInput && passInput) {
+                    emailInput.value = 'admin@shop.com';
+                    passInput.value = 'Admin@12345';
+                    if (rememberCheck) rememberCheck.checked = true;
+
+                    // Trigger input event to clear validation errors
+                    emailInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    passInput.dispatchEvent(new Event('input', { bubbles: true }));
+
+                    fillAdminBtn.innerHTML = '✅ Đã điền xong!';
+                    fillAdminBtn.classList.remove('btn-quickfill-action');
+                    fillAdminBtn.classList.add('btn', 'btn-success', 'btn-sm', 'rounded-pill');
+
+                    setTimeout(() => {
+                        fillAdminBtn.innerHTML = '⚡ Điền nhanh';
+                        fillAdminBtn.className = 'btn-quickfill-action shadow-sm';
+                    }, 2500);
+                }
+            });
+        });
+    </script>
+}

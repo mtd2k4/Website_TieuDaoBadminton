@@ -1,0 +1,266 @@
+@model tieudaobadminton.ViewModels.AdminNewsFormVM
+@{
+    ViewData["Title"] = "Cập nhật bài viết";
+}
+
+<div class="container-fluid py-3" style="max-width: 900px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1" style="font-size: 0.85rem;">
+                    <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="News" asp-action="Index" class="text-decoration-none text-muted">Quản lý tin tức</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Chỉnh sửa</li>
+                </ol>
+            </nav>
+            <h4 class="fw-bold m-0 text-dark">✏️ Cập nhật bài viết: @Model.Title</h4>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-secondary btn-sm rounded-pill px-3" asp-area="" asp-controller="News" asp-action="Detail" asp-route-id="@Model.Id" target="_blank">
+                <i class="bi bi-box-arrow-up-right me-1"></i> Xem trang bài viết
+            </a>
+            <a class="btn btn-outline-secondary btn-sm rounded-pill px-3" asp-area="Admin" asp-controller="News" asp-action="Index">
+                <i class="bi bi-arrow-left me-1"></i> Danh sách bài viết
+            </a>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-white border-bottom py-3 px-4">
+            <span class="fw-semibold text-muted text-uppercase small" style="letter-spacing: 0.05em;">Chỉnh sửa nội dung</span>
+        </div>
+        <div class="card-body p-4">
+            <form method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+
+                <div class="row g-4">
+                    <div class="col-md-9">
+                        <label class="form-label fw-bold small text-dark">Tiêu đề bài viết <span class="text-danger">*</span></label>
+                        <input asp-for="Title" class="form-control form-control-lg rounded-3 fs-6" required />
+                        <span asp-validation-for="Title" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold small text-dark">Trạng thái</label>
+                        <select asp-for="IsPublished" class="form-select form-select-lg rounded-3 fs-6">
+                            <option value="true">✅ Xuất bản</option>
+                            <option value="false">📁 Lưu bản nháp</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label fw-bold small text-dark">Ảnh đại diện bài viết (Thumbnail)</label>
+                        <div class="p-3 bg-light rounded-3 border">
+                            <div class="row g-3 align-items-center">
+                                <div class="col-md-6">
+                                    <label class="form-label small text-muted mb-1">Tải file ảnh mới thay thế</label>
+                                    <input asp-for="ThumbnailFile" type="file" class="form-control rounded-3" accept="image/*" id="thumbnailFileInput" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small text-muted mb-1">Hoặc chỉnh sửa URL ảnh</label>
+                                    <input asp-for="ThumbnailUrl" class="form-control rounded-3" placeholder="/img/news/....jpg" id="thumbnailUrlInput" />
+                                </div>
+                            </div>
+                            <div id="imagePreviewContainer" class="mt-3 text-center @(string.IsNullOrWhiteSpace(Model.ThumbnailUrl) ? "d-none" : "")">
+                                <div class="small text-muted mb-1">Ảnh bìa hiện tại:</div>
+                                <img id="imagePreview" src="@(Model.ThumbnailUrl ?? "")" alt="Preview" style="max-height: 180px; max-width: 100%; border-radius: 12px; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.08);" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label fw-bold small text-dark">Tóm tắt ngắn</label>
+                        <textarea asp-for="Summary" class="form-control rounded-3" rows="2"></textarea>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label fw-bold small text-dark m-0">
+                                📝 Nội dung chi tiết bài viết <span class="text-danger">*</span>
+                            </label>
+                            <span class="badge bg-primary bg-opacity-10 text-primary fw-semibold px-2 py-1">
+                                <i class="bi bi-magic me-1"></i> Soạn thảo trực quan với CKEditor 5
+                            </span>
+                        </div>
+                        <div class="ckeditor-wrapper">
+                            <textarea asp-for="Content" id="editorContent" class="form-control" rows="14"></textarea>
+                        </div>
+                        <span asp-validation-for="Content" class="text-danger small"></span>
+                        <div class="form-text text-muted small mt-2">
+                            💡 <strong>Mẹo:</strong> Bạn có thể dán ảnh trực tiếp từ clipboard (Ctrl+V), kéo thả ảnh từ máy tính, chèn link video YouTube, tạo bảng so sánh thông số và định dạng tiêu đề H2, H3 để hệ thống tự tạo mục lục đọc bài.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3 justify-content-end mt-4 pt-3 border-top">
+                    <a class="btn btn-light rounded-pill px-4" asp-area="Admin" asp-controller="News" asp-action="Index">Hủy</a>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-semibold shadow-sm">
+                        <i class="bi bi-save-fill me-1"></i> Lưu thay đổi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <!-- CKEditor 5 Classic CDN & Vietnamese Language Pack -->
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/translations/vi.js"></script>
+
+    <style>
+        .ck-editor__editable_inline {
+            min-height: 420px;
+            max-height: 700px;
+            font-size: 1.05rem;
+            line-height: 1.8;
+            font-family: inherit;
+        }
+        .ck.ck-editor {
+            border-radius: 12px !important;
+            overflow: hidden;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+        .ck.ck-toolbar {
+            background: #f8fafc !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+            padding: 8px !important;
+        }
+        .ck.ck-button:hover {
+            background: #e2e8f0 !important;
+        }
+    </style>
+
+    <script>
+        // Custom Upload Adapter cho CKEditor 5 tải ảnh trực tiếp lên máy chủ
+        class MyUploadAdapter {
+            constructor(loader) {
+                this.loader = loader;
+            }
+            upload() {
+                return this.loader.file.then(file => new Promise((resolve, reject) => {
+                    const formData = new FormData();
+                    formData.append('upload', file);
+                    const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+                    fetch('/Admin/News/UploadEditorImage', {
+                        method: 'POST',
+                        headers: token ? { 'RequestVerificationToken': token } : {},
+                        body: formData
+                    })
+                    .then(response => {
+                        if (!response.ok) throw new Error('HTTP ' + response.status);
+                        return response.json();
+                    })
+                    .then(result => {
+                        if (result && result.url) {
+                            resolve({ default: result.url });
+                        } else {
+                            reject(result?.error?.message || 'Không thể tải ảnh lên.');
+                        }
+                    })
+                    .catch(err => {
+                        reject(err.message || 'Lỗi khi tải ảnh lên máy chủ.');
+                    });
+                }));
+            }
+            abort() {}
+        }
+
+        function MyCustomUploadAdapterPlugin(editor) {
+            editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+                return new MyUploadAdapter(loader);
+            };
+        }
+
+        let articleEditor;
+        ClassicEditor
+            .create(document.querySelector('#editorContent'), {
+                language: 'vi',
+                extraPlugins: [MyCustomUploadAdapterPlugin],
+                toolbar: {
+                    items: [
+                        'heading',
+                        '|',
+                        'bold',
+                        'italic',
+                        'link',
+                        '|',
+                        'bulletedList',
+                        'numberedList',
+                        'outdent',
+                        'indent',
+                        '|',
+                        'uploadImage',
+                        'blockQuote',
+                        'insertTable',
+                        'mediaEmbed',
+                        '|',
+                        'undo',
+                        'redo'
+                    ],
+                    shouldNotGroupWhenFull: true
+                },
+                heading: {
+                    options: [
+                        { model: 'paragraph', title: 'Đoạn văn (Paragraph)', class: 'ck-heading_paragraph' },
+                        { model: 'heading2', view: 'h2', title: 'Tiêu đề lớn (H2)', class: 'ck-heading_heading2' },
+                        { model: 'heading3', view: 'h3', title: 'Tiêu đề vừa (H3)', class: 'ck-heading_heading3' },
+                        { model: 'heading4', view: 'h4', title: 'Tiêu đề nhỏ (H4)', class: 'ck-heading_heading4' }
+                    ]
+                },
+                table: {
+                    contentToolbar: [
+                        'tableColumn',
+                        'tableRow',
+                        'mergeTableCells'
+                    ]
+                },
+                mediaEmbed: {
+                    previewsInData: true
+                },
+                placeholder: 'Nhập nội dung chi tiết bài viết cẩm nang tại đây... Bạn có thể định dạng văn bản, chèn ảnh, bảng so sánh thông số, trích dẫn hoặc nhúng video YouTube trực tiếp.'
+            })
+            .then(editor => {
+                articleEditor = editor;
+                
+                // Đồng bộ nội dung vào textarea khi submit form
+                const form = document.querySelector('#editorContent').closest('form');
+                if (form) {
+                    form.addEventListener('submit', function () {
+                        document.querySelector('#editorContent').value = editor.getData();
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi khởi tạo CKEditor:', error);
+            });
+
+        // Xử lý xem trước ảnh đại diện
+        const fileInput = document.getElementById('thumbnailFileInput');
+        const urlInput = document.getElementById('thumbnailUrlInput');
+        const previewContainer = document.getElementById('imagePreviewContainer');
+        const previewImg = document.getElementById('imagePreview');
+
+        fileInput?.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    previewContainer.classList.remove('d-none');
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+
+        urlInput?.addEventListener('input', function() {
+            if (this.value && this.value.trim().length > 5) {
+                previewImg.src = this.value.trim();
+                previewContainer.classList.remove('d-none');
+            }
+        });
+    </script>
+}

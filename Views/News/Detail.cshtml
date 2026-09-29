@@ -1,0 +1,570 @@
+@model tieudaobadminton.Models.NewsPost
+@{
+    ViewData["Title"] = Model.Title;
+    var relatedPosts = ViewBag.RelatedPosts as List<tieudaobadminton.Models.NewsPost> ?? new List<tieudaobadminton.Models.NewsPost>();
+    var prevPost = ViewBag.PrevPost as tieudaobadminton.Models.NewsPost;
+    var nextPost = ViewBag.NextPost as tieudaobadminton.Models.NewsPost;
+    var trendingPosts = ViewBag.TrendingPosts as List<tieudaobadminton.Models.NewsPost> ?? new List<tieudaobadminton.Models.NewsPost>();
+    var recommendedProducts = ViewBag.RecommendedProducts as List<tieudaobadminton.Models.Product> ?? new List<tieudaobadminton.Models.Product>();
+
+    string GetTopicBadge(string title)
+    {
+        var t = title.ToLower();
+        if (t.Contains("vợt")) return "🏸 VỢT CẦU LÔNG";
+        if (t.Contains("cước") || t.Contains("căng") || t.Contains("đan")) return "🛠️ CĂNG CƯỚC";
+        if (t.Contains("giày") || t.Contains("size") || t.Contains("chân")) return "👟 GIÀY & SIZE";
+        if (t.Contains("kỹ thuật") || t.Contains("smash") || t.Contains("đập")) return "⚡ KỸ THUẬT & SMASH";
+        return "📰 CẨM NANG";
+    }
+}
+
+<!-- 1. READING PROGRESS BAR (STICKY TOP) -->
+<div id="readingProgressBar"></div>
+
+<div class="article-detail-page py-4">
+    <div class="container article-detail-container">
+
+        <!-- 2. BREADCRUMBS -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb news-breadcrumb">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a asp-controller="News" asp-action="Index">Cẩm nang & Tin tức</a></li>
+                <li class="breadcrumb-item active text-truncate" style="max-width: 380px;" aria-current="page">@Model.Title</li>
+            </ol>
+        </nav>
+
+        <!-- 3. ARTICLE HEADER -->
+        <header class="article-detail-header mb-4">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge-topic-lead">@GetTopicBadge(Model.Title)</span>
+                    <span class="badge bg-light text-secondary border px-2 py-1 rounded-pill small fw-semibold">
+                        <i class="bi bi-shield-check text-success me-1"></i> Đã kiểm duyệt chuyên môn
+                    </span>
+                </div>
+                
+                @if (User?.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("Staff")))
+                {
+                    <a class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold d-inline-flex align-items-center gap-1 shadow-sm"
+                       asp-area="Admin" asp-controller="News" asp-action="Edit" asp-route-id="@Model.Id">
+                        <span>✏️</span>
+                        <span>Chỉnh sửa bài này (Admin)</span>
+                    </a>
+                }
+            </div>
+
+            <h1 class="article-headline mb-3">@Model.Title</h1>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Summary))
+            {
+                <p class="article-standfirst text-muted mb-4">
+                    @Model.Summary
+                </p>
+            }
+
+            <div class="article-meta-bar d-flex flex-wrap align-items-center justify-content-between gap-3 pt-3 border-top border-bottom py-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="author-avatar-badge">🏸</div>
+                    <div>
+                        <div class="fw-bold text-dark d-flex align-items-center gap-1">
+                            <span>Tiêu Đao Editorial</span>
+                            <i class="bi bi-patch-check-fill text-primary" style="font-size: 0.9rem;" title="Chuyên viên kiểm duyệt"></i>
+                        </div>
+                        <small class="text-muted">HLV & Chuyên gia thiết bị thể thao</small>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-3 text-muted small">
+                    <span title="Ngày xuất bản">📅 @Model.PublishedAt.ToString("dd/MM/yyyy HH:mm")</span>
+                    <span>•</span>
+                    <span title="Thời gian đọc">⏱️ 5 phút đọc</span>
+                    <span>•</span>
+                    <span title="Lượt xem ước tính">👁️ 1.4k lượt xem</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- 4. ARTICLE HERO IMAGE -->
+        <div class="mb-4">
+            <div class="article-hero-image-wrap shadow-sm">
+                <img src="@(Model.ThumbnailUrl ?? "/img/banners/banner.jpg")" alt="@Model.Title" class="article-hero-image" />
+            </div>
+            <div class="text-center text-muted small mt-2 fst-italic">
+                Ảnh: Đội ngũ kỹ thuật viên Tiêu Đao Sport trực tiếp thực hiện & kiểm chứng
+            </div>
+        </div>
+
+        <!-- 5. MAIN CONTENT AREA (2 COLUMNS: 8 COLS ARTICLE + 4 COLS SIDEBAR) -->
+        <div class="row g-4 mt-2">
+            
+            <!-- LEFT COLUMN: ARTICLE BODY (8 COLS) -->
+            <div class="col-lg-8">
+                
+                <!-- READING UTILITY TOOLBAR (Font size, Share, Print) -->
+                <div class="reading-utility-toolbar">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="small text-muted fw-bold">Cỡ chữ:</span>
+                        <div class="font-resizer-group">
+                            <button class="font-resize-btn" id="btnFontDec" title="Thu nhỏ chữ">A-</button>
+                            <button class="font-resize-btn" id="btnFontReset" title="Mặc định">A</button>
+                            <button class="font-resize-btn" id="btnFontInc" title="Phóng to chữ">A+</button>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2">
+                        <button class="btn btn-sm btn-light rounded-pill border px-3 fw-semibold text-secondary" onclick="window.print()" title="In bài viết">
+                            <i class="bi bi-printer me-1"></i> In
+                        </button>
+                        <button class="btn btn-sm btn-light rounded-pill border px-3 fw-semibold text-secondary" id="btnCopyLinkTop">
+                            <i class="bi bi-link-45deg me-1"></i> Sao chép link
+                        </button>
+                    </div>
+                </div>
+
+                <!-- TABLE OF CONTENTS (MỤC LỤC NỘI DUNG) -->
+                <div class="article-toc-box" id="articleTocContainer">
+                    <button class="toc-header-btn" type="button" data-bs-toggle="collapse" data-bs-target="#tocCollapse" aria-expanded="true" aria-controls="tocCollapse">
+                        <span>📑 Mục lục nội dung bài viết</span>
+                        <i class="bi bi-chevron-down small text-muted" id="tocChevron"></i>
+                    </button>
+                    <div class="collapse show" id="tocCollapse">
+                        <ul class="toc-nav-list" id="tocList">
+                            <!-- Populated dynamically via JS from h2 and h3 in article content -->
+                            <li class="toc-nav-item">
+                                <a href="#section-main" class="toc-nav-link">
+                                    <span class="toc-bullet"></span>
+                                    <span>Nội dung chính</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- ARTICLE CONTENT BODY -->
+                <article class="article-content-body mb-4" id="articleContent">
+                    @Html.Raw(Model.Content ?? "")
+                </article>
+
+                <!-- EXPERT TIP CALLOUT BOX -->
+                <div class="expert-callout-box">
+                    <div class="expert-callout-title">
+                        <span>🏸</span>
+                        <span>Lời khuyên từ Huấn Luyện Viên Tiêu Đao Sport</span>
+                    </div>
+                    <p class="expert-callout-text">
+                        "Không có cây vợt nào đắt nhất hay hoàn hảo nhất cho tất cả mọi người, chỉ có cây vợt phù hợp nhất với lực cổ tay và lối chơi của bạn. Nếu có bất kỳ thắc mắc nào về chọn vợt hay số kg đan cước, bạn hãy liên hệ ngay với kỹ thuật viên của Tiêu Đao để được tư vấn đo lực tay miễn phí!"
+                    </p>
+                </div>
+
+                <!-- ARTICLE TAGS CLOUD -->
+                <div class="article-tags-wrap">
+                    <span class="small fw-bold text-muted me-1"><i class="bi bi-tags-fill me-1"></i>Chủ đề:</span>
+                    <a href="/Cam-Nang?topic=vot" class="article-tag-chip">#VợtCầuLông</a>
+                    <a href="/Cam-Nang?topic=ky-thuat" class="article-tag-chip">#KỹThuậtSmash</a>
+                    <a href="/Cam-Nang?topic=cang-cuoc" class="article-tag-chip">#CăngCước4Nút</a>
+                    <a href="/Cam-Nang?topic=giay" class="article-tag-chip">#GiàyCầuLông</a>
+                    <a href="/Tu-Van-Chon-Vot" class="article-tag-chip">#TuVanChonVotAI</a>
+                </div>
+
+                <!-- ARTICLE REACTIONS / FEEDBACK (INTERACTIVE) -->
+                <div class="article-reactions-box">
+                    <h6 class="fw-bold text-dark m-0">Bài viết này có hữu ích với bạn không?</h6>
+                    <p class="small text-muted mb-3">Bấm vào biểu tượng để chia sẻ cảm xúc và giúp chúng tôi cải thiện nội dung:</p>
+                    
+                    <div class="reaction-btn-group">
+                        <button class="reaction-pill-btn" data-reaction="helpful">
+                            <span>👍 Rất hữu ích</span>
+                            <span class="reaction-count" id="countHelpful">268</span>
+                        </button>
+                        <button class="reaction-pill-btn" data-reaction="love">
+                            <span>❤️ Lưu lại</span>
+                            <span class="reaction-count" id="countLove">194</span>
+                        </button>
+                        <button class="reaction-pill-btn" data-reaction="actionable">
+                            <span>🏸 Sẽ áp dụng ngay</span>
+                            <span class="reaction-count" id="countAction">112</span>
+                        </button>
+                    </div>
+                    <div id="reactionToastMessage" class="small text-success fw-bold mt-2 d-none">
+                        🎉 Cảm ơn bạn đã gửi phản hồi cho Ban biên tập!
+                    </div>
+                </div>
+
+                <!-- PREVIOUS / NEXT ARTICLE NAVIGATOR -->
+                @if (prevPost != null || nextPost != null)
+                {
+                    <div class="post-navigator-row">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                @if (prevPost != null)
+                                {
+                                    <a asp-controller="News" asp-action="Detail" asp-route-id="@prevPost.Id" class="nav-post-card">
+                                        <div class="nav-post-direction">
+                                            <i class="bi bi-arrow-left"></i> Bài viết trước
+                                        </div>
+                                        <div class="nav-post-title">
+                                            @prevPost.Title
+                                        </div>
+                                    </a>
+                                }
+                            </div>
+                            <div class="col-md-6">
+                                @if (nextPost != null)
+                                {
+                                    <a asp-controller="News" asp-action="Detail" asp-route-id="@nextPost.Id" class="nav-post-card text-md-end">
+                                        <div class="nav-post-direction justify-content-md-end">
+                                            Bài tiếp theo <i class="bi bi-arrow-right"></i>
+                                        </div>
+                                        <div class="nav-post-title">
+                                            @nextPost.Title
+                                        </div>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- AUTHOR BIO & SOCIAL SHARE BAR -->
+                <div class="article-author-card p-4 rounded-4 mb-4">
+                    <div class="row align-items-center g-3">
+                        <div class="col-auto">
+                            <div class="author-large-avatar">🏸</div>
+                        </div>
+                        <div class="col">
+                            <div class="fw-bold text-dark fs-6 d-flex align-items-center gap-2">
+                                <span>Ban Biên Tập Tiêu Đao Badminton Pro</span>
+                                <span class="badge bg-primary bg-opacity-10 text-primary small px-2 py-0">Official</span>
+                            </div>
+                            <p class="small text-muted mb-0 mt-1">
+                                Đội ngũ huấn luyện viên và chuyên viên kỹ thuật với hơn 10 năm kinh nghiệm trong làng cầu lông phong trào và đỉnh cao. Mọi bài viết đều được kiểm duyệt kỹ lưỡng để mang lại kiến thức thực chiến nhất.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 pt-3 mt-3 border-top">
+                        <span class="small text-muted fw-semibold">Chia sẻ bài viết này:</span>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-primary btn-sm rounded-pill px-3" onclick="shareOnFacebook()">
+                                <i class="bi bi-facebook me-1"></i> Facebook
+                            </button>
+                            <button class="btn btn-outline-info btn-sm rounded-pill px-3 text-dark" onclick="shareOnZalo()">
+                                💬 Zalo
+                            </button>
+                            <button class="btn btn-outline-dark btn-sm rounded-pill px-3" id="btnCopyLinkBottom">
+                                <i class="bi bi-clipboard-check me-1"></i> Sao chép link
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PROMO BANNER: SHOP PRODUCTS -->
+                <div class="article-promo-box p-4 rounded-4 text-center mb-4">
+                    <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-1 rounded-pill fw-bold mb-2">
+                        🛍️ TRẢI NGHIỆM TRỰC TIẾP TẠI TIÊU ĐAO
+                    </span>
+                    <h4 class="fw-bold text-dark mb-2">Tìm kiếm cây vợt và đôi giày chuẩn lối chơi của bạn?</h4>
+                    <p class="text-muted small mb-4" style="max-width: 540px; margin: 0 auto;">
+                        Tiêu Đao Badminton phân phối chính hãng 100% Yonex, Victor, Li-Ning, Mizuno, Kawasaki với dịch vụ căng cước điện tử 4 nút miễn phí công đan!
+                    </p>
+                    <div class="d-flex flex-wrap justify-content-center gap-3">
+                        <a href="/Danh-Muc?cat=vot" class="btn btn-dark rounded-pill px-4 py-2 fw-bold">
+                            Xem tất cả vợt cầu lông →
+                        </a>
+                        <a href="/Tu-Van-Chon-Vot" class="btn btn-outline-primary rounded-pill px-4 py-2 fw-bold">
+                            Thử Trợ lý AI chọn vợt
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT COLUMN: STICKY EDITORIAL SIDEBAR (4 COLS) -->
+            <div class="col-lg-4">
+                <div class="news-sidebar-sticky d-flex flex-column gap-4">
+
+                    <!-- WIDGET 1: AI RACKET ADVISOR -->
+                    <div class="news-widget-ai text-white">
+                        <span class="widget-ai-pill">✨ TRỢ LÝ THÔNG MINH</span>
+                        <h5 class="fw-bold text-white mb-2">Bạn chưa biết chọn vợt nào phù hợp?</h5>
+                        <p class="text-white-50 small mb-3">
+                            Chỉ mất 30 giây, công cụ AI của Tiêu Đao sẽ phân tích lực cổ tay, phong cách đánh và ngân sách để gợi ý mẫu vợt tối ưu nhất cho bạn!
+                        </p>
+                        <a href="/Tu-Van-Chon-Vot" class="btn btn-warning w-100 rounded-pill fw-bold text-dark shadow-sm">
+                            🏸 Khám phá cây vợt của bạn →
+                        </a>
+                    </div>
+
+                    <!-- WIDGET 2: RECOMMENDED EQUIPMENT IN THIS ARTICLE -->
+                    @if (recommendedProducts.Any())
+                    {
+                        <div class="news-widget-box">
+                            <div class="widget-heading d-flex justify-content-between align-items-center">
+                                <span>🏸 Thiết bị chuyên gia gợi ý</span>
+                                <a href="/Danh-Muc" class="small text-primary text-decoration-none fw-bold">Xem thêm</a>
+                            </div>
+                            <div class="d-flex flex-column gap-2">
+                                @foreach (var prod in recommendedProducts)
+                                {
+                                    <a asp-controller="Products" asp-action="Detail" asp-route-id="@prod.Id" class="sidebar-product-card">
+                                        <img src="@(prod.MainImageUrl ?? "/img/demo/placeholder.jpg")" alt="@prod.Name" class="sidebar-product-thumb" />
+                                        <div class="flex-grow-1 overflow-hidden">
+                                            <div class="sidebar-product-title">@prod.Name</div>
+                                            <div class="d-flex align-items-baseline">
+                                                @if (prod.SalePrice.HasValue && prod.SalePrice < prod.Price)
+                                                {
+                                                    <span class="sidebar-product-price">@prod.SalePrice.Value.ToString("N0") ₫</span>
+                                                    <span class="sidebar-product-oldprice">@prod.Price.ToString("N0") ₫</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="sidebar-product-price">@prod.Price.ToString("N0") ₫</span>
+                                                }
+                                            </div>
+                                        </div>
+                                        <i class="bi bi-chevron-right text-muted small"></i>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <!-- WIDGET 3: TOP TRENDING ARTICLES -->
+                    @if (trendingPosts.Any())
+                    {
+                        <div class="news-widget-box">
+                            <div class="widget-heading">
+                                🔥 Cẩm nang đọc nhiều nhất
+                            </div>
+                            <div class="widget-trending-list">
+                                @{
+                                    int rank = 1;
+                                }
+                                @foreach (var item in trendingPosts)
+                                {
+                                    <div class="trending-item">
+                                        <span class="trending-number">0@(rank++)</span>
+                                        <div>
+                                            <div class="trending-title">
+                                                <a asp-controller="News" asp-action="Detail" asp-route-id="@item.Id" class="text-decoration-none text-dark">
+                                                    @item.Title
+                                                </a>
+                                            </div>
+                                            <small class="text-muted">@item.PublishedAt.ToString("dd/MM/yyyy")</small>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <!-- WIDGET 4: BADMINTON SERVICES -->
+                    <div class="news-widget-box">
+                        <div class="widget-heading">
+                            ⚡ Dịch vụ sân cầu Tiêu Đao
+                        </div>
+                        <div class="d-flex flex-column gap-2">
+                            <a href="tel:0987654321" class="widget-service-row">
+                                <div class="service-icon-badge">📞</div>
+                                <div>
+                                    <div class="service-row-title">Hotline tư vấn thiết bị</div>
+                                    <small class="text-muted">0987.654.321 (Hỗ trợ 24/7)</small>
+                                </div>
+                            </a>
+                            <a href="/OrderTracking" class="widget-service-row">
+                                <div class="service-icon-badge">🚚</div>
+                                <div>
+                                    <div class="service-row-title">Tra cứu đơn hàng trực tuyến</div>
+                                    <small class="text-muted">Kiểm tra lộ trình giao vợt</small>
+                                </div>
+                            </a>
+                            <div class="widget-service-row">
+                                <div class="service-icon-badge">⚡</div>
+                                <div>
+                                    <div class="service-row-title">Đan cước máy điện tử 15 phút</div>
+                                    <small class="text-muted">Chuẩn 4 nút Yonex không méo khung</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 6. RELATED ARTICLES GRID (BOTTOM) -->
+        @if (relatedPosts.Any())
+        {
+            <div class="related-articles-section pt-5 mt-5 border-top">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <span class="text-primary fw-bold small text-uppercase" style="letter-spacing: 0.05em;">Khám phá thêm</span>
+                        <h3 class="fw-bold text-dark m-0">Cẩm nang liên quan bạn nên đọc</h3>
+                    </div>
+                    <a asp-controller="News" asp-action="Index" class="btn btn-outline-secondary btn-sm rounded-pill px-3 fw-bold">
+                        Xem tất cả bài viết →
+                    </a>
+                </div>
+
+                <div class="row g-4">
+                    @foreach (var rel in relatedPosts)
+                    {
+                        <div class="col-md-4">
+                            <div class="news-card-pro h-100">
+                                <div class="news-card-thumb-wrap">
+                                    <img src="@(rel.ThumbnailUrl ?? "/img/banners/banner1.jfif")" alt="@rel.Title" class="news-card-thumb" loading="lazy" />
+                                    <span class="news-card-topic">@GetTopicBadge(rel.Title)</span>
+                                </div>
+                                <div class="news-card-content">
+                                    <div class="news-card-meta">
+                                        <span>📅 @rel.PublishedAt.ToString("dd/MM/yyyy")</span>
+                                        <span>•</span>
+                                        <span>⏱️ 5 phút đọc</span>
+                                    </div>
+                                    <h6 class="news-card-title">
+                                        <a asp-controller="News" asp-action="Detail" asp-route-id="@rel.Id">
+                                            @rel.Title
+                                        </a>
+                                    </h6>
+                                    @if (!string.IsNullOrWhiteSpace(rel.Summary))
+                                    {
+                                        <p class="news-card-excerpt">
+                                            @rel.Summary
+                                        </p>
+                                    }
+                                    <div class="news-card-footer mt-auto">
+                                        <a asp-controller="News" asp-action="Detail" asp-route-id="@rel.Id" class="news-read-link">
+                                            <span>Đọc chi tiết</span>
+                                            <span>→</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1. READING PROGRESS BAR
+            const progressBar = document.getElementById('readingProgressBar');
+            window.addEventListener('scroll', function() {
+                const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = (winScroll / height) * 100;
+                if (progressBar) {
+                    progressBar.style.width = scrolled + '%';
+                }
+            });
+
+            // 2. DYNAMIC TABLE OF CONTENTS GENERATION
+            const articleContent = document.getElementById('articleContent');
+            const tocList = document.getElementById('tocList');
+            const tocContainer = document.getElementById('articleTocContainer');
+
+            if (articleContent && tocList) {
+                const headings = articleContent.querySelectorAll('h2, h3');
+                if (headings.length > 0) {
+                    tocList.innerHTML = '';
+                    headings.forEach((heading, idx) => {
+                        const id = heading.id || 'heading-section-' + idx;
+                        heading.id = id;
+                        
+                        const li = document.createElement('li');
+                        li.className = 'toc-nav-item' + (heading.tagName.toLowerCase() === 'h3' ? ' ps-3' : '');
+                        
+                        const a = document.createElement('a');
+                        a.href = '#' + id;
+                        a.className = 'toc-nav-link';
+                        a.innerHTML = `<span class="toc-bullet"></span><span>${heading.innerText}</span>`;
+                        
+                        a.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        });
+
+                        li.appendChild(a);
+                        tocList.appendChild(li);
+                    });
+                } else {
+                    // If no headings found, hide the TOC card cleanly
+                    if (tocContainer) tocContainer.style.display = 'none';
+                }
+            }
+
+            // 3. FONT RESIZE UTILITY
+            let currentFontSize = 1.08; // rem
+            const minFont = 0.95;
+            const maxFont = 1.35;
+
+            document.getElementById('btnFontInc')?.addEventListener('click', function() {
+                if (currentFontSize < maxFont) {
+                    currentFontSize += 0.08;
+                    articleContent.style.fontSize = currentFontSize + 'rem';
+                }
+            });
+
+            document.getElementById('btnFontDec')?.addEventListener('click', function() {
+                if (currentFontSize > minFont) {
+                    currentFontSize -= 0.08;
+                    articleContent.style.fontSize = currentFontSize + 'rem';
+                }
+            });
+
+            document.getElementById('btnFontReset')?.addEventListener('click', function() {
+                currentFontSize = 1.08;
+                articleContent.style.fontSize = currentFontSize + 'rem';
+            });
+
+            // 4. COPY LINK BUTTONS
+            function copyCurrentUrl() {
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    alert('✅ Đã sao chép liên kết bài viết vào bộ nhớ đệm!');
+                }).catch(() => {
+                    alert('Liên kết bài viết: ' + window.location.href);
+                });
+            }
+
+            document.getElementById('btnCopyLinkTop')?.addEventListener('click', copyCurrentUrl);
+            document.getElementById('btnCopyLinkBottom')?.addEventListener('click', copyCurrentUrl);
+
+            // 5. INTERACTIVE ARTICLE REACTIONS
+            const reactionBtns = document.querySelectorAll('.reaction-pill-btn');
+            const toastMsg = document.getElementById('reactionToastMessage');
+
+            reactionBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const countEl = this.querySelector('.reaction-count');
+                    const isVoted = this.classList.contains('voted');
+                    let count = parseInt(countEl.innerText.replace(/,/g, '')) || 0;
+
+                    if (!isVoted) {
+                        this.classList.add('voted');
+                        countEl.innerText = count + 1;
+                        if (toastMsg) toastMsg.classList.remove('d-none');
+                    } else {
+                        this.classList.remove('voted');
+                        countEl.innerText = Math.max(0, count - 1);
+                    }
+                });
+            });
+        });
+
+        // 6. SOCIAL SHARE SHORTCUTS
+        function shareOnFacebook() {
+            const url = encodeURIComponent(window.location.href);
+            window.open('https://www.facebook.com/sharer/sharer.php?u=' + url, '_blank', 'width=600,height=400');
+        }
+
+        function shareOnZalo() {
+            const url = encodeURIComponent(window.location.href);
+            window.open('https://zalo.me/share?url=' + url, '_blank', 'width=600,height=400');
+        }
+    </script>
+}

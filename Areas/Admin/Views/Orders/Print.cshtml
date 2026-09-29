@@ -1,0 +1,370 @@
+@model tieudaobadminton.Models.Order
+@{
+    Layout = null;
+    var orderCode = $"DH{Model.Id:D5}";
+    var printTime = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+    var orderTime = Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm");
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>In Phiếu Giao Hàng - #@orderCode - Tiêu Đao Badminton</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #1e293b;
+            background-color: #f1f5f9;
+            margin: 0;
+            padding: 24px 0;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .invoice-card {
+            max-width: 820px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 40px 48px;
+        }
+
+        .store-logo {
+            width: 48px;
+            height: 48px;
+            background: #0f172a;
+            color: #f97316;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-size: 24px;
+        }
+
+        .barcode-box {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .barcode-lines {
+            display: flex;
+            align-items: flex-end;
+            height: 42px;
+            gap: 2px;
+            padding: 2px 0;
+        }
+
+        .barcode-lines span {
+            display: inline-block;
+            background-color: #0f172a;
+            height: 100%;
+        }
+
+        .info-grid {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 16px 20px;
+        }
+
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .invoice-table th {
+            background-color: #0f172a;
+            color: #ffffff;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 10px 14px;
+            font-weight: 700;
+        }
+
+        .invoice-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.9rem;
+        }
+
+        .invoice-table tr:last-child td {
+            border-bottom: 2px solid #cbd5e1;
+        }
+
+        .signature-block {
+            text-align: center;
+            min-height: 120px;
+        }
+
+        .signature-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        .signature-sub {
+            font-size: 0.75rem;
+            color: #64748b;
+            font-style: italic;
+        }
+
+        /* PRINT STYLES */
+        @@media print {
+            body {
+                background: #ffffff !important;
+                padding: 0 !important;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .invoice-card {
+                box-shadow: none !important;
+                border: none !important;
+                border-radius: 0 !important;
+                padding: 0 !important;
+                max-width: 100% !important;
+            }
+
+            @@page {
+                size: A4 portrait;
+                margin: 12mm 15mm;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP ACTION BAR (HIDDEN IN PRINT) -->
+    <div class="container mb-4 no-print" style="max-width: 820px;">
+        <div class="d-flex align-items-center justify-content-between bg-dark text-white p-3 rounded-4 shadow-sm">
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-warning text-dark fw-bold px-2 py-1">#@orderCode</span>
+                <span class="fw-semibold">Xem trước phiếu giao hàng</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <button type="button" class="btn btn-warning fw-bold px-3 rounded-pill" onclick="window.print();">
+                    <i class="bi bi-printer-fill me-1"></i> In Ngay (Print)
+                </button>
+                <a href="javascript:window.close();" class="btn btn-outline-light rounded-pill px-3">
+                    Đóng
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- INVOICE SHEET -->
+    <div class="invoice-card">
+
+        <!-- 1. HEADER: BRAND & BARCODE -->
+        <div class="d-flex justify-content-between align-items-start pb-4 border-bottom">
+            <div class="d-flex align-items-center gap-3">
+                <div class="store-logo">🏸</div>
+                <div>
+                    <h4 class="fw-black text-dark m-0 tracking-tight" style="letter-spacing: -0.5px;">TIÊU ĐAO BADMINTON</h4>
+                    <div class="small text-muted fw-semibold">Hệ thống phân phối vợt & đan cước cầu lông chính hãng</div>
+                    <div class="small text-muted mt-1">
+                        <i class="bi bi-geo-alt-fill text-danger me-1"></i> 123 Đường Cầu Lông, Quận 10, TP. Hồ Chí Minh
+                    </div>
+                    <div class="small text-muted">
+                        <i class="bi bi-telephone-fill text-primary me-1"></i> <strong>Hotline:</strong> 0987.654.321 | <strong>Web:</strong> tieudaobadminton.vn
+                    </div>
+                </div>
+            </div>
+
+            <div class="barcode-box text-end">
+                <!-- Barcode visual simulation -->
+                <div class="barcode-lines">
+                    <span style="width: 3px;"></span><span style="width: 1px;"></span><span style="width: 2px;"></span>
+                    <span style="width: 4px;"></span><span style="width: 1px;"></span><span style="width: 3px;"></span>
+                    <span style="width: 2px;"></span><span style="width: 1px;"></span><span style="width: 4px;"></span>
+                    <span style="width: 2px;"></span><span style="width: 3px;"></span><span style="width: 1px;"></span>
+                    <span style="width: 4px;"></span><span style="width: 2px;"></span><span style="width: 3px;"></span>
+                    <span style="width: 1px;"></span><span style="width: 2px;"></span><span style="width: 4px;"></span>
+                </div>
+                <div class="font-monospace fw-bold fs-6 text-dark mt-1">#@orderCode</div>
+                <div class="text-muted" style="font-size: 0.75rem;">Ngày in: @printTime</div>
+            </div>
+        </div>
+
+        <!-- 2. TITLE -->
+        <div class="text-center my-4">
+            <h4 class="fw-black text-uppercase text-dark m-0" style="letter-spacing: 0.5px;">
+                PHIẾU XUẤT KHO & GIAO HÀNG
+            </h4>
+            <div class="text-muted small mt-1">Kiêm Hóa Đơn Bán Lẻ</div>
+        </div>
+
+        <!-- 3. CUSTOMER & ORDER INFO -->
+        <div class="row g-3 mb-4">
+            <div class="col-7">
+                <div class="info-grid h-100">
+                    <div class="fw-bold text-dark mb-2 text-uppercase" style="font-size: 0.8rem; letter-spacing: 0.5px;">
+                        📦 THÔNG TIN NGƯỜI NHẬN
+                    </div>
+                    <div class="mb-1">
+                        <span class="text-muted small">Người nhận:</span>
+                        <strong class="text-dark fs-6 ms-1">@Model.FullName</strong>
+                    </div>
+                    <div class="mb-1">
+                        <span class="text-muted small">Số điện thoại:</span>
+                        <strong class="text-primary fs-6 ms-1">@Model.Phone</strong>
+                    </div>
+                    <div>
+                        <span class="text-muted small">Địa chỉ giao:</span>
+                        <span class="text-dark fw-medium ms-1">@Model.Address</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-5">
+                <div class="info-grid h-100">
+                    <div class="fw-bold text-dark mb-2 text-uppercase" style="font-size: 0.8rem; letter-spacing: 0.5px;">
+                        ℹ️ CHI TIẾT ĐƠN HÀNG
+                    </div>
+                    <div class="mb-1">
+                        <span class="text-muted small">Mã đơn hàng:</span>
+                        <span class="fw-bold font-monospace text-dark ms-1">#@orderCode</span>
+                    </div>
+                    <div class="mb-1">
+                        <span class="text-muted small">Thời gian đặt:</span>
+                        <span class="text-dark ms-1">@orderTime</span>
+                    </div>
+                    <div>
+                        <span class="text-muted small">Thanh toán:</span>
+                        <span class="badge bg-warning text-dark fw-bold ms-1">COD (Thu tiền tận nơi)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. ITEMS TABLE -->
+        <div class="mb-4">
+            <table class="invoice-table">
+                <thead>
+                    <tr>
+                        <th class="text-center" style="width: 45px;">STT</th>
+                        <th>TÊN SẢN PHẨM / DỊCH VỤ</th>
+                        <th style="width: 130px;">PHÂN LOẠI</th>
+                        <th class="text-center" style="width: 60px;">SL</th>
+                        <th class="text-end" style="width: 120px;">ĐƠN GIÁ</th>
+                        <th class="text-end" style="width: 130px;">THÀNH TIỀN</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int index = 1;
+                    }
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td class="text-center fw-bold text-muted">@index</td>
+                            <td>
+                                <div class="fw-bold text-dark">@item.ProductName</div>
+                                @if (item.ProductName.Contains("Vợt") || item.ProductName.Contains("Astrox") || item.ProductName.Contains("Nanoflare") || item.ProductName.Contains("Victor") || item.ProductName.Contains("Axforce"))
+                                {
+                                    <div class="small text-muted" style="font-size: 0.78rem;">
+                                        🏸 Đã kèm bao vợt chính hãng & quà tặng kèm (nếu có)
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(item.Size) || !string.IsNullOrWhiteSpace(item.Color))
+                                {
+                                    <span class="badge bg-light text-dark border">
+                                        @(item.Size ?? "-") / @(item.Color ?? "-")
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">Tiêu chuẩn</span>
+                                }
+                            </td>
+                            <td class="text-center fw-bold">@item.Quantity</td>
+                            <td class="text-end text-muted">@item.UnitPrice.ToString("n0") đ</td>
+                            <td class="text-end fw-bold text-dark">@((item.UnitPrice * item.Quantity).ToString("n0")) đ</td>
+                        </tr>
+                        index++;
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 5. TOTAL CALCULATION & NOTES -->
+        <div class="row g-3 mb-4">
+            <div class="col-7">
+                <div class="p-3 bg-light rounded-3 border h-100">
+                    <div class="fw-bold text-dark small mb-1">
+                        <i class="bi bi-shield-check text-success me-1"></i> QUY ĐỊNH ĐỒNG KIỂM & BẢO HÀNH:
+                    </div>
+                    <ul class="text-muted small ps-3 mb-0" style="font-size: 0.8rem; line-height: 1.5;">
+                        <li>Khách hàng được quyền kiểm tra sản phẩm trước khi thanh toán tiền cho nhân viên giao hàng.</li>
+                        <li>Sản phẩm vợt cầu lông được bảo hành chính hãng theo tem chống giả của nhà phân phối.</li>
+                        <li>Trường hợp cần hỗ trợ đổi trả hoặc bảo hành cước, vui lòng liên hệ hotline: <strong>0987.654.321</strong>.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-5">
+                <div class="p-3 bg-light rounded-3 border">
+                    <div class="d-flex justify-content-between mb-2 small">
+                        <span class="text-muted">Tổng tiền hàng:</span>
+                        <span class="fw-semibold text-dark">@Model.Total.ToString("n0") đ</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 small">
+                        <span class="text-muted">Phí giao hàng:</span>
+                        <span class="text-success fw-bold">Miễn phí (0 đ)</span>
+                    </div>
+                    <div class="d-flex justify-content-between pt-2 border-top">
+                        <span class="fw-bold text-dark">TỔNG THANH TOÁN:</span>
+                        <span class="fw-black text-danger fs-5">@Model.Total.ToString("n0") đ</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. SIGNATURE AREA -->
+        <div class="row pt-4 text-center">
+            <div class="col-4 signature-block">
+                <div class="signature-title">Người Lập Phiếu</div>
+                <div class="signature-sub">(Ký & ghi rõ họ tên)</div>
+                <div style="height: 60px;"></div>
+                <div class="fw-semibold text-dark small">Tiêu Đao Sport</div>
+            </div>
+
+            <div class="col-4 signature-block">
+                <div class="signature-title">Kỹ Thuật / Đóng Gói</div>
+                <div class="signature-sub">(Đã kiểm tra tem & cước)</div>
+                <div style="height: 60px;"></div>
+                <div class="text-muted small fst-italic">Đã kiểm tra 100%</div>
+            </div>
+
+            <div class="col-4 signature-block">
+                <div class="signature-title">Người Nhận Hàng</div>
+                <div class="signature-sub">(Ký nhận đủ hàng và nguyên vẹn)</div>
+                <div style="height: 60px;"></div>
+                <div class="text-muted small">........................................</div>
+            </div>
+        </div>
+
+        <!-- 7. FOOTER THANKS -->
+        <div class="text-center pt-4 mt-3 border-top text-muted small" style="font-size: 0.8rem;">
+            Cảm ơn quý khách đã tin tưởng và đồng hành cùng <strong>Tiêu Đao Badminton</strong>! Chúc quý khách có những trận cầu thăng hoa! 🏸
+        </div>
+
+    </div>
+
+</body>
+</html>

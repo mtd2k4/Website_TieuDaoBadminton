@@ -1,0 +1,153 @@
+@model List<tieudaobadminton.Models.Product>
+@using tieudaobadminton.Helpers
+@{
+    var wishlistIds = Context.Session.GetObject<List<int>>("WISHLIST") ?? new List<int>();
+    var currentCat = Context.Request.Query["category"].ToString();
+    var currentSearch = Context.Request.Query["q"].ToString();
+
+    string pageTitle = "Tất cả sản phẩm";
+    if (currentCat == "vot") pageTitle = "Vợt cầu lông thi đấu";
+    else if (currentCat == "giay") pageTitle = "Giày cầu lông bám sân";
+    else if (currentCat == "quan-ao") pageTitle = "Trang phục thể thao";
+
+    if (!string.IsNullOrWhiteSpace(currentSearch))
+    {
+        pageTitle = $"Kết quả tìm kiếm: \"{currentSearch}\"";
+    }
+
+    ViewData["Title"] = pageTitle;
+}
+
+<div class="container py-4">
+
+    <!-- BREADCRUMB & CATEGORY FILTER BAR -->
+    <div class="mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+            <div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb small mb-1">
+                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-muted text-decoration-none">Trang chủ</a></li>
+                        <li class="breadcrumb-item active text-dark fw-bold">Sản phẩm</li>
+                    </ol>
+                </nav>
+                <h2 class="fw-bold mb-0">@pageTitle</h2>
+                <div class="text-muted small">Tìm thấy <strong>@Model.Count</strong> sản phẩm chính hãng sẵn có</div>
+            </div>
+
+            <!-- Quick Category Filter Chips -->
+            <div class="category-chips-wrap p-0 m-0">
+                <a class="category-chip @(string.IsNullOrEmpty(currentCat) && string.IsNullOrEmpty(currentSearch) ? "active" : "")" 
+                   asp-action="Index">
+                    <span>⚡ Tất cả</span>
+                </a>
+                <a class="category-chip @(currentCat == "vot" ? "active" : "")" 
+                   asp-action="Index" asp-route-category="vot">
+                    <span>🏸 Vợt Pro</span>
+                </a>
+                <a class="category-chip @(currentCat == "giay" ? "active" : "")" 
+                   asp-action="Index" asp-route-category="giay">
+                    <span>👟 Giày Cushion</span>
+                </a>
+                <a class="category-chip @(currentCat == "quan-ao" ? "active" : "")" 
+                   asp-action="Index" asp-route-category="quan-ao">
+                    <span>👕 Trang phục</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- EMPTY STATE -->
+    @if (Model.Count == 0)
+    {
+        <div class="text-center py-5 cart-surface my-4">
+            <div class="display-3 mb-3">🔍</div>
+            <h4 class="fw-bold">Không tìm thấy sản phẩm nào phù hợp</h4>
+            <p class="text-muted mb-4" style="max-width: 420px; margin: 0 auto;">
+                Vui lòng thử tìm kiếm với từ khóa khác hoặc quay lại xem toàn bộ danh mục sản phẩm của shop.
+            </p>
+            <a class="btn btn-dark rounded-pill px-4 py-2 fw-bold" asp-action="Index">
+                Xem tất cả sản phẩm →
+            </a>
+        </div>
+    }
+    else
+    {
+        <!-- PRODUCT GRID 2.0 -->
+        <div class="row g-3 g-md-4">
+            @foreach (var p in Model)
+            {
+                var discountPercent = 0;
+                if (p.SalePrice.HasValue && p.Price > 0 && p.SalePrice < p.Price)
+                {
+                    discountPercent = (int)Math.Round((1 - (p.SalePrice.Value / p.Price)) * 100);
+                }
+
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="pro-card h-100">
+                        <!-- Media & Wishlist & Quick Sizes -->
+                        <div class="pro-card-media">
+                            <img class="pro-card-img"
+                                 src="@(p.MainImageUrl ?? "/img/demo/placeholder.jpg")"
+                                 alt="@p.Name"
+                                 loading="lazy" />
+
+                            <div class="pro-card-badges">
+                                @if (!string.IsNullOrWhiteSpace(p.Brand?.Name))
+                                {
+                                    <span class="badge-brand-pro">@p.Brand.Name</span>
+                                }
+                                @if (discountPercent > 0)
+                                {
+                                    <span class="badge-sale-pro">-@discountPercent%</span>
+                                }
+                            </div>
+
+                            @{
+                                var isFavorited = wishlistIds.Contains(p.Id);
+                            }
+                            <button type="button" 
+                                    class="pro-wishlist-btn @(isFavorited ? "active" : "")" 
+                                    onclick="toggleWishlist(@p.Id, this);" 
+                                    title="@(isFavorited ? "Bỏ lưu yêu thích" : "Lưu vào yêu thích")">
+                                @(isFavorited ? "❤️" : "🤍")
+                            </button>
+
+                            <div class="pro-quick-sizes">
+                                <span>39 | 40 | 41 | 42 • SẴN HÀNG</span>
+                            </div>
+                        </div>
+
+                        <!-- Card Body -->
+                        <div class="pro-card-body">
+                            <div class="pro-rating-row">
+                                <span>★★★★★</span>
+                                <span class="pro-rating-score">4.9</span>
+                                <span class="pro-rating-count">(95)</span>
+                            </div>
+
+                            <h5 class="pro-card-title" title="@p.Name">@p.Name</h5>
+
+                            <div class="pro-price-wrap">
+                                @if (p.SalePrice.HasValue)
+                                {
+                                    <span class="pro-price-current is-sale">@p.SalePrice.Value.ToString("n0") đ</span>
+                                    <span class="pro-price-old">@p.Price.ToString("n0") đ</span>
+                                }
+                                else
+                                {
+                                    <span class="pro-price-current">@p.Price.ToString("n0") đ</span>
+                                }
+                            </div>
+
+                            <a class="btn-pro-action" asp-action="Detail" asp-route-id="@p.Id">
+                                <span>Chi tiết</span>
+                                <span>→</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+</div>

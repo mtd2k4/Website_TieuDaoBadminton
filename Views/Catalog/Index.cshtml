@@ -1,0 +1,819 @@
+@model tieudaobadminton.Models.CatalogViewModel
+@using tieudaobadminton.Helpers
+@{
+    ViewData["Title"] = Model.CurrentTitle;
+    var wishlistIds = Context.Session.GetObject<List<int>>("WISHLIST") ?? new List<int>();
+
+    // Helper url generator for query filters
+    string BuildFilterUrl(string? newCat = null, string? newSub = null, int? newBrandId = null, string? newPrice = null, int? newMinPrice = null, int? newMaxPrice = null, string? newSort = null, string? newQ = null)
+    {
+        var finalCat = newCat ?? Model.ActiveCat;
+        var finalSub = newSub ?? (newCat != null && newCat != Model.ActiveCat ? null : Model.ActiveSub);
+        var finalBrand = newBrandId ?? Model.ActiveBrandId;
+        var finalPrice = newPrice ?? Model.ActivePrice;
+        var finalMinPrice = newMinPrice ?? Model.MinPrice;
+        var finalMaxPrice = newMaxPrice ?? Model.MaxPrice;
+        var finalSort = newSort ?? Model.ActiveSort;
+        var finalQ = newQ ?? Model.SearchKeyword;
+
+        var queries = new List<string>();
+        if (!string.IsNullOrWhiteSpace(finalCat)) queries.Add($"cat={finalCat}");
+        if (!string.IsNullOrWhiteSpace(finalSub)) queries.Add($"sub={finalSub}");
+        if (finalBrand.HasValue && finalBrand.Value > 0) queries.Add($"brandId={finalBrand.Value}");
+        if (!string.IsNullOrWhiteSpace(finalPrice)) queries.Add($"price={finalPrice}");
+        if (finalMinPrice.HasValue && finalMinPrice.Value > 0) queries.Add($"minPrice={finalMinPrice.Value}");
+        if (finalMaxPrice.HasValue && finalMaxPrice.Value > 0 && finalMaxPrice.Value < 5000000) queries.Add($"maxPrice={finalMaxPrice.Value}");
+        if (!string.IsNullOrWhiteSpace(finalSort) && finalSort != "newest") queries.Add($"sort={finalSort}");
+        if (!string.IsNullOrWhiteSpace(finalQ)) queries.Add($"q={Uri.EscapeDataString(finalQ)}");
+
+        return queries.Count > 0 ? $"/Danh-Muc?{string.Join("&", queries)}" : "/Danh-Muc";
+    }
+
+    bool hasActiveFilter = !string.IsNullOrWhiteSpace(Model.ActiveCat) || 
+                           !string.IsNullOrWhiteSpace(Model.ActiveSub) || 
+                           Model.ActiveBrandId.HasValue || 
+                           !string.IsNullOrWhiteSpace(Model.ActivePrice) || 
+                           (Model.MinPrice.HasValue && Model.MinPrice.Value > 0) ||
+                           (Model.MaxPrice.HasValue && Model.MaxPrice.Value < 5000000) ||
+                           !string.IsNullOrWhiteSpace(Model.SearchKeyword);
+}
+
+<div class="container py-4" id="catalogRoot">
+    <div id="catalogTopAnchor"></div>
+
+    <!-- 1. BREADCRUMBS -->
+    <div id="catalogBreadcrumbArea">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb catalog-breadcrumb">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+                <li class="breadcrumb-item @(string.IsNullOrEmpty(Model.ActiveCat) ? "active" : "")">
+                    @if (string.IsNullOrEmpty(Model.ActiveCat))
+                    {
+                        <span>Danh mục sản phẩm</span>
+                    }
+                    else
+                    {
+                        <a href="/Danh-Muc" class="catalog-filter-link">Danh mục</a>
+                    }
+                </li>
+                @if (!string.IsNullOrEmpty(Model.CurrentParentName))
+                {
+                    <li class="breadcrumb-item @(string.IsNullOrEmpty(Model.ActiveSub) ? "active" : "")">
+                        @if (string.IsNullOrEmpty(Model.ActiveSub))
+                        {
+                            <span>@Model.CurrentParentName</span>
+                        }
+                        else
+                        {
+                            <a href="@BuildFilterUrl(newCat: Model.ActiveCat, newSub: "")" class="catalog-filter-link">@Model.CurrentParentName</a>
+                        }
+                    </li>
+                }
+                @if (!string.IsNullOrEmpty(Model.CurrentSubName))
+                {
+                    <li class="breadcrumb-item active">@Model.CurrentSubName</li>
+                }
+            </ol>
+        </nav>
+    </div>
+
+    <!-- MOBILE FILTER TOGGLE BUTTON -->
+    <div class="d-lg-none mb-3">
+        <button class="btn btn-dark w-100 py-2 fw-bold d-flex justify-content-between align-items-center rounded-3 shadow-sm"
+                type="button" data-bs-toggle="offcanvas" data-bs-target="#catalogFilterOffcanvas">
+            <span class="d-flex align-items-center gap-2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+                Bộ lọc & Danh mục
+            </span>
+            <span class="badge bg-danger rounded-pill">@(Model.TotalCount) SP</span>
+        </button>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- ============================================== -->
+        <!-- 2. DESKTOP SIDEBAR: 2-LEVEL MENU & FILTERS     -->
+        <!-- ============================================== -->
+        <aside class="col-lg-3 d-none d-lg-block">
+            <div id="catalogSidebarArea">
+                <div class="catalog-sidebar-card">
+
+                    <!-- HEADER DANH MỤC CẤP 1 & 2 -->
+                    <div class="catalog-sidebar-header">
+                        <h5 class="fw-bold mb-0 text-dark d-flex align-items-center gap-2">
+                            <span class="fs-5">📂</span> Danh Mục
+                        </h5>
+                        @if (hasActiveFilter)
+                        {
+                            <a href="/Danh-Muc" class="btn-reset-text catalog-filter-link" title="Bỏ tất cả bộ lọc">Xóa lọc</a>
+                        }
+                    </div>
+
+                    <!-- CÂY MENU PHÂN CẤP (2-TIER ACCORDION) -->
+                    <div class="catalog-tree-wrap mb-4">
+
+                        <!-- Mục: Tất cả sản phẩm -->
+                        <a href="/Danh-Muc" class="catalog-level1-link catalog-filter-link @(string.IsNullOrEmpty(Model.ActiveCat) ? "active" : "")">
+                            <span class="d-flex align-items-center gap-2">
+                                <span class="cat-lead-icon">⚡</span> Tất cả sản phẩm
+                            </span>
+                            <span class="badge-count">@Model.Categories.Sum(c => c.Count)</span>
+                        </a>
+
+                        <!-- Danh Mục Cấp 1 & Cấp 2 (Smooth Independent Accordions) -->
+                        <div class="catalog-accordion-list" id="catalogAccordion">
+                            @for (int i = 0; i < Model.Categories.Count; i++)
+                            {
+                                var cat = Model.Categories[i];
+                                var isCatOpen = cat.IsActive || string.IsNullOrEmpty(Model.ActiveCat);
+                                var collapseId = $"collapseCat_{cat.Slug}";
+
+                                <div class="catalog-accordion-item">
+                                    <!-- Level 1 Row -->
+                                    <div class="catalog-level1-row @(cat.IsActive ? "is-parent-active" : "")">
+                                        <a href="@BuildFilterUrl(newCat: cat.Slug, newSub: "")" 
+                                           class="catalog-level1-title catalog-filter-link @(cat.IsActive && string.IsNullOrEmpty(Model.ActiveSub) ? "active-text" : "")">
+                                            <span class="cat-lead-icon">@cat.Icon</span>
+                                            <span class="cat-name-text">@cat.Name</span>
+                                        </a>
+                                        
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="badge-count">@cat.Count</span>
+                                            <button class="accordion-toggle-btn @(isCatOpen ? "" : "collapsed")" 
+                                                    type="button" 
+                                                    data-bs-toggle="collapse" 
+                                                    data-bs-target="#@collapseId" 
+                                                    aria-expanded="@(isCatOpen ? "true" : "false")"
+                                                    title="Mở rộng / Thu gọn">
+                                                <svg class="chevron-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Level 2 Subcategory Items -->
+                                    <div id="@collapseId" class="accordion-collapse collapse @(isCatOpen ? "show" : "")">
+                                        <ul class="catalog-level2-list">
+                                            @foreach (var sub in cat.SubCategories)
+                                            {
+                                                var isSubActive = cat.IsActive && Model.ActiveSub == sub.Slug;
+                                                <li>
+                                                    <a href="@BuildFilterUrl(newCat: cat.Slug, newSub: sub.Slug)" 
+                                                       class="catalog-level2-link catalog-filter-link @(isSubActive ? "active" : "")">
+                                                        <span class="level2-indicator"></span>
+                                                        <span class="level2-name">@sub.Name</span>
+                                                        <span class="badge-sub-count">@sub.Count</span>
+                                                    </a>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                    </div>
+
+                    <div class="sidebar-divider"></div>
+
+                    <!-- BỘ LỌC THEO THƯƠNG HIỆU -->
+                    <div class="catalog-filter-group mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="catalog-filter-title mb-0">🏷️ Thương Hiệu</h6>
+                            @if (Model.ActiveBrandId.HasValue)
+                            {
+                                <a href="@BuildFilterUrl(newBrandId: 0)" class="filter-mini-clear catalog-filter-link">Bỏ chọn</a>
+                            }
+                        </div>
+                        <div class="catalog-brand-list">
+                            <a href="@BuildFilterUrl(newBrandId: 0)" 
+                               class="brand-filter-chip catalog-filter-link @(!Model.ActiveBrandId.HasValue ? "active" : "")">
+                                <span class="brand-chip-text">Tất cả hãng</span>
+                                <span class="brand-chip-count">@Model.Brands.Sum(b => b.Count)</span>
+                            </a>
+                            @foreach (var b in Model.Brands)
+                            {
+                                <a href="@BuildFilterUrl(newBrandId: b.Id)" 
+                                   class="brand-filter-chip catalog-filter-link @(b.IsActive ? "active" : "")">
+                                    <span class="brand-chip-text">@b.Name</span>
+                                    <span class="brand-chip-count">@b.Count</span>
+                                </a>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="sidebar-divider"></div>
+
+                    <!-- BỘ LỌC THEO KHOẢNG GIÁ (THANH TRƯỢT RANGE SLIDER) -->
+                    <div class="catalog-filter-group mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="catalog-filter-title mb-0">💰 Khoảng Giá</h6>
+                            @if ((Model.MinPrice.HasValue && Model.MinPrice.Value > 0) || (Model.MaxPrice.HasValue && Model.MaxPrice.Value < 5000000))
+                            {
+                                <a href="@BuildFilterUrl(newMinPrice: 0, newMaxPrice: 5000000, newPrice: "")" class="filter-mini-clear catalog-filter-link">Bỏ chọn</a>
+                            }
+                        </div>
+
+                        <div class="price-slider-wrapper">
+                            <!-- Live Price Display Boxes -->
+                            <div class="price-slider-display">
+                                <div class="price-display-box">
+                                    <span class="price-display-label">Từ</span>
+                                    <span class="price-display-val" id="priceMinDisplay">@((Model.MinPrice ?? 0).ToString("n0")) đ</span>
+                                </div>
+                                <span class="price-display-sep">—</span>
+                                <div class="price-display-box">
+                                    <span class="price-display-label">Đến</span>
+                                    <span class="price-display-val" id="priceMaxDisplay">@((Model.MaxPrice.HasValue && Model.MaxPrice.Value < 5000000 ? Model.MaxPrice.Value.ToString("n0") + " đ" : "5.000.000+ đ"))</span>
+                                </div>
+                            </div>
+
+                            <!-- Dual Range Slider Controls -->
+                            <div class="range-slider-container">
+                                <div class="range-slider-track-bg"></div>
+                                <div class="range-slider-track-fill" id="rangeSliderFill"></div>
+                                <input type="range" class="range-input range-input-min" id="rangeMinInput"
+                                       min="0" max="5000000" step="100000" value="@(Model.MinPrice ?? 0)" />
+                                <input type="range" class="range-input range-input-max" id="rangeMaxInput"
+                                       min="0" max="5000000" step="100000" value="@(Model.MaxPrice ?? 5000000)" />
+                            </div>
+
+                            <div class="price-slider-ticks">
+                                <span>0 đ</span>
+                                <span>2.5 Tr</span>
+                                <span>5 Tr+</span>
+                            </div>
+
+                            <!-- Quick Price Preset Chips -->
+                            <div class="price-quick-chips mt-3">
+                                <a href="@BuildFilterUrl(newMinPrice: 0, newMaxPrice: 5000000, newPrice: "")" 
+                                   class="quick-chip catalog-filter-link @(!Model.MinPrice.HasValue && (!Model.MaxPrice.HasValue || Model.MaxPrice.Value >= 5000000) ? "active" : "")">
+                                    Tất cả
+                                </a>
+                                <a href="@BuildFilterUrl(newMinPrice: 0, newMaxPrice: 1000000, newPrice: "")" 
+                                   class="quick-chip catalog-filter-link @((Model.MinPrice == null || Model.MinPrice == 0) && Model.MaxPrice == 1000000 ? "active" : "")">
+                                    &lt; 1Tr
+                                </a>
+                                <a href="@BuildFilterUrl(newMinPrice: 1000000, newMaxPrice: 2000000, newPrice: "")" 
+                                   class="quick-chip catalog-filter-link @(Model.MinPrice == 1000000 && Model.MaxPrice == 2000000 ? "active" : "")">
+                                    1 - 2Tr
+                                </a>
+                                <a href="@BuildFilterUrl(newMinPrice: 2000000, newMaxPrice: 4000000, newPrice: "")" 
+                                   class="quick-chip catalog-filter-link @(Model.MinPrice == 2000000 && Model.MaxPrice == 4000000 ? "active" : "")">
+                                    2 - 4Tr
+                                </a>
+                                <a href="@BuildFilterUrl(newMinPrice: 4000000, newMaxPrice: 5000000, newPrice: "")" 
+                                   class="quick-chip catalog-filter-link @(Model.MinPrice == 4000000 ? "active" : "")">
+                                    &gt; 4Tr
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (hasActiveFilter)
+                    {
+                        <a href="/Danh-Muc" class="btn-reset-filter-main catalog-filter-link w-100 justify-content-center">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                            <span>Đặt lại tất cả bộ lọc</span>
+                        </a>
+                    }
+
+                </div>
+            </div>
+        </aside>
+
+        <!-- ============================================== -->
+        <!-- 3. MAIN CONTENT: HEADER, ACTIVE TAGS, GRID     -->
+        <!-- ============================================== -->
+        <main class="col-lg-9">
+            <div id="catalogMainArea">
+
+                <!-- BANNER TITLE & SORT CONTROLS -->
+                <div class="catalog-main-header mb-4">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                        <div>
+                            <h2 class="fw-bold mb-1 text-dark">@Model.CurrentTitle</h2>
+                            <div class="text-muted small">
+                                Tìm thấy <strong>@Model.TotalCount</strong> sản phẩm chính hãng sẵn có
+                            </div>
+                        </div>
+
+                        <!-- SORT SELECT -->
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="sortSelect" class="text-muted small fw-semibold text-nowrap">Sắp xếp:</label>
+                            <select id="sortSelect" class="form-select form-select-sm catalog-sort-select"
+                                    data-base-url="@BuildFilterUrl(newSort: "PLACEHOLDER")">
+                                <option value="newest" selected="@(Model.ActiveSort == "newest" || string.IsNullOrEmpty(Model.ActiveSort))">✨ Mới nhất</option>
+                                <option value="price-asc" selected="@(Model.ActiveSort == "price-asc")">💵 Giá: Thấp đến Cao</option>
+                                <option value="price-desc" selected="@(Model.ActiveSort == "price-desc")">💎 Giá: Cao đến Thấp</option>
+                                <option value="sale" selected="@(Model.ActiveSort == "sale")">🔥 Ưu đãi giảm nhiều</option>
+                                <option value="name-asc" selected="@(Model.ActiveSort == "name-asc")">🔤 Tên: A - Z</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- ACTIVE FILTER CHIPS (IF ANY) -->
+                    @if (hasActiveFilter)
+                    {
+                        <div class="catalog-active-chips mt-3">
+                            <span class="text-muted small fw-bold me-1">Đang lọc:</span>
+
+                            @if (!string.IsNullOrEmpty(Model.CurrentParentName))
+                            {
+                                <span class="active-chip">
+                                    <span>Danh mục: @Model.CurrentParentName</span>
+                                    <a href="@BuildFilterUrl(newCat: "")" class="catalog-filter-link" title="Bỏ lọc danh mục">✕</a>
+                                </span>
+                            }
+
+                            @if (!string.IsNullOrEmpty(Model.CurrentSubName))
+                            {
+                                <span class="active-chip">
+                                    <span>Phân loại: @Model.CurrentSubName</span>
+                                    <a href="@BuildFilterUrl(newSub: "")" class="catalog-filter-link" title="Bỏ lọc danh mục con">✕</a>
+                                </span>
+                            }
+
+                            @if (Model.ActiveBrandId.HasValue)
+                            {
+                                var brandName = Model.Brands.FirstOrDefault(b => b.Id == Model.ActiveBrandId)?.Name ?? "Hãng";
+                                <span class="active-chip">
+                                    <span>Hãng: @brandName</span>
+                                    <a href="@BuildFilterUrl(newBrandId: 0)" class="catalog-filter-link" title="Bỏ lọc hãng">✕</a>
+                                </span>
+                            }
+
+                            @if ((Model.MinPrice.HasValue && Model.MinPrice.Value > 0) || (Model.MaxPrice.HasValue && Model.MaxPrice.Value < 5000000))
+                            {
+                                var minStr = (Model.MinPrice ?? 0).ToString("n0") + " đ";
+                                var maxStr = (Model.MaxPrice.HasValue && Model.MaxPrice.Value < 5000000) ? Model.MaxPrice.Value.ToString("n0") + " đ" : "Tối đa";
+                                <span class="active-chip">
+                                    <span>Giá: @minStr — @maxStr</span>
+                                    <a href="@BuildFilterUrl(newMinPrice: 0, newMaxPrice: 5000000, newPrice: "")" class="catalog-filter-link" title="Bỏ lọc giá">✕</a>
+                                </span>
+                            }
+
+                            @if (!string.IsNullOrEmpty(Model.SearchKeyword))
+                            {
+                                <span class="active-chip">
+                                    <span>Từ khóa: "@Model.SearchKeyword"</span>
+                                    <a href="@BuildFilterUrl(newQ: "")" class="catalog-filter-link" title="Bỏ từ khóa">✕</a>
+                                </span>
+                            }
+
+                            <a href="/Danh-Muc" class="btn-clear-all-chip catalog-filter-link">Xóa tất cả</a>
+                        </div>
+                    }
+                </div>
+
+                <!-- EMPTY STATE -->
+                @if (Model.TotalCount == 0)
+                {
+                    <div class="catalog-empty-box text-center py-5">
+                        <div class="display-3 mb-3">🔍</div>
+                        <h4 class="fw-bold">Không tìm thấy sản phẩm phù hợp</h4>
+                        <p class="text-muted mb-4" style="max-width: 440px; margin: 0 auto;">
+                            Không có sản phẩm nào khớp với tiêu chí bạn chọn trong menu cấp 2 hoặc khoảng giá đã chọn. Vui lòng thử nới rộng thanh trượt giá hoặc xem tất cả danh mục.
+                        </p>
+                        <a class="btn btn-dark rounded-pill px-4 py-2 fw-bold catalog-filter-link" href="/Danh-Muc">
+                            Xem tất cả danh mục sản phẩm →
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <!-- PRODUCT GRID (PRO 3-COLUMNS ON DESKTOP) -->
+                    <div class="row g-3 g-md-4" id="catalogProductGrid">
+                        @foreach (var p in Model.Products)
+                        {
+                            var discountPercent = 0;
+                            if (p.SalePrice.HasValue && p.Price > 0 && p.SalePrice < p.Price)
+                            {
+                                discountPercent = (int)Math.Round((1 - (p.SalePrice.Value / p.Price)) * 100);
+                            }
+                            var isFavorited = wishlistIds.Contains(p.Id);
+
+                            <div class="col-6 col-md-4">
+                                <div class="pro-card h-100">
+                                    <!-- Card Media -->
+                                    <div class="pro-card-media">
+                                        <img class="pro-card-img"
+                                             src="@(p.MainImageUrl ?? "/img/demo/placeholder.jpg")"
+                                             alt="@p.Name"
+                                             loading="lazy" />
+
+                                        <div class="pro-card-badges">
+                                            @if (!string.IsNullOrWhiteSpace(p.Brand?.Name))
+                                            {
+                                                <span class="badge-brand-pro">@p.Brand.Name</span>
+                                            }
+                                            @if (discountPercent > 0)
+                                            {
+                                                <span class="badge-sale-pro">-@discountPercent%</span>
+                                            }
+                                        </div>
+
+                                        <!-- Live Wishlist AJAX button -->
+                                        <button type="button" 
+                                                class="pro-wishlist-btn @(isFavorited ? "active" : "")" 
+                                                onclick="toggleWishlist(@p.Id, this);" 
+                                                title="@(isFavorited ? "Bỏ lưu yêu thích" : "Lưu vào yêu thích")">
+                                            @(isFavorited ? "❤️" : "🤍")
+                                        </button>
+
+                                        <div class="pro-quick-sizes">
+                                            <span>CHÍNH HÃNG 100% • BẢO HÀNH</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Card Body -->
+                                    <div class="pro-card-body">
+                                        <div class="pro-rating-row">
+                                            <span>★★★★★</span>
+                                            <span class="pro-rating-score">4.9</span>
+                                            <span class="pro-rating-count">(98)</span>
+                                        </div>
+
+                                        <h5 class="pro-card-title" title="@p.Name">@p.Name</h5>
+
+                                        <div class="pro-price-wrap">
+                                            @if (p.SalePrice.HasValue)
+                                            {
+                                                <span class="pro-price-current is-sale">@p.SalePrice.Value.ToString("n0") đ</span>
+                                                <span class="pro-price-old">@p.Price.ToString("n0") đ</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="pro-price-current">@p.Price.ToString("n0") đ</span>
+                                            }
+                                        </div>
+
+                                        <a class="btn-pro-action" asp-controller="Products" asp-action="Detail" asp-route-id="@p.Id">
+                                            <span>Chi tiết</span>
+                                            <span>→</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- ============================================== -->
+<!-- 4. MOBILE OFFCANVAS FOR 2-LEVEL MENU & FILTER  -->
+<!-- ============================================== -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="catalogFilterOffcanvas" aria-labelledby="catalogFilterLabel">
+    <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title fw-bold" id="catalogFilterLabel">📂 Bộ Lọc & Danh Mục</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body" id="catalogOffcanvasArea">
+        <!-- ALL CATEGORIES LINK -->
+        <a href="/Danh-Muc" class="catalog-level1-link catalog-filter-link @(string.IsNullOrEmpty(Model.ActiveCat) ? "active" : "") mb-3">
+            <span>⚡ Tất cả sản phẩm</span>
+            <span class="badge-count">@Model.Categories.Sum(c => c.Count)</span>
+        </a>
+
+        <!-- ACCORDIONS -->
+        <div class="catalog-accordion-list mb-4" id="catalogAccordionMobile">
+            @foreach (var cat in Model.Categories)
+            {
+                var isCatOpen = cat.IsActive || string.IsNullOrEmpty(Model.ActiveCat);
+                var collapseMobileId = $"collapseCatMob_{cat.Slug}";
+
+                <div class="catalog-accordion-item">
+                    <div class="catalog-level1-row @(cat.IsActive ? "is-parent-active" : "")">
+                        <a href="@BuildFilterUrl(newCat: cat.Slug, newSub: "")" 
+                           class="catalog-level1-title catalog-filter-link @(cat.IsActive && string.IsNullOrEmpty(Model.ActiveSub) ? "active-text" : "")">
+                            <span>@cat.Icon</span>
+                            <span>@cat.Name</span>
+                        </a>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge-count">@cat.Count</span>
+                            <button class="accordion-toggle-btn @(isCatOpen ? "" : "collapsed")" 
+                                    type="button" 
+                                    data-bs-toggle="collapse" 
+                                    data-bs-target="#@collapseMobileId" 
+                                    aria-expanded="@(isCatOpen ? "true" : "false")">
+                                <svg class="chevron-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="@collapseMobileId" class="accordion-collapse collapse @(isCatOpen ? "show" : "")">
+                        <ul class="catalog-level2-list">
+                            @foreach (var sub in cat.SubCategories)
+                            {
+                                var isSubActive = cat.IsActive && Model.ActiveSub == sub.Slug;
+                                <li>
+                                    <a href="@BuildFilterUrl(newCat: cat.Slug, newSub: sub.Slug)" 
+                                       class="catalog-level2-link catalog-filter-link @(isSubActive ? "active" : "")">
+                                        <span class="level2-indicator"></span>
+                                        <span class="level2-name">@sub.Name</span>
+                                        <span class="badge-sub-count">@sub.Count</span>
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="sidebar-divider"></div>
+
+        <!-- BRANDS -->
+        <div class="catalog-filter-group mb-4">
+            <h6 class="catalog-filter-title">🏷️ Thương Hiệu</h6>
+            <div class="catalog-brand-list">
+                <a href="@BuildFilterUrl(newBrandId: 0)" class="brand-filter-chip catalog-filter-link @(!Model.ActiveBrandId.HasValue ? "active" : "")">Tất cả</a>
+                @foreach (var b in Model.Brands)
+                {
+                    <a href="@BuildFilterUrl(newBrandId: b.Id)" class="brand-filter-chip catalog-filter-link @(b.IsActive ? "active" : "")">
+                        <span>@b.Name</span>
+                        <span class="brand-chip-count">@b.Count</span>
+                    </a>
+                }
+            </div>
+        </div>
+
+        <div class="sidebar-divider"></div>
+
+        <!-- PRICE SLIDER (MOBILE) -->
+        <div class="catalog-filter-group mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="catalog-filter-title mb-0">💰 Khoảng Giá</h6>
+                @if ((Model.MinPrice.HasValue && Model.MinPrice.Value > 0) || (Model.MaxPrice.HasValue && Model.MaxPrice.Value < 5000000))
+                {
+                    <a href="@BuildFilterUrl(newMinPrice: 0, newMaxPrice: 5000000, newPrice: "")" class="filter-mini-clear catalog-filter-link">Bỏ chọn</a>
+                }
+            </div>
+            <div class="price-slider-wrapper">
+                <div class="price-slider-display">
+                    <div class="price-display-box">
+                        <span class="price-display-label">Từ</span>
+                        <span class="price-display-val" id="priceMinDisplayMob">@((Model.MinPrice ?? 0).ToString("n0")) đ</span>
+                    </div>
+                    <span class="price-display-sep">—</span>
+                    <div class="price-display-box">
+                        <span class="price-display-label">Đến</span>
+                        <span class="price-display-val" id="priceMaxDisplayMob">@((Model.MaxPrice.HasValue && Model.MaxPrice.Value < 5000000 ? Model.MaxPrice.Value.ToString("n0") + " đ" : "5.000.000+ đ"))</span>
+                    </div>
+                </div>
+                <div class="range-slider-container">
+                    <div class="range-slider-track-bg"></div>
+                    <div class="range-slider-track-fill" id="rangeSliderFillMob"></div>
+                    <input type="range" class="range-input range-input-min" id="rangeMinInputMob"
+                           min="0" max="5000000" step="100000" value="@(Model.MinPrice ?? 0)" />
+                    <input type="range" class="range-input range-input-max" id="rangeMaxInputMob"
+                           min="0" max="5000000" step="100000" value="@(Model.MaxPrice ?? 5000000)" />
+                </div>
+                <div class="price-slider-ticks">
+                    <span>0 đ</span>
+                    <span>2.5 Tr</span>
+                    <span>5 Tr+</span>
+                </div>
+                <div class="price-quick-chips mt-3">
+                    <a href="@BuildFilterUrl(newMinPrice: 0, newMaxPrice: 5000000, newPrice: "")" 
+                       class="quick-chip catalog-filter-link @(!Model.MinPrice.HasValue && (!Model.MaxPrice.HasValue || Model.MaxPrice.Value >= 5000000) ? "active" : "")">Tất cả</a>
+                    <a href="@BuildFilterUrl(newMinPrice: 0, newMaxPrice: 1000000, newPrice: "")" 
+                       class="quick-chip catalog-filter-link @((Model.MinPrice == null || Model.MinPrice == 0) && Model.MaxPrice == 1000000 ? "active" : "")">&lt; 1Tr</a>
+                    <a href="@BuildFilterUrl(newMinPrice: 1000000, newMaxPrice: 2000000, newPrice: "")" 
+                       class="quick-chip catalog-filter-link @(Model.MinPrice == 1000000 && Model.MaxPrice == 2000000 ? "active" : "")">1 - 2Tr</a>
+                    <a href="@BuildFilterUrl(newMinPrice: 2000000, newMaxPrice: 4000000, newPrice: "")" 
+                       class="quick-chip catalog-filter-link @(Model.MinPrice == 2000000 && Model.MaxPrice == 4000000 ? "active" : "")">2 - 4Tr</a>
+                    <a href="@BuildFilterUrl(newMinPrice: 4000000, newMaxPrice: 5000000, newPrice: "")" 
+                       class="quick-chip catalog-filter-link @(Model.MinPrice == 4000000 ? "active" : "")">&gt; 4Tr</a>
+                </div>
+            </div>
+        </div>
+
+        @if (hasActiveFilter)
+        {
+            <a href="/Danh-Muc" class="btn btn-outline-danger w-100 rounded-pill py-2 fw-bold catalog-filter-link">
+                🔄 Xóa tất cả bộ lọc
+            </a>
+        }
+    </div>
+</div>
+
+<!-- ============================================== -->
+<!-- 5. SILKY SMOOTH AJAX FILTERING & SLIDER SCRIPT -->
+<!-- ============================================== -->
+<script>
+    (function () {
+        // Create top progress bar
+        let progressBar = document.querySelector('.catalog-ajax-progress');
+        if (!progressBar) {
+            progressBar = document.createElement('div');
+            progressBar.className = 'catalog-ajax-progress';
+            document.body.appendChild(progressBar);
+        }
+
+        let isBusy = false;
+
+        async function fetchCatalog(url, push = true) {
+            if (isBusy) return;
+            isBusy = true;
+
+            progressBar.classList.remove('done');
+            progressBar.classList.add('loading');
+
+            const mainArea = document.getElementById('catalogMainArea');
+            if (mainArea) {
+                mainArea.classList.add('is-filtering');
+            }
+
+            try {
+                const response = await fetch(url, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+
+                // 1. Breadcrumb
+                const nextBread = doc.getElementById('catalogBreadcrumbArea');
+                const currBread = document.getElementById('catalogBreadcrumbArea');
+                if (nextBread && currBread) currBread.innerHTML = nextBread.innerHTML;
+
+                // 2. Desktop Sidebar
+                const nextSide = doc.getElementById('catalogSidebarArea');
+                const currSide = document.getElementById('catalogSidebarArea');
+                if (nextSide && currSide) currSide.innerHTML = nextSide.innerHTML;
+
+                // 3. Mobile Offcanvas
+                const nextOff = doc.getElementById('catalogOffcanvasArea');
+                const currOff = document.getElementById('catalogOffcanvasArea');
+                if (nextOff && currOff) currOff.innerHTML = nextOff.innerHTML;
+
+                // 4. Main Products Area
+                const nextMain = doc.getElementById('catalogMainArea');
+                if (nextMain && mainArea) mainArea.innerHTML = nextMain.innerHTML;
+
+                // 5. Update Page Title
+                document.title = doc.title;
+
+                // 6. Push history
+                if (push) {
+                    window.history.pushState({ catalogUrl: url }, '', url);
+                }
+
+                // 7. Smooth scroll to top if user was far down
+                const anchor = document.getElementById('catalogTopAnchor');
+                if (anchor && window.scrollY > anchor.offsetTop + 180) {
+                    window.scrollTo({ top: anchor.offsetTop - 70, behavior: 'smooth' });
+                }
+
+                // 8. Re-init Range Sliders
+                initAllSliders();
+
+            } catch (err) {
+                console.warn('Catalog AJAX failed, doing standard navigation:', err);
+                window.location.href = url;
+            } finally {
+                progressBar.classList.remove('loading');
+                progressBar.classList.add('done');
+                setTimeout(() => progressBar.classList.remove('done'), 350);
+
+                if (mainArea) {
+                    mainArea.classList.remove('is-filtering');
+                }
+                isBusy = false;
+            }
+        }
+
+        // Global click handler for catalog-filter-link
+        document.addEventListener('click', function (e) {
+            const filterLink = e.target.closest('.catalog-filter-link');
+            if (!filterLink) return;
+
+            const href = filterLink.getAttribute('href');
+            if (!href) return;
+
+            e.preventDefault();
+
+            // Close mobile offcanvas if open
+            const offcanvasEl = document.getElementById('catalogFilterOffcanvas');
+            if (offcanvasEl && offcanvasEl.classList.contains('show')) {
+                const bsOff = bootstrap.Offcanvas.getInstance(offcanvasEl);
+                if (bsOff) bsOff.hide();
+            }
+
+            fetchCatalog(href, true);
+        });
+
+        // Global change handler for sort dropdown
+        document.addEventListener('change', function (e) {
+            if (e.target && e.target.id === 'sortSelect') {
+                const baseUrl = e.target.getAttribute('data-base-url');
+                if (baseUrl) {
+                    const targetUrl = baseUrl.replace('PLACEHOLDER', e.target.value);
+                    fetchCatalog(targetUrl, true);
+                }
+            }
+        });
+
+        // Range slider initialization helper
+        function setupSlider(minId, maxId, fillId, minDispId, maxDispId) {
+            const minInput = document.getElementById(minId);
+            const maxInput = document.getElementById(maxId);
+            const fill = document.getElementById(fillId);
+            const minDisp = document.getElementById(minDispId);
+            const maxDisp = document.getElementById(maxDispId);
+
+            if (!minInput || !maxInput || !fill) return;
+
+            const minLimit = parseInt(minInput.min) || 0;
+            const maxLimit = parseInt(minInput.max) || 5000000;
+
+            function syncVisuals() {
+                const minVal = parseInt(minInput.value) || 0;
+                const maxVal = parseInt(maxInput.value) || 5000000;
+
+                const leftPct = ((minVal - minLimit) / (maxLimit - minLimit)) * 100;
+                const rightPct = ((maxVal - minLimit) / (maxLimit - minLimit)) * 100;
+
+                fill.style.left = leftPct + '%';
+                fill.style.width = Math.max(0, rightPct - leftPct) + '%';
+
+                if (minDisp) minDisp.textContent = new Intl.NumberFormat('vi-VN').format(minVal) + ' đ';
+                if (maxDisp) {
+                    if (maxVal >= maxLimit) {
+                        maxDisp.textContent = '5.000.000+ đ';
+                    } else {
+                        maxDisp.textContent = new Intl.NumberFormat('vi-VN').format(maxVal) + ' đ';
+                    }
+                }
+            }
+
+            minInput.addEventListener('input', function () {
+                let minVal = parseInt(minInput.value);
+                let maxVal = parseInt(maxInput.value);
+                if (minVal > maxVal - 100000) {
+                    minInput.value = maxVal - 100000;
+                }
+                syncVisuals();
+            });
+
+            maxInput.addEventListener('input', function () {
+                let minVal = parseInt(minInput.value);
+                let maxVal = parseInt(maxInput.value);
+                if (maxVal < minVal + 100000) {
+                    maxInput.value = minVal + 100000;
+                }
+                syncVisuals();
+            });
+
+            function triggerFilter() {
+                const minVal = parseInt(minInput.value) || 0;
+                const maxVal = parseInt(maxInput.value) || 5000000;
+
+                const currentUrl = new URL(window.location.href);
+                if (minVal > 0) {
+                    currentUrl.searchParams.set('minPrice', minVal);
+                } else {
+                    currentUrl.searchParams.delete('minPrice');
+                }
+
+                if (maxVal < maxLimit) {
+                    currentUrl.searchParams.set('maxPrice', maxVal);
+                } else {
+                    currentUrl.searchParams.delete('maxPrice');
+                }
+
+                currentUrl.searchParams.delete('price'); // remove old presets
+
+                fetchCatalog(currentUrl.pathname + currentUrl.search, true);
+            }
+
+            minInput.addEventListener('change', triggerFilter);
+            maxInput.addEventListener('change', triggerFilter);
+
+            syncVisuals();
+        }
+
+        function initAllSliders() {
+            setupSlider('rangeMinInput', 'rangeMaxInput', 'rangeSliderFill', 'priceMinDisplay', 'priceMaxDisplay');
+            setupSlider('rangeMinInputMob', 'rangeMaxInputMob', 'rangeSliderFillMob', 'priceMinDisplayMob', 'priceMaxDisplayMob');
+        }
+
+        // Initialize on initial page load
+        initAllSliders();
+
+        // Popstate handler for Back/Forward browser navigation
+        window.addEventListener('popstate', function () {
+            fetchCatalog(window.location.href, false);
+        });
+    })();
+</script>

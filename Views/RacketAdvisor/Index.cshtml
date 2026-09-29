@@ -1,0 +1,249 @@
+@model List<tieudaobadminton.Models.Product>
+@using tieudaobadminton.Helpers
+@{
+    var wishlistIds = Context.Session.GetObject<List<int>>("WISHLIST") ?? new List<int>();
+    ViewData["Title"] = "Tư Vấn Chọn Vợt Cầu Lông Thông Minh";
+    var playStyle = ViewBag.PlayStyle as string ?? "";
+    var wristPower = ViewBag.WristPower as string ?? "";
+    var budget = ViewBag.Budget as string ?? "";
+    var adviceSummary = ViewBag.AdviceSummary as string ?? "";
+}
+
+<div class="container py-4">
+
+    <!-- BREADCRUMB -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-muted text-decoration-none">Trang chủ</a></li>
+            <li class="breadcrumb-item active text-dark fw-bold">Tư vấn chọn vợt</li>
+        </ol>
+    </nav>
+
+    <!-- HEADER BANNER -->
+    <div class="card border-0 shadow-sm p-4 p-md-5 rounded-4 mb-4 text-center text-white" 
+         style="background: radial-gradient(circle at top, #1e293b 0%, #090d16 100%); border: 1px solid rgba(255,255,255,0.1) !important;">
+        <span class="badge bg-primary bg-opacity-25 text-info fw-bold px-3 py-1 mb-2 rounded-pill border border-info border-opacity-25">
+            🎯 SMART RACKET FINDER
+        </span>
+        <h2 class="fw-bold fs-1 mb-2">Tư Vấn Chọn Vợt Thông Minh</h2>
+        <p class="text-muted" style="max-width: 600px; margin: 0 auto; line-height: 1.7;">
+            Chỉ với 3 câu hỏi trắc nghiệm nhanh, hệ thống sẽ tự động phân tích và chọn lọc ra những cây vợt sinh ra để dành riêng cho bạn!
+        </p>
+    </div>
+
+    <!-- QUIZ FORM -->
+    <div class="cart-surface p-4 p-md-5 mb-5 shadow-sm">
+        <form method="get" asp-action="Index">
+
+            <!-- CÂU 1: LỐI ĐÁNH -->
+            <div class="mb-4 pb-3 border-bottom">
+                <label class="fw-bold fs-5 text-dark mb-3 d-flex align-items-center gap-2">
+                    <span class="badge bg-dark rounded-circle" style="width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;">1</span>
+                    <span>Lối đánh sở trường của bạn là gì?</span>
+                </label>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="card h-100 p-3 border rounded-4 cursor-pointer text-center @(playStyle == "smash" || string.IsNullOrEmpty(playStyle) ? "border-primary bg-primary-subtle shadow-sm" : "")" style="cursor: pointer;">
+                            <input type="radio" name="playStyle" value="smash" class="d-none" @(playStyle == "smash" || string.IsNullOrEmpty(playStyle) ? "checked" : "") />
+                            <div class="fs-1 mb-2">💥</div>
+                            <div class="fw-bold text-dark fs-6">Tấn Công Uy Lực (Smash)</div>
+                            <small class="text-muted mt-1">Thích đập cầu dồn dập ghi điểm từ cuối sân, cần vợt đầm đầu</small>
+                        </label>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="card h-100 p-3 border rounded-4 cursor-pointer text-center @(playStyle == "speed" ? "border-primary bg-primary-subtle shadow-sm" : "")" style="cursor: pointer;">
+                            <input type="radio" name="playStyle" value="speed" class="d-none" @(playStyle == "speed" ? "checked" : "") />
+                            <div class="fs-1 mb-2">⚡</div>
+                            <div class="fw-bold text-dark fs-6">Phản Tạt Tốc Độ (Speed)</div>
+                            <small class="text-muted mt-1">Thích đánh lưới, phản xạ nhanh, gài cầu và thủ cầu linh hoạt</small>
+                        </label>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="card h-100 p-3 border rounded-4 cursor-pointer text-center @(playStyle == "balanced" ? "border-primary bg-primary-subtle shadow-sm" : "")" style="cursor: pointer;">
+                            <input type="radio" name="playStyle" value="balanced" class="d-none" @(playStyle == "balanced" ? "checked" : "") />
+                            <div class="fs-1 mb-2">⚖️</div>
+                            <div class="fw-bold text-dark fs-6">Công Thủ Toàn Diện</div>
+                            <small class="text-muted mt-1">Điều phối trận đấu, chuyển trạng thái công - thủ nhịp nhàng</small>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CÂU 2: LỰC CỔ TAY & TRÌNH ĐỘ -->
+            <div class="mb-4 pb-3 border-bottom">
+                <label class="fw-bold fs-5 text-dark mb-3 d-flex align-items-center gap-2">
+                    <span class="badge bg-dark rounded-circle" style="width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;">2</span>
+                    <span>Lực cổ tay và thời gian chơi của bạn:</span>
+                </label>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="card h-100 p-3 border rounded-4 cursor-pointer text-center @(wristPower == "beginner" || string.IsNullOrEmpty(wristPower) ? "border-primary bg-primary-subtle shadow-sm" : "")" style="cursor: pointer;">
+                            <input type="radio" name="wristPower" value="beginner" class="d-none" @(wristPower == "beginner" || string.IsNullOrEmpty(wristPower) ? "checked" : "") />
+                            <div class="fs-2 mb-2">🟢</div>
+                            <div class="fw-bold text-dark">Mới chơi / Cổ tay trung bình</div>
+                            <small class="text-muted">Cần vợt dễ thuần, thân mềm trợ lực tốt, đỡ mỏi tay</small>
+                        </label>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="card h-100 p-3 border rounded-4 cursor-pointer text-center @(wristPower == "intermediate" ? "border-primary bg-primary-subtle shadow-sm" : "")" style="cursor: pointer;">
+                            <input type="radio" name="wristPower" value="intermediate" class="d-none" @(wristPower == "intermediate" ? "checked" : "") />
+                            <div class="fs-2 mb-2">🟡</div>
+                            <div class="fw-bold text-dark">Phong trào (1 - 2 năm)</div>
+                            <small class="text-muted">Lực tay khá, cảm giác cầu tốt, thích vợt đũa vừa phải</small>
+                        </label>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="card h-100 p-3 border rounded-4 cursor-pointer text-center @(wristPower == "advanced" ? "border-primary bg-primary-subtle shadow-sm" : "")" style="cursor: pointer;">
+                            <input type="radio" name="wristPower" value="advanced" class="d-none" @(wristPower == "advanced" ? "checked" : "") />
+                            <div class="fs-2 mb-2">🔴</div>
+                            <div class="fw-bold text-dark">Cổ tay khỏe / Bán chuyên</div>
+                            <small class="text-muted">Thích đũa cứng kiểm soát đường cầu chính xác từng milimet</small>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CÂU 3: KHOẢNG NGÂN SÁCH -->
+            <div class="mb-4">
+                <label class="fw-bold fs-5 text-dark mb-3 d-flex align-items-center gap-2">
+                    <span class="badge bg-dark rounded-circle" style="width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;">3</span>
+                    <span>Tầm giá bạn mong muốn đầu tư:</span>
+                </label>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="card h-100 p-3 border rounded-4 cursor-pointer text-center @(budget == "low" ? "border-primary bg-primary-subtle shadow-sm" : "")" style="cursor: pointer;">
+                            <input type="radio" name="budget" value="low" class="d-none" @(budget == "low" ? "checked" : "") />
+                            <div class="fw-bold text-dark fs-6 mb-1">💵 Dưới 2.0 triệu</div>
+                            <small class="text-muted">Ngon bổ rẻ, bền bỉ, dễ chơi</small>
+                        </label>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="card h-100 p-3 border rounded-4 cursor-pointer text-center @(budget == "mid" || string.IsNullOrEmpty(budget) ? "border-primary bg-primary-subtle shadow-sm" : "")" style="cursor: pointer;">
+                            <input type="radio" name="budget" value="mid" class="d-none" @(budget == "mid" || string.IsNullOrEmpty(budget) ? "checked" : "") />
+                            <div class="fw-bold text-dark fs-6 mb-1">💳 2.0 - 3.8 triệu</div>
+                            <small class="text-muted">Phổ biến nhất, công nghệ đỉnh cao</small>
+                        </label>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="card h-100 p-3 border rounded-4 cursor-pointer text-center @(budget == "pro" ? "border-primary bg-primary-subtle shadow-sm" : "")" style="cursor: pointer;">
+                            <input type="radio" name="budget" value="pro" class="d-none" @(budget == "pro" ? "checked" : "") />
+                            <div class="fw-bold text-dark fs-6 mb-1">💎 Trên 3.8 triệu</div>
+                            <small class="text-muted">Dòng vợt thi đấu cao cấp nhất</small>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUBMIT BUTTON -->
+            <div class="text-center pt-3">
+                <button type="submit" class="btn btn-dark btn-lg rounded-pill px-5 py-3 fw-bold shadow-lg">
+                    🔍 Xem Kết Quả Gợi Ý Vợt →
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- KẾT QUẢ GỢI Ý NẾU CÓ -->
+    @if (Model.Count > 0)
+    {
+        <div class="mb-5">
+            <!-- Expert Advice Alert -->
+            <div class="alert alert-info p-4 rounded-4 border-0 mb-4 bg-opacity-10 d-flex gap-3 align-items-center">
+                <span class="fs-1">💡</span>
+                <div>
+                    <h5 class="fw-bold text-dark mb-1">Lời khuyên chuyên gia Tiêu Đao Badminton:</h5>
+                    <p class="text-muted mb-0" style="line-height: 1.7;">
+                        @adviceSummary
+                    </p>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="fw-bold mb-0">🏆 Top 4 Cây Vợt Phù Hợp Nhất Với Bạn</h4>
+                <span class="text-success fw-bold small">✓ Đã kiểm định độ tương thích</span>
+            </div>
+
+            <div class="row g-3 g-md-4">
+                @foreach (var p in Model)
+                {
+                    var discountPercent = 0;
+                    if (p.SalePrice.HasValue && p.Price > 0 && p.SalePrice < p.Price)
+                    {
+                        discountPercent = (int)Math.Round((1 - (p.SalePrice.Value / p.Price)) * 100);
+                    }
+
+                    <div class="col-6 col-md-3">
+                        <div class="pro-card h-100">
+                            <div class="pro-card-media">
+                                <img class="pro-card-img" src="@(p.MainImageUrl ?? "/img/demo/placeholder.jpg")" alt="@p.Name" loading="lazy" />
+                                <div class="pro-card-badges">
+                                    <span class="badge bg-success text-white fw-bold px-2 py-1" style="font-size: 0.65rem;">PHÙ HỢP 98%</span>
+                                </div>
+                                @{
+                                    var isFavAd = wishlistIds.Contains(p.Id);
+                                }
+                                <button type="button" class="pro-wishlist-btn @(isFavAd ? "active" : "")" onclick="toggleWishlist(@p.Id, this);" title="Yêu thích">
+                                    @(isFavAd ? "❤️" : "🤍")
+                                </button>
+                            </div>
+
+                            <div class="pro-card-body">
+                                <div class="small text-muted mb-1">@(p.Brand?.Name ?? "CHÍNH HÃNG")</div>
+                                <h6 class="pro-card-title" title="@p.Name">@p.Name</h6>
+
+                                <div class="pro-price-wrap">
+                                    @if (p.SalePrice.HasValue)
+                                    {
+                                        <span class="pro-price-current is-sale">@p.SalePrice.Value.ToString("n0") đ</span>
+                                        <span class="pro-price-old">@p.Price.ToString("n0") đ</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="pro-price-current">@p.Price.ToString("n0") đ</span>
+                                    }
+                                </div>
+
+                                <a class="btn-pro-action" asp-controller="Products" asp-action="Detail" asp-route-id="@p.Id">
+                                    <span>Chọn cây này</span>
+                                    <span>→</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+</div>
+
+@section Scripts {
+    <script>
+        // Tự động highlight card khi người dùng click chọn radio
+        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const groupName = this.name;
+                document.querySelectorAll(`input[name="${groupName}"]`).forEach(r => {
+                    const card = r.closest('label');
+                    if (card) {
+                        card.classList.remove('border-primary', 'bg-primary-subtle', 'shadow-sm');
+                    }
+                });
+                const selected = this.closest('label');
+                if (selected) {
+                    selected.classList.add('border-primary', 'bg-primary-subtle', 'shadow-sm');
+                }
+            });
+        });
+    </script>
+}

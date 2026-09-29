@@ -1,0 +1,78 @@
+﻿@model List<tieudaobadminton.Models.NewsPost>
+@{
+    ViewData["Title"] = "Quản lý tin tức";
+    var search = (string)(ViewBag.Search ?? "");
+    var status = (string)(ViewBag.Status ?? "");
+}
+
+<div class="card-soft p-3">
+    <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
+        <div class="fw-semibold">Quản lý tin tức</div>
+        <a class="btn btn-success btn-sm" asp-area="Admin" asp-controller="News" asp-action="Create">+ Thêm bài viết</a>
+    </div>
+
+    <form class="row g-2 mt-2" method="get">
+        <div class="col-md-6">
+            <input name="search" value="@search" class="form-control" placeholder="Tìm theo tiêu đề..." />
+        </div>
+        <div class="col-md-4">
+            <select name="status" class="form-select">
+                <option value="" selected="@(string.IsNullOrEmpty(status))">Tất cả</option>
+                <option value="published" selected="@(status == "published")">Đã đăng</option>
+                <option value="draft" selected="@(status == "draft")">Bản nháp</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-grid">
+            <button class="btn btn-dark">Lọc</button>
+        </div>
+    </form>
+
+    <div class="table-responsive mt-3">
+        <table class="table align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th style="width:60px;">#</th>
+                    <th style="width:90px;">Ảnh</th>
+                    <th>Tiêu đề</th>
+                    <th>Ngày</th>
+                    <th>Trạng thái</th>
+                    <th style="width:190px;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var n in Model)
+                {
+                    <tr>
+                        <td>@n.Id</td>
+                        <td>
+                            <img src="@(n.ThumbnailUrl ?? "/img/demo/placeholder.jpg")"
+                                 style="width:64px;height:64px;object-fit:cover;border-radius:12px;border:1px solid rgba(0,0,0,.08);" />
+                        </td>
+                        <td class="fw-semibold">@n.Title</td>
+                        <td class="small text-muted">@n.PublishedAt.ToLocalTime().ToString("dd/MM/yyyy")</td>
+                        <td>
+                            @if (n.IsPublished)
+                            {
+                                <span class="badge text-bg-success">Đã đăng</span>
+                            }
+                            else
+                            {
+
+                                <span class="badge text-bg-secondary">Bản nháp</span>
+                            }
+                        </td>
+                        <td class="d-flex gap-2">
+                            <a class="btn btn-primary btn-sm" asp-area="Admin" asp-controller="News" asp-action="Edit" asp-route-id="@n.Id">Sửa</a>
+
+                            <form method="post" asp-area="Admin" asp-controller="News" asp-action="Delete" asp-route-id="@n.Id"
+                                  onsubmit="return confirm('Xóa bài viết này?');">
+                                @Html.AntiForgeryToken()
+                                <button class="btn btn-danger btn-sm">Xóa</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

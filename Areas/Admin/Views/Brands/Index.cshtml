@@ -1,0 +1,119 @@
+@model List<tieudaobadminton.Models.Brand>
+@{
+    ViewData["Title"] = "Quản lý thương hiệu";
+}
+
+<div class="container-fluid py-3">
+
+    <!-- HEADER & BUTTONS -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+        <div>
+            <h4 class="fw-black text-dark m-0">🏷️ Thương hiệu cầu lông</h4>
+            <div class="text-muted small">Quản lý các hãng cung cấp (Yonex, Victor, Li-Ning, Mizuno, Kawasaki...)</div>
+        </div>
+        <a asp-action="Create" class="btn btn-dark rounded-pill px-4 fw-bold shadow-sm">
+            <i class="bi bi-plus-lg me-1"></i> Thêm thương hiệu mới
+        </a>
+    </div>
+
+    <!-- ALERTS -->
+    @if (TempData["Ok"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Ok"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- STATS SUMMARY -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-md-4">
+            <div class="card border-0 shadow-sm p-3 rounded-4 bg-white">
+                <div class="text-muted small fw-bold">TỔNG THƯƠNG HIỆU</div>
+                <div class="fs-3 fw-bold text-dark mt-1">@Model.Count</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-4">
+            <div class="card border-0 shadow-sm p-3 rounded-4 bg-white">
+                <div class="text-muted small fw-bold">SẢN PHẨM PHÂN PHỐI</div>
+                <div class="fs-3 fw-bold text-primary mt-1">@Model.Sum(b => b.Products.Count)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+        @if (Model.Count == 0)
+        {
+            <div class="text-center py-5 text-muted">
+                <div class="fs-1">🏷️</div>
+                <div class="mt-2">Chưa có thương hiệu nào trong hệ thống.</div>
+                <a asp-action="Create" class="btn btn-outline-dark rounded-pill px-4 mt-3">Thêm thương hiệu đầu tiên</a>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-muted small">
+                        <tr>
+                            <th class="ps-4" style="width: 80px;">ID</th>
+                            <th>TÊN THƯƠNG HIỆU</th>
+                            <th class="text-center">SỐ SẢN PHẨM HIỆN CÓ</th>
+                            <th class="text-end pe-4" style="width: 220px;">THAO TÁC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var brand in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 fw-bold text-muted font-monospace">#@brand.Id</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="badge bg-dark-subtle text-dark px-2 py-1 rounded">🏸</div>
+                                        <div class="fw-bold text-dark fs-6">@brand.Name</div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-success-subtle text-success fw-bold px-3 py-1 rounded-pill">
+                                        @brand.Products.Count sản phẩm
+                                    </span>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="d-inline-flex gap-2">
+                                        <a asp-action="Edit" asp-route-id="@brand.Id" class="btn btn-sm btn-outline-dark rounded-pill px-3 fw-semibold">
+                                            <i class="bi bi-pencil me-1"></i> Sửa
+                                        </a>
+                                        @if (brand.Products.Count == 0)
+                                        {
+                                            <form asp-action="Delete" asp-route-id="@brand.Id" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa thương hiệu này?');">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-semibold">
+                                                    <i class="bi bi-trash me-1"></i> Xóa
+                                                </button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <button type="button" class="btn btn-sm btn-light text-muted rounded-pill px-3 border" disabled title="Không thể xóa khi còn sản phẩm thuộc hãng này">
+                                                <i class="bi bi-lock me-1"></i> Xóa
+                                            </button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+</div>

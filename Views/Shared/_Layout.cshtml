@@ -1,0 +1,545 @@
+@using tieudaobadminton.Helpers
+@using tieudaobadminton.Models
+@{
+    var currentCart = Context.Session.GetObject<List<CartItem>>("CART") ?? new List<CartItem>();
+    var totalCartCount = currentCart.Sum(x => x.Quantity);
+    var currentWishlist = Context.Session.GetObject<List<int>>("WISHLIST") ?? new List<int>();
+    var totalWishlistCount = currentWishlist.Count;
+    var activeController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var activeAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var activeCategory = !string.IsNullOrEmpty(Context.Request.Query["cat"]) ? Context.Request.Query["cat"].ToString() : Context.Request.Query["category"].ToString();
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Tiêu Đao Badminton Pro</title>
+
+    <!-- Google Fonts: Be Vietnam Pro (Vietnamese Engineered) + Outfit (Sports Modern Display) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    
+    <!-- Pro Design System CSS -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+
+<body>
+    <!-- 1. TOP ANNOUNCEMENT BAR (COMPACT & SLEEK) -->
+    <div class="announcement-bar d-none d-md-block">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <span class="announcement-badge">ƯU ĐÃI KHAI MÙA</span>
+                <span class="announcement-text">Miễn phí căng cước 4 nút & quấn cán cho mọi đơn vợt • Freeship toàn quốc từ 499k</span>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <a href="tel:0900000000" class="announcement-link">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                    <span>Hotline: 0900 000 000</span>
+                </a>
+                <span class="announcement-sep">|</span>
+                <a asp-controller="Contact" asp-action="Index" class="announcement-link">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    <span>Cửa hàng & Sân cầu</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. HIGH-END 2-TIER HEADER -->
+    <header class="pro-header">
+        <div class="container">
+            <!-- TIER 1: BRAND + SEARCH BAR + ACTION GROUP -->
+            <div class="pro-header-main-row">
+                <!-- Brand Logo (Left) -->
+                <a class="pro-brand text-decoration-none" asp-controller="Home" asp-action="Index">
+                    <div class="pro-logo-badge">
+                        <img src="~/img/tieudao.jpg" alt="Tiêu Đao Badminton" class="pro-logo-img" />
+                    </div>
+                    <div>
+                        <div class="pro-brand-title">TIÊU ĐAO</div>
+                        <div class="pro-brand-tag">PRO BADMINTON</div>
+                    </div>
+                </a>
+
+                <!-- Refined Search Box (Center) -->
+                <div class="pro-search-box d-none d-md-block">
+                    <form method="get" action="/Danh-Muc">
+                        <div class="pro-search-pill">
+                            <span class="search-lead-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            </span>
+                            <input type="text" name="q" value="@Context.Request.Query["q"]" placeholder="Tìm kiếm vợt Yonex, Victor, giày bám sân..." />
+                            <button type="submit" class="pro-search-btn">
+                                <span>Tìm kiếm</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Action Group (Right) -->
+                <div class="pro-action-group">
+                    <!-- Wishlist button (Link to /Yeu-Thich with live Counter) -->
+                    <a asp-controller="Wishlist" asp-action="Index" class="pro-icon-btn d-none d-sm-inline-flex" title="Sản phẩm yêu thích">
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                        <span id="wishlistBadge" class="pro-cart-counter @(totalWishlistCount > 0 ? "" : "d-none")">
+                            @(totalWishlistCount > 99 ? "99+" : totalWishlistCount.ToString())
+                        </span>
+                    </a>
+
+                    <!-- Cart button with Live Counter -->
+                    <a asp-controller="Cart" asp-action="Index" class="pro-icon-btn" title="Giỏ hàng">
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                        @if (totalCartCount > 0)
+                        {
+                            <span class="pro-cart-counter">@(totalCartCount > 99 ? "99+" : totalCartCount.ToString())</span>
+                        }
+                    </a>
+
+                    <!-- User Account Dropdown / Auth Buttons -->
+                    @if (User?.Identity?.IsAuthenticated == true)
+                    {
+                        <div class="dropdown d-none d-md-block">
+                            <button class="btn btn-dark btn-sm rounded-pill px-3 py-2 fw-bold dropdown-toggle d-flex align-items-center gap-2" 
+                                    type="button" data-bs-toggle="dropdown">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                <span>@User.Identity!.Name</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 p-2" style="border-radius: 16px; min-width: 200px;">
+                                @if (User.IsInRole("Admin") || User.IsInRole("Staff"))
+                                {
+                                    <li>
+                                        <a class="dropdown-item py-2 fw-bold text-primary rounded-3" asp-area="Admin" asp-controller="Home" asp-action="Index">
+                                            📊 Bảng Quản trị (Dashboard)
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider my-1"></li>
+                                }
+                                <li>
+                                    <a class="dropdown-item py-2 fw-bold rounded-3" asp-controller="Account" asp-action="Orders">
+                                        📦 Đơn hàng của tôi
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item py-2 fw-bold rounded-3" asp-controller="Wishlist" asp-action="Index">
+                                        ❤️ Yêu thích (@totalWishlistCount)
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider my-1"></li>
+                                <li>
+                                    <form asp-controller="Account" asp-action="Logout" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="dropdown-item text-danger py-2 fw-bold rounded-3">
+                                            🚪 Đăng xuất
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="d-none d-md-flex align-items-center gap-2 ms-1">
+                            <a class="btn-auth-login" asp-controller="Account" asp-action="Login">Đăng nhập</a>
+                            <a class="btn-auth-register" asp-controller="Account" asp-action="Register">Đăng ký</a>
+                        </div>
+                    }
+
+                    <!-- Mobile Toggler -->
+                    <button class="navbar-toggler d-lg-none border-0 p-2 fs-4" type="button" data-bs-toggle="collapse" data-bs-target="#mobileNavPro">
+                        ☰
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Search Bar (< 768px) -->
+            <div class="d-md-none pb-3">
+                <form method="get" action="/Danh-Muc">
+                    <div class="pro-search-pill">
+                        <input type="text" name="q" value="@Context.Request.Query["q"]" placeholder="Tìm vợt, giày, quần áo..." />
+                        <button type="submit" class="pro-search-btn">Tìm</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- TIER 2: STREAMLINED PROFESSIONAL NAVIGATION ROW (DESKTOP) -->
+            <div class="pro-header-nav-row d-none d-lg-block">
+                <div class="d-flex align-items-center justify-content-between">
+                    <ul class="pro-nav-list">
+                        <!-- 1. MASTER CATALOG LAUNCHER BUTTON -->
+                        <li class="dropdown catalog-mega-dropdown me-1">
+                            <a class="nav-catalog-btn dropdown-toggle @(activeController == "Catalog" ? "active" : "")" 
+                               href="/Danh-Muc" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                                <span>Danh mục sản phẩm</span>
+                                <span class="catalog-caret">▾</span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-catalog shadow-xl border-0 p-3">
+                                <div class="row g-3">
+                                    <!-- Cột 1: Vợt cầu lông (Cấp 2) -->
+                                    <div class="col-3 catalog-mega-col">
+                                        <a class="catalog-mega-title" href="/Danh-Muc?cat=vot">
+                                            🏸 Vợt Cầu Lông
+                                        </a>
+                                        <ul class="catalog-mega-sublist">
+                                            <li><a href="/Danh-Muc?cat=vot&sub=tan-cong">Vợt Tấn Công Smash</a></li>
+                                            <li><a href="/Danh-Muc?cat=vot&sub=toan-dien">Công Thủ Toàn Diện</a></li>
+                                            <li><a href="/Danh-Muc?cat=vot&sub=phan-tat">Tốc Độ & Phản Tạt</a></li>
+                                            <li><a href="/Danh-Muc?cat=vot&sub=tro-luc">Trợ Lực / Dễ Chơi</a></li>
+                                            <li><a class="view-all-sub" href="/Danh-Muc?cat=vot">Xem tất cả vợt →</a></li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- Cột 2: Giày cầu lông (Cấp 2) -->
+                                    <div class="col-3 catalog-mega-col">
+                                        <a class="catalog-mega-title" href="/Danh-Muc?cat=giay">
+                                            👟 Giày Cầu Lông
+                                        </a>
+                                        <ul class="catalog-mega-sublist">
+                                            <li><a href="/Danh-Muc?cat=giay&sub=dem-em">Đệm Êm Giảm Chấn</a></li>
+                                            <li><a href="/Danh-Muc?cat=giay&sub=toc-do">Siêu Nhẹ & Tốc Độ</a></li>
+                                            <li><a href="/Danh-Muc?cat=giay&sub=wide">Form Chân Bè Wide</a></li>
+                                            <li><a href="/Huong-Dan-Size">Bảng đo size chuẩn</a></li>
+                                            <li><a class="view-all-sub" href="/Danh-Muc?cat=giay">Xem tất cả giày →</a></li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- Cột 3: Trang phục thể thao (Cấp 2) -->
+                                    <div class="col-3 catalog-mega-col">
+                                        <a class="catalog-mega-title" href="/Danh-Muc?cat=quan-ao">
+                                            👕 Trang Phục & Đồ Tập
+                                        </a>
+                                        <ul class="catalog-mega-sublist">
+                                            <li><a href="/Danh-Muc?cat=quan-ao&sub=ao-nam">Áo Thi Đấu Nam</a></li>
+                                            <li><a href="/Danh-Muc?cat=quan-ao&sub=ao-nu">Áo & Váy Cầu Lông Nữ</a></li>
+                                            <li><a href="/Danh-Muc?cat=quan-ao&sub=quan-short">Quần Short & Training</a></li>
+                                            <li><a class="view-all-sub" href="/Danh-Muc?cat=quan-ao">Xem tất cả trang phục →</a></li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- Cột 4: Tiện ích & Nổi bật -->
+                                    <div class="col-3 catalog-mega-col">
+                                        <div class="catalog-dropdown-promo">
+                                            <div>
+                                                <div class="fw-bold text-dark mb-1">⚡ Chọn vợt theo lối chơi?</div>
+                                                <p class="small text-muted mb-2">Trợ lý AI phân tích lối đánh & lực cổ tay để gợi ý mẫu vợt phù hợp nhất.</p>
+                                            </div>
+                                            <div>
+                                                <a href="/Tu-Van-Chon-Vot" class="btn btn-sm btn-dark rounded-pill w-100 fw-bold mb-2">Khám phá AI →</a>
+                                                <a href="/Danh-Muc" class="btn btn-sm btn-outline-primary rounded-pill w-100 fw-bold">Xem trọn danh mục</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Mega menu bottom banner -->
+                                <div class="catalog-mega-bottom">
+                                    <div class="small text-muted">
+                                        🔥 <strong>100% Chính hãng:</strong> Yonex, Victor, Li-Ning, Mizuno, Kawasaki. Bảo hành đầy đủ, miễn phí căng cước 4 nút!
+                                    </div>
+                                    <a href="/Danh-Muc" class="fw-bold small text-primary text-decoration-none">
+                                        Mở trang danh mục đầy đủ →
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!-- 2. CLEAN HIGH-END TEXT LINKS (NO EMOJI CLUTTER) -->
+                        <li>
+                            <a class="pro-nav-link @(activeController == "Home" && activeAction == "Index" ? "active" : "")" 
+                               asp-controller="Home" asp-action="Index">
+                                Trang chủ
+                            </a>
+                        </li>
+                        <li>
+                            <a class="pro-nav-link @(activeCategory == "vot" ? "active" : "")" 
+                               href="/Danh-Muc?cat=vot">
+                                Vợt cầu lông
+                            </a>
+                        </li>
+                        <li>
+                            <a class="pro-nav-link @(activeCategory == "giay" ? "active" : "")" 
+                               href="/Danh-Muc?cat=giay">
+                                Giày thi đấu
+                            </a>
+                        </li>
+                        <li>
+                            <a class="pro-nav-link @(activeCategory == "quan-ao" ? "active" : "")" 
+                               href="/Danh-Muc?cat=quan-ao">
+                                Trang phục
+                            </a>
+                        </li>
+                        <li>
+                            <a class="pro-nav-link @(activeController == "RacketAdvisor" ? "active" : "")" 
+                               href="/Tu-Van-Chon-Vot">
+                                Tư vấn chọn vợt <span class="nav-pill-ai">AI</span>
+                            </a>
+                        </li>
+                        
+                        <!-- DROPDOWN DỊCH VỤ & HƯỚNG DẪN -->
+                        <li class="dropdown">
+                            <a class="pro-nav-link dropdown-toggle @(activeController == "Services" || activeController == "Guide" || activeController == "OrderTracking" ? "active" : "")" 
+                               href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Dịch vụ & Tiện ích
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-pro shadow-lg border-0 p-2" style="min-width: 290px;">
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center gap-3 p-2 rounded-3" href="/Dich-Vu-Cang-Cuoc">
+                                        <span class="fs-5">🛠️</span>
+                                        <div>
+                                            <div class="fw-bold text-dark">Căng cước máy điện tử 4 nút</div>
+                                            <small class="text-muted">Bảng giá cước & Lấy ngay sau 15p</small>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center gap-3 p-2 rounded-3" href="/Huong-Dan-Size">
+                                        <span class="fs-5">📏</span>
+                                        <div>
+                                            <div class="fw-bold text-dark">Hướng dẫn chọn Size & Cán</div>
+                                            <small class="text-muted">Đo chu vi cán G5/G6 & Size giày</small>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center gap-3 p-2 rounded-3" href="/Tra-Cuu-Don-Hang">
+                                        <span class="fs-5">📦</span>
+                                        <div>
+                                            <div class="fw-bold text-dark">Tra cứu tiến độ đơn hàng</div>
+                                            <small class="text-muted">Kiểm tra lộ trình theo Mã / SĐT</small>
+                                        </div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li>
+                            <a class="pro-nav-link @(activeController == "News" ? "active" : "")" 
+                               asp-controller="News" asp-action="Index">
+                                Cẩm nang
+                            </a>
+                        </li>
+                        <li>
+                            <a class="pro-nav-link @(activeController == "Contact" ? "active" : "")" 
+                               asp-controller="Contact" asp-action="Index">
+                                Liên hệ
+                            </a>
+                        </li>
+                    </ul>
+
+                    @if (User?.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("Staff")))
+                    {
+                        <div class="ms-3">
+                            <a class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 rounded-pill text-decoration-none fw-bold small d-inline-flex align-items-center gap-1" 
+                               asp-area="Admin" asp-controller="Products" asp-action="Index">
+                                <span>⚙️</span>
+                                <span>Quản trị</span>
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Mobile Menu Dropdown -->
+            <div class="collapse navbar-collapse d-lg-none py-3 border-top" id="mobileNavPro">
+                <div class="d-flex flex-column gap-2">
+                    <a class="pro-nav-link @(activeController == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index">🏠 Trang chủ</a>
+                    <!-- Mobile Danh Mục Accordion -->
+                    <div class="border-bottom pb-2 mb-1">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a class="pro-nav-link @(activeController == "Catalog" ? "active" : "") fw-bold text-primary" href="/Danh-Muc">
+                                📂 Danh mục sản phẩm
+                            </a>
+                            <button class="btn btn-sm btn-light border px-2 py-1 rounded-2 text-muted fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#mobileMenuCatalogSub">
+                                ▾
+                            </button>
+                        </div>
+                        <div class="collapse ps-3 mt-1" id="mobileMenuCatalogSub">
+                            <div class="small fw-bold text-dark mt-1">🏸 Vợt theo lối chơi:</div>
+                            <div class="d-flex flex-wrap gap-1 my-1">
+                                <a class="badge bg-white text-dark border text-decoration-none py-1 px-2" href="/Danh-Muc?cat=vot&sub=tan-cong">Tấn công</a>
+                                <a class="badge bg-white text-dark border text-decoration-none py-1 px-2" href="/Danh-Muc?cat=vot&sub=toan-dien">Toàn diện</a>
+                                <a class="badge bg-white text-dark border text-decoration-none py-1 px-2" href="/Danh-Muc?cat=vot&sub=phan-tat">Tốc độ</a>
+                                <a class="badge bg-white text-dark border text-decoration-none py-1 px-2" href="/Danh-Muc?cat=vot&sub=tro-luc">Trợ lực</a>
+                            </div>
+                            <div class="small fw-bold text-dark mt-2">👟 Giày thi đấu:</div>
+                            <div class="d-flex flex-wrap gap-1 my-1">
+                                <a class="badge bg-white text-dark border text-decoration-none py-1 px-2" href="/Danh-Muc?cat=giay&sub=dem-em">Đệm êm</a>
+                                <a class="badge bg-white text-dark border text-decoration-none py-1 px-2" href="/Danh-Muc?cat=giay&sub=toc-do">Tốc độ</a>
+                                <a class="badge bg-white text-dark border text-decoration-none py-1 px-2" href="/Danh-Muc?cat=giay&sub=wide">Chân bè</a>
+                            </div>
+                            <div class="small fw-bold text-dark mt-2">👕 Trang phục:</div>
+                            <div class="d-flex flex-wrap gap-1 my-1">
+                                <a class="badge bg-white text-dark border text-decoration-none py-1 px-2" href="/Danh-Muc?cat=quan-ao&sub=ao-nam">Áo nam</a>
+                                <a class="badge bg-white text-dark border text-decoration-none py-1 px-2" href="/Danh-Muc?cat=quan-ao&sub=ao-nu">Áo/Váy nữ</a>
+                                <a class="badge bg-white text-dark border text-decoration-none py-1 px-2" href="/Danh-Muc?cat=quan-ao&sub=quan-short">Quần short</a>
+                            </div>
+                            <a class="small fw-bold text-primary text-decoration-none d-block mt-2 mb-1" href="/Danh-Muc">
+                                Xem tất cả danh mục sản phẩm →
+                            </a>
+                        </div>
+                    </div>
+                    <a class="pro-nav-link" href="/Danh-Muc?cat=vot">🏸 Vợt cầu lông</a>
+                    <a class="pro-nav-link" href="/Danh-Muc?cat=giay">👟 Giày thi đấu</a>
+                    <a class="pro-nav-link" href="/Danh-Muc?cat=quan-ao">👕 Trang phục & Phụ kiện</a>
+                    <a class="pro-nav-link text-danger fw-bold" href="/Tu-Van-Chon-Vot">⚡ Tư vấn chọn vợt thông minh (AI)</a>
+                    <a class="pro-nav-link" href="/Dich-Vu-Cang-Cuoc">🛠️ Bảng giá cước & Căng vợt 4 nút</a>
+                    <a class="pro-nav-link" href="/Huong-Dan-Size">📏 Hướng dẫn chọn size vợt & giày</a>
+                    <a class="pro-nav-link" href="/Tra-Cuu-Don-Hang">📦 Tra cứu tiến độ đơn hàng</a>
+                    <a class="pro-nav-link text-danger fw-bold" asp-controller="Wishlist" asp-action="Index">❤️ Danh sách yêu thích (@totalWishlistCount)</a>
+                    @if (User?.Identity?.IsAuthenticated == true)
+                    {
+                        <a class="pro-nav-link text-primary fw-bold" asp-controller="Account" asp-action="Orders">📦 Đơn hàng của tôi</a>
+                    }
+                    <a class="pro-nav-link" asp-controller="News" asp-action="Index">📰 Cẩm nang kiến thức</a>
+                    <a class="pro-nav-link" asp-controller="Contact" asp-action="Index">📞 Liên hệ shop</a>
+
+                    @if (User?.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("Staff")))
+                    {
+                        <a class="pro-nav-link text-primary fw-bold" asp-area="Admin" asp-controller="Home" asp-action="Index">📊 Bảng Quản trị (Dashboard)</a>
+                    }
+                </div>
+
+                @if (User?.Identity?.IsAuthenticated != true)
+                {
+                    <div class="d-flex gap-2 pt-3 mt-3 border-top">
+                        <a class="btn btn-outline-dark w-50 rounded-pill fw-bold" asp-controller="Account" asp-action="Login">Đăng nhập</a>
+                        <a class="btn btn-dark w-50 rounded-pill fw-bold" asp-controller="Account" asp-action="Register">Đăng ký</a>
+                    </div>
+                }
+                else
+                {
+                    <div class="d-flex justify-content-between align-items-center pt-3 mt-3 border-top">
+                        <span class="fw-bold">👤 @User.Identity!.Name</span>
+                        <form asp-controller="Account" asp-action="Logout" method="post">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill fw-bold">Đăng xuất</button>
+                        </form>
+                    </div>
+                }
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN BODY -->
+    <main role="main">
+        @RenderBody()
+    </main>
+
+    <!-- FOOTER -->
+    <partial name="_Footer" />
+
+    <!-- 3. MOBILE BOTTOM NAVIGATION BAR (APP-LIKE) -->
+    <nav class="mobile-bottom-nav">
+        <a asp-controller="Home" asp-action="Index" class="bottom-nav-item @(activeController == "Home" ? "active" : "")">
+            <span class="bottom-nav-icon">🏠</span>
+            <span>Trang chủ</span>
+        </a>
+        <a href="/Danh-Muc" class="bottom-nav-item @(activeController == "Catalog" ? "active" : "")">
+            <span class="bottom-nav-icon">🏸</span>
+            <span>Sản phẩm</span>
+        </a>
+        <a asp-controller="Cart" asp-action="Index" class="bottom-nav-item @(activeController == "Cart" ? "active" : "")">
+            <span class="bottom-nav-icon">🛒</span>
+            <span>Giỏ hàng</span>
+            @if (totalCartCount > 0)
+            {
+                <span class="bottom-nav-badge">@(totalCartCount > 99 ? "99+" : totalCartCount.ToString())</span>
+            }
+        </a>
+        <a asp-controller="News" asp-action="Index" class="bottom-nav-item @(activeController == "News" ? "active" : "")">
+            <span class="bottom-nav-icon">📰</span>
+            <span>Cẩm nang</span>
+        </a>
+        <a asp-controller="Account" asp-action="Login" class="bottom-nav-item @(activeController == "Account" ? "active" : "")">
+            <span class="bottom-nav-icon">👤</span>
+            <span>Tài khoản</span>
+        </a>
+    </nav>
+
+    <!-- GLOBAL INTERACTIVE TOAST -->
+    <div id="proToast" class="pro-toast">
+        <span id="toastIcon">✨</span>
+        <span id="toastMsg">Thông báo thành công</span>
+    </div>
+
+    <!-- Scripts -->
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Scroll header effect
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('.pro-header');
+            if (header) {
+                if (window.scrollY > 20) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+            }
+        });
+
+        // Interactive Toast Function
+        function showToast(message, icon = '✨') {
+            const toast = document.getElementById('proToast');
+            const toastMsg = document.getElementById('toastMsg');
+            const toastIcon = document.getElementById('toastIcon');
+            if (toast && toastMsg) {
+                toastMsg.innerText = message;
+                if (toastIcon) toastIcon.innerText = icon;
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+        }
+
+        // Interactive Wishlist Toggle Function
+        function toggleWishlist(productId, btnElement) {
+            fetch('/Wishlist/Toggle?productId=' + productId, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(data.message, data.isAdded ? '❤️' : '🤍');
+                    const badge = document.getElementById('wishlistBadge');
+                    if (badge) {
+                        badge.innerText = data.count > 99 ? '99+' : data.count;
+                        if (data.count > 0) {
+                            badge.classList.remove('d-none');
+                        } else {
+                            badge.classList.add('d-none');
+                        }
+                    }
+                    if (btnElement) {
+                        if (data.isAdded) {
+                            btnElement.classList.add('active');
+                            btnElement.innerHTML = '❤️';
+                            btnElement.style.color = '#e11d48';
+                        } else {
+                            btnElement.classList.remove('active');
+                            btnElement.innerHTML = '🤍';
+                            btnElement.style.color = '';
+                        }
+                    }
+                } else {
+                    showToast(data.message || 'Lỗi xử lý yêu thích', '⚠️');
+                }
+            })
+            .catch(err => {
+                console.error('Error toggling wishlist:', err);
+                showToast('Không thể kết nối đến máy chủ', '⚠️');
+            });
+        }
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

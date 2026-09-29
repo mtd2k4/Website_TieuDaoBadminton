@@ -1,0 +1,373 @@
+@model tieudaobadminton.ViewModels.AdminProductFormVM
+@using tieudaobadminton.Models
+@{
+    ViewData["Title"] = $"Chỉnh sửa sản phẩm & Quản lý kho: {Model.Name}";
+    var totalStock = Model.ExistingVariants?.Sum(v => v.Stock) ?? 0;
+    var recentReceipts = ViewBag.RecentReceipts as List<StockReceipt> ?? new();
+}
+
+<div class="container-fluid py-3" style="max-width: 960px;">
+
+    <!-- BACK & HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <a asp-action="Index" class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold">
+            ← Quay lại danh sách sản phẩm
+        </a>
+        <div class="d-flex align-items-center gap-2">
+            <span class="text-muted small">Tổng tồn kho:</span>
+            @if (totalStock == 0)
+            {
+                <span class="badge bg-danger rounded-pill px-3 py-1 fs-6">Hết hàng (0)</span>
+            }
+            else if (totalStock <= 5)
+            {
+                <span class="badge bg-warning text-dark rounded-pill px-3 py-1 fs-6">Sắp hết (@totalStock)</span>
+            }
+            else
+            {
+                <span class="badge bg-success text-white rounded-pill px-3 py-1 fs-6">Còn @totalStock sản phẩm</span>
+            }
+        </div>
+    </div>
+
+    <!-- ALERTS -->
+    @if (TempData["Ok"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Ok"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- 1. FORM CHỈNH SỬA THÔNG TIN SẢN PHẨM (KHÔNG THAY ĐỔI TRỰC TIẾP TỒN KHO) -->
+    <form method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+                <div class="fs-2 text-primary">✏️</div>
+                <div>
+                    <h4 class="fw-black text-dark m-0">Chỉnh sửa thông tin sản phẩm #@Model.Id</h4>
+                    <div class="text-muted small">Cập nhật thông tin chi tiết, hình ảnh và giá niêm yết</div>
+                </div>
+            </div>
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <label asp-for="Name" class="form-label fw-bold text-dark">Tên sản phẩm <span class="text-danger">*</span></label>
+                    <input asp-for="Name" class="form-control rounded-3 py-2" />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="IsActive" class="form-label fw-bold text-dark">Trạng thái bán</label>
+                    <select asp-for="IsActive" class="form-select rounded-3 py-2">
+                        <option value="true">Đang mở bán</option>
+                        <option value="false">Tạm ẩn</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="CategoryId" class="form-label fw-bold text-dark">Danh mục</label>
+                    <select asp-for="CategoryId" class="form-select rounded-3 py-2" asp-items="Model.Categories"></select>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="BrandId" class="form-label fw-bold text-dark">Thương hiệu / Hãng</label>
+                    <select asp-for="BrandId" class="form-select rounded-3 py-2" asp-items="Model.Brands"></select>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Price" class="form-label fw-bold text-dark">Giá niêm yết (VNĐ)</label>
+                    <div class="input-group">
+                        <input asp-for="Price" type="number" class="form-control rounded-start-3 py-2" />
+                        <span class="input-group-text bg-light border-start-0">đ</span>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="SalePrice" class="form-label fw-bold text-dark">Giá khuyến mãi (VNĐ)</label>
+                    <div class="input-group">
+                        <input asp-for="SalePrice" type="number" class="form-control rounded-start-3 py-2" />
+                        <span class="input-group-text bg-light border-start-0">đ</span>
+                    </div>
+                </div>
+
+                <!-- ẢNH SẢN PHẨM & XEM TRƯỚC -->
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-dark">Cập nhật ảnh mới (Upload từ máy tính)</label>
+                    <input asp-for="ImageFile" type="file" class="form-control rounded-3 py-2" accept=".jpg,.jpeg,.png,.webp" />
+                    <small class="text-muted">Chọn tệp ảnh nếu bạn muốn đổi ảnh đại diện.</small>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="MainImageUrl" class="form-label fw-bold text-dark">Hoặc đường dẫn ảnh (URL)</label>
+                    <input asp-for="MainImageUrl" class="form-control rounded-3 py-2" />
+                    @if (!string.IsNullOrWhiteSpace(Model.MainImageUrl))
+                    {
+                        <div class="d-flex align-items-center gap-2 mt-2">
+                            <img src="@Model.MainImageUrl"
+                                 style="width: 52px; height: 52px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(0,0,0,.1);"
+                                 alt="@Model.Name" onerror="this.src='/img/demo/placeholder.jpg';" />
+                            <small class="text-muted">Ảnh hiện tại trên website</small>
+                        </div>
+                    }
+                </div>
+
+                <div class="col-md-12">
+                    <label asp-for="Description" class="form-label fw-bold text-dark">Mô tả sản phẩm</label>
+                    <textarea asp-for="Description" class="form-control rounded-3" rows="4"></textarea>
+                </div>
+            </div>
+
+            <!-- BẢNG PHÂN LOẠI & MÃ SKU (TỒN KHO LÀ CHỈ ĐỌC, KHÔNG THỂ SỬA TRỰC TIẾP) -->
+            <div class="mt-4 pt-3 border-top">
+                <h6 class="fw-bold text-dark mb-3">🏷️ Cấu hình mã SKU các phân loại (Tồn kho hiển thị thực tế)</h6>
+
+                @if (Model.ExistingVariants == null || Model.ExistingVariants.Count == 0)
+                {
+                    <div class="p-3 bg-light rounded-3 text-muted small">
+                        Chưa có phân loại nào. Hãy tạo phân loại mới ở mục Nhập hàng bên dưới.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle mb-0">
+                            <thead class="table-light small">
+                                <tr>
+                                    <th style="width: 120px;">SIZE / CỠ</th>
+                                    <th style="width: 120px;">MÀU SẮC</th>
+                                    <th>MÃ SKU KHO</th>
+                                    <th style="width: 180px;" class="text-center">SỐ LƯỢNG HIỆN CÓ</th>
+                                    <th style="width: 120px;" class="text-center">TÌNH TRẠNG</th>
+                                    <th style="width: 70px;" class="text-center">XÓA</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.ExistingVariants.Count; i++)
+                                {
+                                    var v = Model.ExistingVariants[i];
+                                    <tr>
+                                        <td>
+                                            <input type="hidden" name="variantIds" value="@v.Id" />
+                                            <span class="badge bg-light text-dark border fw-bold px-2 py-1">
+                                                @(string.IsNullOrWhiteSpace(v.Size) ? "Tiêu chuẩn" : v.Size)
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="text-dark fw-medium">
+                                                @(string.IsNullOrWhiteSpace(v.Color) ? "-" : v.Color)
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <input type="text" name="variantSkus" value="@v.Sku" class="form-control form-control-sm font-monospace" placeholder="Mã SKU..." />
+                                        </td>
+                                        <td class="text-center">
+                                            <!-- CHỈ ĐỌC: SỐ LƯỢNG TỒN KHO KHÔNG THỂ SỬA TRỰC TIẾP -->
+                                            <span class="badge bg-primary bg-opacity-10 text-primary fs-6 fw-bold px-3 py-1">
+                                                @v.Stock chiếc
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            @if (v.Stock == 0)
+                                            {
+                                                <span class="badge bg-danger rounded-pill px-2 py-1">Hết hàng</span>
+                                            }
+                                            else if (v.Stock <= 3)
+                                            {
+                                                <span class="badge bg-warning text-dark rounded-pill px-2 py-1">Sắp hết</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-success-subtle text-success rounded-pill px-2 py-1">Còn hàng</span>
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            @if (Model.ExistingVariants.Count > 1)
+                                            {
+                                                <button type="submit"
+                                                        formaction="@Url.Action("DeleteVariant", new { variantId = v.Id, productId = Model.Id })"
+                                                        class="btn btn-sm btn-outline-danger p-1 rounded-circle"
+                                                        title="Xóa biến thể này"
+                                                        onclick="return confirm('Bạn có chắc muốn xóa phân loại kho này?');">
+                                                    <i class="bi bi-x-lg"></i>
+                                                </button>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+
+                <div class="alert alert-light border small text-muted mt-3 mb-0">
+                    🔒 <strong>Quy định bảo toàn kho:</strong> Số lượng tồn kho <strong>không thể chỉnh sửa trực tiếp</strong> tại đây nhằm tránh sai lệch số liệu. Để tăng số lượng, vui lòng sử dụng biểu mẫu <strong>Phiếu Nhập Hàng</strong> bên dưới.
+                </div>
+            </div>
+
+            <!-- BUTTONS -->
+            <div class="d-flex justify-content-end gap-2 pt-3 mt-3 border-top">
+                <a asp-action="Index" class="btn btn-light rounded-pill px-4 fw-bold">Hủy bỏ</a>
+                <button type="submit" class="btn btn-dark rounded-pill px-4 fw-bold">
+                    ✓ Lưu thông tin sản phẩm
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <!-- 2. PHIẾU NHẬP HÀNG BỔ SUNG (RESTOCK - TĂNG DẦN SỐ LƯỢNG) -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4 border-start border-4 border-success">
+        <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
+            <div class="fs-2 text-success">📥</div>
+            <div>
+                <h5 class="fw-black text-dark m-0">Phiếu Nhập Hàng Bổ Sung Vào Kho</h5>
+                <div class="text-muted small">Cộng dồn số lượng sản phẩm nhập về từ nhà phân phối / xưởng sản xuất</div>
+            </div>
+        </div>
+
+        <form method="post" asp-action="Restock">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="productId" value="@Model.Id" />
+            <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
+
+            <div class="row g-3 align-items-end">
+                <!-- CHỌN PHÂN LOẠI CẦN NHẬP NẾU CÓ NHIỀU SIZE -->
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold text-muted">PHÂN LOẠI CẦN NHẬP</label>
+                    @if (Model.ExistingVariants != null && Model.ExistingVariants.Count > 1)
+                    {
+                        <select name="variantId" class="form-select rounded-3 py-2 fw-semibold">
+                            <option value="">-- Nhập đồng loạt cho tất cả phân loại --</option>
+                            @foreach (var v in Model.ExistingVariants)
+                            {
+                                <option value="@v.Id">
+                                    Size: @(v.Size ?? "Chuẩn") @(string.IsNullOrWhiteSpace(v.Color) ? "" : $"- {v.Color}") (Hiện có: @v.Stock)
+                                </option>
+                            }
+                        </select>
+                    }
+                    else if (Model.ExistingVariants != null && Model.ExistingVariants.Count == 1)
+                    {
+                        <input type="hidden" name="variantId" value="@Model.ExistingVariants.First().Id" />
+                        <input type="text" class="form-control rounded-3 py-2 bg-light text-muted" value="Phân loại tiêu chuẩn (Hiện có: @totalStock)" readonly />
+                    }
+                    else
+                    {
+                        <input type="text" class="form-control rounded-3 py-2 bg-light text-muted" value="Nhập hàng lần đầu" readonly />
+                    }
+                </div>
+
+                <!-- SỐ LƯỢNG NHẬP THÊM -->
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-dark">SỐ LƯỢNG NHẬP THÊM (+) <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-success text-white fw-bold">+</span>
+                        <input type="number" name="quantity" min="1" value="10" class="form-control rounded-end-3 py-2 fw-bold text-primary fs-5" required />
+                    </div>
+                </div>
+
+                <!-- GHI CHÚ NHẬP KHO -->
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-muted">GHI CHÚ / NGUỒN HÀNG</label>
+                    <input type="text" name="note" class="form-control rounded-3 py-2" placeholder="VD: Lô hàng Yonex Sunrise..." />
+                </div>
+
+                <!-- NÚT XÁC NHẬN -->
+                <div class="col-md-2 d-grid">
+                    <button type="submit" class="btn btn-success rounded-pill fw-bold py-2 shadow-sm">
+                        📥 Xác nhận nhập
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- 3. THÊM PHÂN LOẠI SIZE/MÀU MỚI (NẾU CÓ SIZE MỚI) -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+        <h6 class="fw-bold text-dark mb-3">➕ Khai báo thêm phân loại Size / Màu mới</h6>
+        <form method="post" asp-action="AddVariant">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="productId" value="@Model.Id" />
+
+            <div class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-muted">KÍCH THƯỚC (SIZE)</label>
+                    <input type="text" name="size" class="form-control rounded-3" placeholder="Ví dụ: 4U-G5, 42 hoặc XL" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-muted">MÀU SẮC</label>
+                    <input type="text" name="color" class="form-control rounded-3" placeholder="Ví dụ: Trắng / Đỏ, Đen / Vàng" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted">SL NHẬP BAN ĐẦU</label>
+                    <input type="number" min="0" name="stock" value="10" class="form-control rounded-3 fw-bold text-primary" required />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted">MÃ SKU</label>
+                    <input type="text" name="sku" class="form-control rounded-3 font-monospace" placeholder="Tự sinh nếu trống" />
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button type="submit" class="btn btn-outline-dark rounded-pill fw-bold py-2">
+                        + Tạo phân loại
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- 4. LỊCH SỬ NHẬP KHO GẦN ĐÂY -->
+    @if (recentReceipts.Count > 0)
+    {
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-5">
+            <h6 class="fw-bold text-dark mb-3">📜 Nhật ký các lần nhập hàng gần đây của sản phẩm</h6>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover align-middle mb-0 small">
+                    <thead class="table-light">
+                        <tr>
+                            <th>THỜI GIAN</th>
+                            <th>PHÂN LOẠI</th>
+                            <th class="text-center">SỐ LƯỢNG NHẬP</th>
+                            <th class="text-center">TỒN TRƯỚC → SAU</th>
+                            <th>GHI CHÚ</th>
+                            <th>NGƯỜI THỰC HIỆN</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in recentReceipts)
+                        {
+                            <tr>
+                                <td class="text-muted">@r.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">
+                                        @(r.ProductVariant?.Size ?? "Tiêu chuẩn")
+                                    </span>
+                                </td>
+                                <td class="text-center fw-bold text-success">+@r.QuantityAdded chiếc</td>
+                                <td class="text-center font-monospace">@r.PreviousStock → <strong>@r.NewStock</strong></td>
+                                <td class="text-muted">@r.Note</td>
+                                <td><span class="badge bg-dark rounded-pill">@r.CreatedBy</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

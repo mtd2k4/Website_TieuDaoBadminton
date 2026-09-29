@@ -1,0 +1,171 @@
+@model List<tieudaobadminton.Models.Order>
+@{
+    ViewData["Title"] = "Quản lý đơn hàng";
+    var currentStatus = ViewBag.CurrentStatus as string ?? "";
+    var search = ViewBag.Search as string ?? "";
+}
+
+<div class="container-fluid py-3">
+
+    <!-- ALERT MESSAGES -->
+    @if (TempData["Ok"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            ✓ @TempData["Ok"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- STATS CARDS -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm p-3 rounded-4 bg-white">
+                <div class="text-muted small fw-bold">TỔNG ĐƠN HÀNG</div>
+                <div class="fs-3 fw-bold text-dark mt-1">@ViewBag.TotalOrders</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm p-3 rounded-4 bg-white">
+                <div class="text-muted small fw-bold">CHỜ XỬ LÝ</div>
+                <div class="fs-3 fw-bold text-warning mt-1">@ViewBag.PendingOrders</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm p-3 rounded-4 bg-white">
+                <div class="text-muted small fw-bold">ĐÃ HOÀN THÀNH</div>
+                <div class="fs-3 fw-bold text-success mt-1">@ViewBag.DoneOrders</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm p-3 rounded-4 bg-white">
+                <div class="text-muted small fw-bold">DOANH THU ĐƠN DONE</div>
+                <div class="fs-3 fw-bold text-primary mt-1">@(((decimal)ViewBag.TotalRevenue).ToString("n0")) đ</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FILTER & SEARCH BAR -->
+    <div class="card border-0 shadow-sm p-3 rounded-4 mb-4 bg-white">
+        <form method="get" class="row g-2 align-items-center">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <input type="text" name="search" value="@search" class="form-control rounded-pill-start" placeholder="Tìm theo mã đơn, họ tên, số điện thoại..." />
+                    <button class="btn btn-dark" type="submit">Tìm</button>
+                </div>
+            </div>
+
+            <!-- Status Filter Pills -->
+            <div class="col-md-7 d-flex flex-wrap gap-1 justify-content-md-end">
+                <a class="btn btn-sm rounded-pill @(string.IsNullOrEmpty(currentStatus) ? "btn-dark" : "btn-light border")" 
+                   asp-action="Index" asp-route-search="@search">
+                    Tất cả
+                </a>
+                <a class="btn btn-sm rounded-pill @(currentStatus == "Pending" ? "btn-warning text-dark fw-bold" : "btn-light border")" 
+                   asp-action="Index" asp-route-status="Pending" asp-route-search="@search">
+                    Chờ duyệt (@ViewBag.PendingOrders)
+                </a>
+                <a class="btn btn-sm rounded-pill @(currentStatus == "Shipping" ? "btn-info text-dark fw-bold" : "btn-light border")" 
+                   asp-action="Index" asp-route-status="Shipping" asp-route-search="@search">
+                    Đang giao
+                </a>
+                <a class="btn btn-sm rounded-pill @(currentStatus == "Done" ? "btn-success text-white fw-bold" : "btn-light border")" 
+                   asp-action="Index" asp-route-status="Done" asp-route-search="@search">
+                    Hoàn thành
+                </a>
+                <a class="btn btn-sm rounded-pill @(currentStatus == "Cancelled" ? "btn-danger text-white fw-bold" : "btn-light border")" 
+                   asp-action="Index" asp-route-status="Cancelled" asp-route-search="@search">
+                    Đã hủy
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- ORDERS TABLE -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+        @if (Model.Count == 0)
+        {
+            <div class="text-center py-5 text-muted">
+                <div class="fs-1">📦</div>
+                <div>Không tìm thấy đơn hàng nào phù hợp.</div>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-muted small">
+                        <tr>
+                            <th class="ps-3">MÃ ĐƠN</th>
+                            <th>KHÁCH HÀNG</th>
+                            <th>ĐỊA CHỈ</th>
+                            <th class="text-center">SỐ MÓN</th>
+                            <th class="text-end">TỔNG TIỀN</th>
+                            <th>NGÀY ĐẶT</th>
+                            <th class="text-center">TRẠNG THÁI</th>
+                            <th class="text-end pe-3">THAO TÁC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var o in Model)
+                        {
+                            var badgeClass = "bg-warning text-dark";
+                            var statusText = "Chờ xử lý";
+
+                            if (o.Status == "Shipping")
+                            {
+                                badgeClass = "bg-info text-dark";
+                                statusText = "Đang giao";
+                            }
+                            else if (o.Status == "Done")
+                            {
+                                badgeClass = "bg-success text-white";
+                                statusText = "Hoàn thành";
+                            }
+                            else if (o.Status == "Cancelled")
+                            {
+                                badgeClass = "bg-danger text-white";
+                                statusText = "Đã hủy";
+                            }
+
+                            <tr>
+                                <td class="ps-3 fw-bold text-primary font-monospace">#@($"DH{o.Id:D5}")</td>
+                                <td>
+                                    <div class="fw-semibold text-dark">@o.FullName</div>
+                                    <div class="small text-muted">📞 @o.Phone</div>
+                                </td>
+                                <td>
+                                    <div class="small text-muted text-truncate" style="max-width: 220px;" title="@o.Address">
+                                        @o.Address
+                                    </div>
+                                </td>
+                                <td class="text-center fw-semibold">
+                                    @(o.Items?.Sum(i => i.Quantity) ?? 0)
+                                </td>
+                                <td class="text-end fw-bold text-danger">
+                                    @o.Total.ToString("n0") đ
+                                </td>
+                                <td class="small text-muted">
+                                    @o.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge @badgeClass rounded-pill px-3 py-1">@statusText</span>
+                                </td>
+                                <td class="text-end pe-3">
+                                    <div class="d-inline-flex gap-1 align-items-center">
+                                        <a class="btn btn-sm btn-outline-secondary rounded-pill px-2" asp-action="Print" asp-route-id="@o.Id" target="_blank" title="In phiếu giao hàng">
+                                            <i class="bi bi-printer"></i>
+                                        </a>
+                                        <a class="btn btn-sm btn-dark rounded-pill px-3 fw-semibold" asp-action="Detail" asp-route-id="@o.Id">
+                                            Chi tiết →
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+</div>

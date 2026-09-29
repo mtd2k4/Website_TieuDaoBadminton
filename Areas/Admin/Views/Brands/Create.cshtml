@@ -1,0 +1,45 @@
+@model tieudaobadminton.Models.Brand
+@{
+    ViewData["Title"] = "Thêm thương hiệu mới";
+}
+
+<div class="container-fluid py-3" style="max-width: 760px;">
+
+    <!-- BACK -->
+    <div class="mb-3">
+        <a asp-action="Index" class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold">
+            ← Quay lại danh sách thương hiệu
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+        <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+            <div class="fs-2 text-danger">🏷️</div>
+            <div>
+                <h4 class="fw-black text-dark m-0">Thêm thương hiệu mới</h4>
+                <div class="text-muted small">Khai báo hãng sản xuất vợt & phụ kiện thể thao cầu lông</div>
+            </div>
+        </div>
+
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="mb-4">
+                <label asp-for="Name" class="form-label fw-bold text-dark">Tên thương hiệu <span class="text-danger">*</span></label>
+                <input asp-for="Name" class="form-control rounded-3 py-2" placeholder="Ví dụ: Yonex, Victor, Li-Ning, Mizuno, Felet, Apacs..." autofocus />
+                <span asp-validation-for="Name" class="text-danger small"></span>
+                <small class="text-muted d-block mt-1">Tên thương hiệu sẽ hiển thị ở bộ lọc trang chủ, trang sản phẩm và bảng thông số vợt.</small>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                <a asp-action="Index" class="btn btn-light rounded-pill px-4 fw-bold">Hủy bỏ</a>
+                <button type="submit" class="btn btn-dark rounded-pill px-4 fw-bold">
+                    ✓ Tạo thương hiệu
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>

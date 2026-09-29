@@ -1,0 +1,385 @@
+@model tieudaobadminton.Areas.Admin.ViewModels.ProfitComparisonSummaryVM
+@{
+    ViewData["Title"] = "Báo cáo đối chiếu Bán & Nhập - Lãi suất sản phẩm";
+
+    int startItem = Model.TotalItems == 0 ? 0 : (Model.Page - 1) * Model.PageSize + 1;
+    int endItem = Math.Min(Model.Page * Model.PageSize, Model.TotalItems);
+
+    int maxDisplay = 5;
+    int startPage = Math.Max(1, Model.Page - 2);
+    int endPage = Math.Min(Model.TotalPages, startPage + maxDisplay - 1);
+    if (endPage - startPage < maxDisplay - 1)
+    {
+        startPage = Math.Max(1, endPage - maxDisplay + 1);
+    }
+}
+
+<div class="container-fluid py-3">
+
+    <!-- HEADER & ACTION -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+        <div>
+            <h4 class="fw-black text-dark m-0">📊 Báo Cáo Đối Chiếu Bán & Nhập</h4>
+            <div class="text-muted small">Phân tích tỷ suất lợi nhuận, biên độ lãi suất đối chiếu giữa giá bán và giá vốn nhập hàng</div>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Index" class="btn btn-outline-dark rounded-pill px-4 fw-bold shadow-sm">
+                ← Danh sách phiếu nhập
+            </a>
+            <a asp-action="Create" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm">
+                <i class="bi bi-plus-lg me-1"></i> Nhập hàng mới
+            </a>
+        </div>
+    </div>
+
+    <!-- 4 FINANCIAL KPI CARDS -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm p-3 rounded-4 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-bold text-uppercase">TỔNG DOANH THU ĐƠN BÁN</div>
+                        <div class="fs-3 fw-bold text-primary mt-1">@Model.TotalRevenue.ToString("n0") <small class="fs-6 text-muted fw-normal">đ</small></div>
+                    </div>
+                    <div class="kpi-icon-badge bg-primary bg-opacity-10 text-primary fs-3">💰</div>
+                </div>
+                <div class="small text-muted mt-2 pt-2 border-top">
+                    Từ các đơn hàng thành công (Done)
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm p-3 rounded-4 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-bold text-uppercase">TỔNG GIÁ VỐN HÀNG ĐÃ BÁN</div>
+                        <div class="fs-3 fw-bold text-danger mt-1">@Model.TotalCostOfGoodsSold.ToString("n0") <small class="fs-6 text-muted fw-normal">đ</small></div>
+                    </div>
+                    <div class="kpi-icon-badge bg-danger bg-opacity-10 text-danger fs-3">📥</div>
+                </div>
+                <div class="small text-muted mt-2 pt-2 border-top">
+                    Chi phí vốn nhập tương ứng
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm p-3 rounded-4 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-bold text-uppercase">LỢI NHUẬN GỘP THỰC THU</div>
+                        <div class="fs-3 fw-bold text-success mt-1">@Model.TotalGrossProfit.ToString("n0") <small class="fs-6 text-muted fw-normal">đ</small></div>
+                    </div>
+                    <div class="kpi-icon-badge bg-success bg-opacity-10 text-success fs-3">📈</div>
+                </div>
+                <div class="small text-muted mt-2 pt-2 border-top">
+                    Doanh thu trừ đi tiền vốn nhập
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm p-3 rounded-4 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-bold text-uppercase">TỶ SUẤT LÃI SUẤT TRUNG BÌNH</div>
+                        <div class="fs-3 fw-bold text-warning-emphasis mt-1">@Model.AverageMarginPercent% <small class="fs-6 text-muted fw-normal">lãi</small></div>
+                    </div>
+                    <div class="kpi-icon-badge bg-warning bg-opacity-10 text-warning fs-3">🎯</div>
+                </div>
+                <div class="small text-muted mt-2 pt-2 border-top">
+                    Markup trên vốn nhập: <strong>+@Model.AverageMarkupPercent%</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FORMULA EXPLANATION BANNER -->
+    <div class="card border-0 shadow-sm p-3 rounded-4 bg-white mb-4 border-start border-4 border-info">
+        <div class="d-flex align-items-center gap-3">
+            <div class="fs-3 text-info">ℹ️</div>
+            <div class="small text-muted">
+                <strong>Quy tắc đối chiếu tài chính:</strong>
+                <strong>Lãi trên 1 món</strong> = Giá bán - Đơn giá nhập •
+                <strong>% Lãi suất (Margin)</strong> = (Lãi / Giá bán) × 100% •
+                <strong>% Lãi trên vốn (Markup)</strong> = (Lãi / Giá nhập) × 100% •
+                Số liệu được tính toán tự động dựa trên đơn giá nhập gần nhất và doanh số bán hàng thực tế.
+            </div>
+        </div>
+    </div>
+
+    <!-- FILTER & SEARCH BAR -->
+    <div class="card border-0 shadow-sm p-3 rounded-4 mb-4 bg-white">
+        <form class="row g-2 align-items-center" method="get">
+            <div class="col-lg-3 col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
+                    <input name="search" value="@Model.Search" class="form-control border-start-0" placeholder="Tìm theo tên sản phẩm, hãng..." />
+                </div>
+            </div>
+
+            <div class="col-lg-2 col-md-6">
+                <select name="categoryId" class="form-select">
+                    <option value="">-- Tất cả danh mục --</option>
+                    @foreach (var c in Model.CategoriesList)
+                    {
+                        <option value="@c.Value" selected="@c.Selected">@c.Text</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-lg-2 col-md-4">
+                <select name="marginFilter" class="form-select">
+                    <option value="" selected="@(string.IsNullOrEmpty(Model.MarginFilter))">-- Tỷ suất lãi suất --</option>
+                    <option value="super" selected="@(Model.MarginFilter == "super")">🔥 Siêu lãi (≥ 45%)</option>
+                    <option value="good" selected="@(Model.MarginFilter == "good")">✓ Lãi tốt (30% - 44%)</option>
+                    <option value="normal" selected="@(Model.MarginFilter == "normal")">⚡ Bình thường (20% - 29%)</option>
+                    <option value="low" selected="@(Model.MarginFilter == "low")">⚠️ Lãi mỏng (&lt; 20%)</option>
+                </select>
+            </div>
+
+            <div class="col-lg-3 col-md-4">
+                <select name="sortBy" class="form-select">
+                    <option value="revenue_desc" selected="@(Model.SortBy == "revenue_desc")">Doanh thu cao nhất</option>
+                    <option value="profit_desc" selected="@(Model.SortBy == "profit_desc")">Lợi nhuận cao nhất</option>
+                    <option value="margin_desc" selected="@(Model.SortBy == "margin_desc")">% Lãi suất cao nhất</option>
+                    <option value="margin_asc" selected="@(Model.SortBy == "margin_asc")">% Lãi suất thấp nhất</option>
+                    <option value="sold_desc" selected="@(Model.SortBy == "sold_desc")">Bán chạy nhất (Số lượng)</option>
+                    <option value="name_asc" selected="@(Model.SortBy == "name_asc")">Tên sản phẩm (A - Z)</option>
+                </select>
+            </div>
+
+            <div class="col-lg-2 col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-dark fw-bold rounded-pill px-3 flex-grow-1">
+                    <i class="bi bi-funnel me-1"></i> Lọc
+                </button>
+                @if (!string.IsNullOrEmpty(Model.Search) || Model.CategoryId.HasValue || !string.IsNullOrEmpty(Model.MarginFilter) || Model.SortBy != "revenue_desc")
+                {
+                    <a asp-action="Report" class="btn btn-outline-secondary rounded-circle p-2" title="Xóa bộ lọc" style="width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </a>
+                }
+            </div>
+        </form>
+    </div>
+
+    <!-- COMPARISON TABLE -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white mb-5">
+        @if (Model.ReportItems.Count == 0)
+        {
+            <div class="text-center py-5 text-muted">
+                <div class="fs-1">🔍</div>
+                <div class="mt-2 fw-semibold">Không tìm thấy sản phẩm nào phù hợp với bộ lọc đối chiếu lãi suất.</div>
+                <a asp-action="Report" class="btn btn-outline-dark rounded-pill px-4 mt-3">Xóa bộ lọc</a>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-muted small">
+                        <tr>
+                            <th class="ps-4">SẢN PHẨM & HÃNG</th>
+                            <th class="text-end" style="width: 130px;">GIÁ VỐN (NHẬP)</th>
+                            <th class="text-end" style="width: 130px;">GIÁ BÁN</th>
+                            <th class="text-end" style="width: 130px;">LÃI / 1 MÓN</th>
+                            <th class="text-center" style="width: 160px;">% TỶ SUẤT LÃI SUẤT</th>
+                            <th class="text-center" style="width: 90px;">ĐÃ BÁN</th>
+                            <th class="text-end" style="width: 140px;">DOANH THU</th>
+                            <th class="text-end pe-4" style="width: 150px;">LỢI NHUẬN THỰC THU</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.ReportItems)
+                        {
+                            var badgeClass = "bg-success-subtle text-success";
+                            var badgeText = "Lãi cao";
+
+                            if (item.ProfitMarginPercent >= 45)
+                            {
+                                badgeClass = "bg-primary-subtle text-primary";
+                                badgeText = "Siêu lãi";
+                            }
+                            else if (item.ProfitMarginPercent >= 30)
+                            {
+                                badgeClass = "bg-success-subtle text-success";
+                                badgeText = "Lãi tốt";
+                            }
+                            else if (item.ProfitMarginPercent >= 20)
+                            {
+                                badgeClass = "bg-warning-subtle text-warning-emphasis";
+                                badgeText = "Bình thường";
+                            }
+                            else
+                            {
+                                badgeClass = "bg-secondary-subtle text-secondary";
+                                badgeText = "Lãi mỏng";
+                            }
+
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img src="@(item.ImageUrl ?? "/img/demo/placeholder.jpg")"
+                                             style="width: 44px; height: 44px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(0,0,0,.08);"
+                                             alt="@item.ProductName" onerror="this.src='/img/demo/placeholder.jpg';" />
+                                        <div>
+                                            <div class="fw-bold text-dark fs-6 text-truncate" style="max-width: 260px;" title="@item.ProductName">@item.ProductName</div>
+                                            <div class="small text-muted">
+                                                <span class="badge bg-light text-dark border">@item.BrandName</span> • @item.CategoryName
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- GIÁ VỐN NHẬP -->
+                                <td class="text-end fw-semibold text-muted">
+                                    @item.UnitCostPrice.ToString("n0") đ
+                                </td>
+
+                                <!-- GIÁ BÁN -->
+                                <td class="text-end fw-bold text-dark">
+                                    @item.RetailPrice.ToString("n0") đ
+                                </td>
+
+                                <!-- LÃI / 1 MÓN -->
+                                <td class="text-end fw-bold text-success">
+                                    +@item.UnitProfit.ToString("n0") đ
+                                </td>
+
+                                <!-- % TỶ SUẤT LÃI SUẤT -->
+                                <td class="text-center">
+                                    <span class="badge @badgeClass rounded-pill px-3 py-1 fw-bold fs-6">
+                                        +@item.ProfitMarginPercent%
+                                    </span>
+                                    <div class="small text-muted mt-1" style="font-size: 0.72rem;">
+                                        Markup: +@item.MarkupPercent% • @badgeText
+                                    </div>
+                                </td>
+
+                                <!-- ĐÃ BÁN -->
+                                <td class="text-center fw-bold">
+                                    @if (item.TotalSoldUnits > 0)
+                                    {
+                                        <span class="badge bg-dark rounded-pill px-2 py-1">@item.TotalSoldUnits</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">0</span>
+                                    }
+                                </td>
+
+                                <!-- DOANH THU -->
+                                <td class="text-end fw-semibold text-primary">
+                                    @item.TotalRevenue.ToString("n0") đ
+                                </td>
+
+                                <!-- LỢI NHUẬN THỰC THU -->
+                                <td class="text-end pe-4">
+                                    <div class="fw-black text-success fs-6">
+                                        +@item.GrossProfit.ToString("n0") đ
+                                    </div>
+                                    <div class="small text-muted" style="font-size: 0.72rem;">
+                                        Vốn: @item.TotalCostSold.ToString("n0") đ
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-light">
+                            <th colspan="6" class="text-end fs-6 fw-bold ps-4">TỔNG CỘNG TOÀN SHOP (@Model.TotalItems sản phẩm):</th>
+                            <th class="text-end text-primary fs-5 fw-black">@Model.TotalRevenue.ToString("n0") đ</th>
+                            <th class="text-end pe-4 text-success fs-5 fw-black">+@Model.TotalGrossProfit.ToString("n0") đ</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- PHÂN TRANG (PAGINATION) -->
+            <div class="p-3 border-top d-flex flex-wrap justify-content-between align-items-center gap-2 bg-light bg-opacity-50">
+                <div class="text-muted small">
+                    Hiển thị <strong>@startItem</strong> - <strong>@endItem</strong> trên tổng số <strong>@Model.TotalItems</strong> sản phẩm
+                </div>
+
+                @if (Model.TotalPages > 1)
+                {
+                    <nav aria-label="Phân trang báo cáo lãi suất">
+                        <ul class="pagination pagination-sm m-0 gap-1">
+                            <!-- NÚT TRANG ĐẦU -->
+                            <li class="page-item @(Model.Page == 1 ? "disabled" : "")">
+                                <a class="page-link rounded-pill px-2 border"
+                                   asp-action="Report"
+                                   asp-route-page="1"
+                                   asp-route-search="@Model.Search"
+                                   asp-route-categoryId="@Model.CategoryId"
+                                   asp-route-marginFilter="@Model.MarginFilter"
+                                   asp-route-sortBy="@Model.SortBy"
+                                   title="Trang đầu">
+                                    «
+                                </a>
+                            </li>
+
+                            <!-- NÚT TRANG TRƯỚC -->
+                            <li class="page-item @(Model.Page == 1 ? "disabled" : "")">
+                                <a class="page-link rounded-pill px-3 border"
+                                   asp-action="Report"
+                                   asp-route-page="@(Model.Page - 1)"
+                                   asp-route-search="@Model.Search"
+                                   asp-route-categoryId="@Model.CategoryId"
+                                   asp-route-marginFilter="@Model.MarginFilter"
+                                   asp-route-sortBy="@Model.SortBy">
+                                    ‹ Trước
+                                </a>
+                            </li>
+
+                            <!-- CÁC TRANG SỐ -->
+                            @for (int i = startPage; i <= endPage; i++)
+                            {
+                                <li class="page-item @(i == Model.Page ? "active" : "")">
+                                    <a class="page-link rounded-pill px-3 border @(i == Model.Page ? "bg-dark border-dark text-white fw-bold" : "")"
+                                       asp-action="Report"
+                                       asp-route-page="@i"
+                                       asp-route-search="@Model.Search"
+                                       asp-route-categoryId="@Model.CategoryId"
+                                       asp-route-marginFilter="@Model.MarginFilter"
+                                       asp-route-sortBy="@Model.SortBy">
+                                        @i
+                                    </a>
+                                </li>
+                            }
+
+                            <!-- NÚT TRANG TIẾP -->
+                            <li class="page-item @(Model.Page == Model.TotalPages ? "disabled" : "")">
+                                <a class="page-link rounded-pill px-3 border"
+                                   asp-action="Report"
+                                   asp-route-page="@(Model.Page + 1)"
+                                   asp-route-search="@Model.Search"
+                                   asp-route-categoryId="@Model.CategoryId"
+                                   asp-route-marginFilter="@Model.MarginFilter"
+                                   asp-route-sortBy="@Model.SortBy">
+                                    Tiếp ›
+                                </a>
+                            </li>
+
+                            <!-- NÚT TRANG CUỐI -->
+                            <li class="page-item @(Model.Page == Model.TotalPages ? "disabled" : "")">
+                                <a class="page-link rounded-pill px-2 border"
+                                   asp-action="Report"
+                                   asp-route-page="@Model.TotalPages"
+                                   asp-route-search="@Model.Search"
+                                   asp-route-categoryId="@Model.CategoryId"
+                                   asp-route-marginFilter="@Model.MarginFilter"
+                                   asp-route-sortBy="@Model.SortBy"
+                                   title="Trang cuối">
+                                    »
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                }
+            </div>
+        }
+    </div>
+
+</div>

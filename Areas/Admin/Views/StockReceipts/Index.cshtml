@@ -1,0 +1,251 @@
+@model List<tieudaobadminton.Models.StockReceipt>
+@{
+    ViewData["Title"] = "Quản lý nhập hàng & Phiếu nhập kho";
+    var search = (string)(ViewBag.Search ?? "");
+    var supplier = (string)(ViewBag.Supplier ?? "");
+    var suppliers = ViewBag.Suppliers as List<string> ?? new();
+
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    int totalCount = ViewBag.TotalCount ?? 0;
+    int startItem = ViewBag.StartItem ?? 0;
+    int endItem = ViewBag.EndItem ?? 0;
+}
+
+<div class="container-fluid py-3">
+
+    <!-- HEADER & ACTION -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+        <div>
+            <h4 class="fw-black text-dark m-0">📥 Quản lý nhập hàng & Phiếu nhập kho</h4>
+            <div class="text-muted small">Theo dõi lịch sử nhập hàng từ nhà phân phối, nguồn gốc xuất xứ và chi phí vốn nhập kho</div>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Report" class="btn btn-outline-primary rounded-pill px-4 fw-bold shadow-sm">
+                <i class="bi bi-graph-up-arrow me-1"></i> Báo cáo Lãi suất Bán & Nhập
+            </a>
+            <a asp-action="Create" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm">
+                <i class="bi bi-plus-lg me-1"></i> Tạo phiếu nhập hàng mới
+            </a>
+        </div>
+    </div>
+
+    <!-- ALERTS -->
+    @if (TempData["Ok"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Ok"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- 4 KPI CARDS -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm p-3 rounded-4 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-bold text-uppercase">TỔNG ĐỢT NHẬP HÀNG</div>
+                        <div class="fs-3 fw-bold text-dark mt-1">@ViewBag.TotalReceiptsCount <small class="fs-6 text-muted fw-normal">phiếu</small></div>
+                    </div>
+                    <div class="kpi-icon-badge bg-primary bg-opacity-10 text-primary fs-3">📜</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm p-3 rounded-4 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-bold text-uppercase">TỔNG SỐ LƯỢNG ĐÃ NHẬP</div>
+                        <div class="fs-3 fw-bold text-success mt-1">@(((int)ViewBag.TotalUnitsImported).ToString("n0")) <small class="fs-6 text-muted fw-normal">chiếc/đôi</small></div>
+                    </div>
+                    <div class="kpi-icon-badge bg-success bg-opacity-10 text-success fs-3">📦</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm p-3 rounded-4 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-bold text-uppercase">TỔNG TIỀN VỐN NHẬP KHO</div>
+                        <div class="fs-3 fw-bold text-danger mt-1">@(((decimal)ViewBag.TotalImportAmount).ToString("n0")) <small class="fs-6 text-muted fw-normal">đ</small></div>
+                    </div>
+                    <div class="kpi-icon-badge bg-danger bg-opacity-10 text-danger fs-3">💰</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm p-3 rounded-4 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-bold text-uppercase">NHÀ CUNG CẤP HỢP TÁC</div>
+                        <div class="fs-3 fw-bold text-primary mt-1">@ViewBag.TotalSuppliersCount <small class="fs-6 text-muted fw-normal">đối tác</small></div>
+                    </div>
+                    <div class="kpi-icon-badge bg-info bg-opacity-10 text-info fs-3">🤝</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FILTER BAR -->
+    <div class="card border-0 shadow-sm p-3 rounded-4 mb-4 bg-white">
+        <form class="row g-2 align-items-center" method="get">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
+                    <input name="search" value="@search" class="form-control border-start-0" placeholder="Tìm theo tên sản phẩm, mã lô hàng, nhà cung cấp..." />
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <select name="supplier" class="form-select">
+                    <option value="">-- Tất cả nhà cung cấp / Nguồn gốc --</option>
+                    @foreach (var s in suppliers)
+                    {
+                        <option value="@s" selected="@(supplier == s)">@s</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-2 d-grid">
+                <button class="btn btn-dark fw-bold rounded-pill">Lọc</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- RECEIPTS TABLE -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white mb-4">
+        @if (Model.Count == 0)
+        {
+            <div class="text-center py-5 text-muted">
+                <div class="fs-1">📥</div>
+                <div class="mt-2">Chưa có phiếu nhập hàng nào phù hợp điều kiện lọc.</div>
+                <a asp-action="Create" class="btn btn-success rounded-pill px-4 mt-3">
+                    + Tạo phiếu nhập hàng đầu tiên
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-muted small">
+                        <tr>
+                            <th class="ps-4" style="width: 100px;">MÃ PHIẾU</th>
+                            <th>SẢN PHẨM & PHÂN LOẠI</th>
+                            <th>NGUỒN GỐC / NHÀ CUNG CẤP</th>
+                            <th>MÃ LÔ HÀNG</th>
+                            <th class="text-center">SỐ LƯỢNG</th>
+                            <th class="text-end">ĐƠN GIÁ NHẬP</th>
+                            <th class="text-end">TỔNG TIỀN NHẬP</th>
+                            <th>NGÀY NHẬP</th>
+                            <th class="text-end pe-4" style="width: 110px;">CHI TIẾT</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 font-monospace fw-bold text-primary">#NK@r.Id.ToString("D5")</td>
+                                <td>
+                                    <div class="fw-bold text-dark fs-6">@r.Product?.Name</div>
+                                    <div class="small text-muted d-flex align-items-center gap-2 mt-1">
+                                        <span class="badge bg-light text-dark border">
+                                            @(r.ProductVariant?.Size ?? "Tiêu chuẩn") @(string.IsNullOrWhiteSpace(r.ProductVariant?.Color) ? "" : $"- {r.ProductVariant.Color}")
+                                        </span>
+                                        <span class="badge bg-primary-subtle text-primary">@r.Product?.Brand?.Name</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold text-dark">@r.SupplierName</div>
+                                    <div class="small text-muted">
+                                        <i class="bi bi-geo-alt me-1"></i>@(r.OriginCountry ?? "Chính hãng")
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="font-monospace small badge bg-light text-muted border">
+                                        @(string.IsNullOrWhiteSpace(r.BatchNumber) ? "-" : r.BatchNumber)
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-success-subtle text-success fs-6 fw-bold px-3 py-1 rounded-pill">
+                                        +@r.QuantityAdded chiếc
+                                    </span>
+                                    <div class="small text-muted mt-1" style="font-size: 0.75rem;">
+                                        Tồn: @r.PreviousStock → <strong>@r.NewStock</strong>
+                                    </div>
+                                </td>
+                                <td class="text-end text-muted">
+                                    @(r.UnitImportPrice > 0 ? r.UnitImportPrice.ToString("n0") + " đ" : "-")
+                                </td>
+                                <td class="text-end fw-bold text-danger fs-6">
+                                    @(r.TotalImportCost > 0 ? r.TotalImportCost.ToString("n0") + " đ" : "-")
+                                </td>
+                                <td class="small text-muted">
+                                    <div>@r.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy")</div>
+                                    <div style="font-size: 0.75rem;">@r.CreatedAt.ToLocalTime().ToString("HH:mm") • @r.CreatedBy</div>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <a asp-action="Detail" asp-route-id="@r.Id" class="btn btn-sm btn-outline-dark rounded-pill px-3 fw-semibold">
+                                        Xem →
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- PHÂN TRANG -->
+            <div class="p-3 border-top d-flex flex-wrap justify-content-between align-items-center gap-2 bg-light bg-opacity-50">
+                <div class="text-muted small">
+                    Hiển thị <strong>@startItem</strong> - <strong>@endItem</strong> trên tổng số <strong>@totalCount</strong> phiếu nhập
+                </div>
+
+                @if (totalPages > 1)
+                {
+                    <nav aria-label="Phân trang phiếu nhập">
+                        <ul class="pagination pagination-sm m-0 gap-1">
+                            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                <a class="page-link rounded-pill px-3 border"
+                                   asp-action="Index"
+                                   asp-route-page="@(currentPage - 1)"
+                                   asp-route-search="@search"
+                                   asp-route-supplier="@supplier">
+                                    ‹ Trước
+                                </a>
+                            </li>
+
+                            @for (int i = 1; i <= totalPages; i++)
+                            {
+                                <li class="page-item @(i == currentPage ? "active" : "")">
+                                    <a class="page-link rounded-pill px-3 border @(i == currentPage ? "bg-dark border-dark text-white fw-bold" : "")"
+                                       asp-action="Index"
+                                       asp-route-page="@i"
+                                       asp-route-search="@search"
+                                       asp-route-supplier="@supplier">
+                                        @i
+                                    </a>
+                                </li>
+                            }
+
+                            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                <a class="page-link rounded-pill px-3 border"
+                                   asp-action="Index"
+                                   asp-route-page="@(currentPage + 1)"
+                                   asp-route-search="@search"
+                                   asp-route-supplier="@supplier">
+                                    Tiếp ›
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                }
+            </div>
+        }
+    </div>
+
+</div>

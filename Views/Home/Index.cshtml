@@ -1,0 +1,682 @@
+@model tieudaobadminton.ViewModels.HomeVM
+@using tieudaobadminton.Helpers
+@{
+    var wishlistIds = Context.Session.GetObject<List<int>>("WISHLIST") ?? new List<int>();
+    ViewData["Title"] = "Tiêu Đao Badminton - Hệ Thống Cầu Lông Chuyên Nghiệp";
+}
+
+<div class="container py-4">
+
+    <!-- 1. BENTO GRID HERO SECTION (SPACIOUS & BALANCED) -->
+    <section class="bento-hero-wrap">
+        <div class="row g-4 align-items-stretch">
+            <!-- Left Main Bento Card (Spacious 7 Columns) -->
+            <div class="col-lg-7 col-xl-8">
+                <div class="bento-hero-main">
+                    <div>
+                        <span class="bento-tag">⚡ THẾ HỆ DỤNG CỤ THI ĐẤU 2026</span>
+                        <h1 class="bento-hero-title">
+                            Đẳng Cấp Sân Cầu<br />
+                            <span class="hero-gradient-text">Làm Chủ Từng Cú Smash</span>
+                        </h1>
+                        <p class="bento-hero-desc">
+                            Trải nghiệm các dòng vợt công thủ toàn diện cao cấp, giày thi đấu đệm êm Power Cushion và trang phục thể thao chính hãng từ Yonex, Victor, Li-Ning.
+                        </p>
+                        <div class="d-flex gap-3 flex-wrap mb-4">
+                            <a class="btn btn-primary btn-lg rounded-pill px-4 py-3 fw-bold shadow-lg" href="/Danh-Muc">
+                                🛍️ Khám phá bộ sưu tập →
+                            </a>
+                            <a class="btn btn-outline-light btn-lg rounded-pill px-4 py-3 fw-bold" href="/Danh-Muc?cat=vot">
+                                🏸 Dòng vợt Pro
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Stats Row with Guaranteed Min-Widths -->
+                    <div class="bento-stats-row">
+                        <div class="stat-pill">
+                            <span class="stat-number">10K+</span>
+                            <div class="stat-label">Khách hàng<br />tin dùng</div>
+                        </div>
+                        <div class="stat-pill">
+                            <span class="stat-number">100%</span>
+                            <div class="stat-label">Chính hãng<br />chuẩn bảo hành</div>
+                        </div>
+                        <div class="stat-pill">
+                            <span class="stat-number">4.9 ★</span>
+                            <div class="stat-label">Hài lòng<br />(2,500+ vote)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right 2 Sub Bento Cards (Generous 5 Columns) -->
+            <div class="col-lg-5 col-xl-4 bento-side-col">
+                <!-- Sub Card 1: Vợt Công Kích -->
+                <div class="bento-card-sub">
+                    <div class="bento-sub-info">
+                        <span class="badge bg-danger bg-opacity-10 text-danger fw-bold px-2 py-1 mb-2">HOT TREND</span>
+                        <h4 class="fw-bold mb-1 text-dark fs-5">Vợt Công Kích Tốc Độ</h4>
+                        <p class="text-muted small mb-3">Uy lực smash cực đỉnh</p>
+                        <a class="fw-bold text-primary text-decoration-none small" href="/Danh-Muc?cat=vot">
+                            Xem bộ sưu tập →
+                        </a>
+                    </div>
+                    <img src="~/img/banners/banner1.jfif" class="bento-sub-img" alt="Vợt cầu lông" />
+                </div>
+
+                <!-- Sub Card 2: Giày Bám Sân -->
+                <div class="bento-card-sub">
+                    <div class="bento-sub-info">
+                        <span class="badge bg-success bg-opacity-10 text-success fw-bold px-2 py-1 mb-2">CUSHION PRO</span>
+                        <h4 class="fw-bold mb-1 text-dark fs-5">Giày Êm Bám Sân</h4>
+                        <p class="text-muted small mb-3">Chống lật cổ chân tuyệt đối</p>
+                        <a class="fw-bold text-success text-decoration-none small" href="/Danh-Muc?cat=giay">
+                            Khám phá ngay →
+                        </a>
+                    </div>
+                    <img src="~/img/banners/banner2.jfif" class="bento-sub-img" alt="Giày cầu lông" />
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. QUICK CATEGORY CHIPS (APP-LIKE 1-TAP FILTER) -->
+    <section class="mb-5">
+        <div class="category-chips-wrap">
+            <a class="category-chip active" href="/Danh-Muc">
+                <span class="chip-icon">⚡</span>
+                <span>Tất cả</span>
+            </a>
+            <a class="category-chip" href="/Danh-Muc?cat=vot">
+                <span class="chip-icon">🏸</span>
+                <span>Vợt thi đấu Pro</span>
+            </a>
+            <a class="category-chip" href="/Danh-Muc?cat=giay">
+                <span class="chip-icon">👟</span>
+                <span>Giày bám sân</span>
+            </a>
+            <a class="category-chip" href="/Danh-Muc?cat=quan-ao">
+                <span class="chip-icon">👕</span>
+                <span>Trang phục & Phụ kiện</span>
+            </a>
+            <a class="category-chip border border-danger border-opacity-50" href="/Tu-Van-Chon-Vot">
+                <span class="chip-icon">🎯</span>
+                <span class="fw-bold text-danger">Tư vấn chọn vợt AI</span>
+            </a>
+            <a class="category-chip" href="/Dich-Vu-Cang-Cuoc">
+                <span class="chip-icon">🛠️</span>
+                <span>Căng cước 4 nút</span>
+            </a>
+            <a class="category-chip" href="/Huong-Dan-Size">
+                <span class="chip-icon">📏</span>
+                <span>Hướng dẫn chọn Size</span>
+            </a>
+            <a class="category-chip" href="/Tra-Cuu-Don-Hang">
+                <span class="chip-icon">📦</span>
+                <span>Tra cứu đơn hàng</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- 3. FLASH SALE COUNTDOWN SECTION -->
+    <section class="flash-sale-wrap">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+            <div class="d-flex align-items-center gap-3">
+                <span class="flash-sale-badge">⚡ FLASH SALE GIỜ VÀNG</span>
+                <span class="text-light opacity-75 small d-none d-sm-inline">Kết thúc trong:</span>
+            </div>
+
+            <!-- Countdown Timer Boxes -->
+            <div class="countdown-box">
+                <div class="countdown-item">
+                    <div id="cdHours" class="countdown-num">08</div>
+                    <div class="countdown-unit">Giờ</div>
+                </div>
+                <span class="countdown-colon">:</span>
+                <div class="countdown-item">
+                    <div id="cdMins" class="countdown-num">24</div>
+                    <div class="countdown-unit">Phút</div>
+                </div>
+                <span class="countdown-colon">:</span>
+                <div class="countdown-item">
+                    <div id="cdSecs" class="countdown-num">55</div>
+                    <div class="countdown-unit">Giây</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4 Flash Sale Products Highlight -->
+        <div class="row g-3 g-md-4">
+            @foreach (var p in Model.BestSellers.Take(4))
+            {
+                var discountPercent = 0;
+                if (p.SalePrice.HasValue && p.Price > 0 && p.SalePrice < p.Price)
+                {
+                    discountPercent = (int)Math.Round((1 - (p.SalePrice.Value / p.Price)) * 100);
+                }
+                else
+                {
+                    discountPercent = 15;
+                }
+
+                <div class="col-6 col-lg-3">
+                    <div class="pro-card h-100">
+                        <div class="pro-card-media">
+                            <img class="pro-card-img" src="@(p.MainImageUrl ?? "/img/demo/placeholder.jpg")" alt="@p.Name" loading="lazy" />
+                            <div class="pro-card-badges">
+                                <span class="badge-sale-pro">⚡ GIẢM @discountPercent%</span>
+                            </div>
+                            @{
+                                var isFav = wishlistIds.Contains(p.Id);
+                            }
+                            <button type="button" class="pro-wishlist-btn @(isFav ? "active" : "")" onclick="toggleWishlist(@p.Id, this);" title="Yêu thích">
+                                @(isFav ? "❤️" : "🤍")
+                            </button>
+                            <div class="pro-quick-sizes">
+                                <span>3U | 4U | G5 • SẴN HÀNG</span>
+                            </div>
+                        </div>
+
+                        <div class="pro-card-body">
+                            <div class="small text-muted mb-1">@(p.Brand?.Name ?? "CHÍNH HÃNG")</div>
+                            <h5 class="pro-card-title" title="@p.Name">@p.Name</h5>
+
+                            <div class="pro-price-wrap mb-2">
+                                <span class="pro-price-current is-sale">@((p.SalePrice ?? p.Price).ToString("n0")) đ</span>
+                                <span class="pro-price-old">@((p.Price * 1.15m).ToString("n0")) đ</span>
+                            </div>
+
+                            <!-- Stock Progress -->
+                            <div class="stock-progress-wrap">
+                                <div class="stock-progress-bar" style="width: 82%;"></div>
+                            </div>
+                            <div class="d-flex justify-content-between text-muted" style="font-size: 0.72rem;">
+                                <span>Đã bán 82%</span>
+                                <span class="text-danger fw-bold">Chỉ còn 3 suất</span>
+                            </div>
+
+                            <a class="btn-pro-action mt-3" asp-controller="Products" asp-action="Detail" asp-route-id="@p.Id">
+                                Săn ngay →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+
+    <!-- 4. TOP BÁN CHẠY (PRODUCT CARDS 2.0) -->
+    <section class="mb-5">
+        <div class="d-flex justify-content-between align-items-end mb-4">
+            <div>
+                <span class="badge bg-primary bg-opacity-10 text-primary fw-bold px-3 py-1 mb-2 rounded-pill">🏆 BEST SELLERS 2026</span>
+                <h2 class="fw-bold mb-0">Sản phẩm được các tay vợt tin dùng</h2>
+            </div>
+            <a class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold" href="/Danh-Muc">
+                Xem toàn bộ sản phẩm →
+            </a>
+        </div>
+
+        <div class="row g-3 g-md-4">
+            @foreach (var p in Model.BestSellers.Skip(4))
+            {
+                var discountPercent = 0;
+                if (p.SalePrice.HasValue && p.Price > 0 && p.SalePrice < p.Price)
+                {
+                    discountPercent = (int)Math.Round((1 - (p.SalePrice.Value / p.Price)) * 100);
+                }
+
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="pro-card h-100">
+                        <!-- Media & Wishlist & Quick Sizes -->
+                        <div class="pro-card-media">
+                            <img class="pro-card-img" src="@(p.MainImageUrl ?? "/img/demo/placeholder.jpg")" alt="@p.Name" loading="lazy" />
+
+                            <div class="pro-card-badges">
+                                @if (!string.IsNullOrWhiteSpace(p.Brand?.Name))
+                                {
+                                    <span class="badge-brand-pro">@p.Brand.Name</span>
+                                }
+                                @if (discountPercent > 0)
+                                {
+                                    <span class="badge-sale-pro">-@discountPercent%</span>
+                                }
+                            </div>
+
+                            @{
+                                var isFav2 = wishlistIds.Contains(p.Id);
+                            }
+                            <button type="button" class="pro-wishlist-btn @(isFav2 ? "active" : "")" onclick="toggleWishlist(@p.Id, this);" title="Yêu thích">
+                                @(isFav2 ? "❤️" : "🤍")
+                            </button>
+
+                            <div class="pro-quick-sizes">
+                                <span>39 | 40 | 41 | 42 | 43</span>
+                            </div>
+                        </div>
+
+                        <!-- Body with Rating Stars -->
+                        <div class="pro-card-body">
+                            <div class="pro-rating-row">
+                                <span>★★★★★</span>
+                                <span class="pro-rating-score">4.9</span>
+                                <span class="pro-rating-count">(86)</span>
+                            </div>
+
+                            <h5 class="pro-card-title" title="@p.Name">@p.Name</h5>
+
+                            <div class="pro-price-wrap">
+                                @if (p.SalePrice.HasValue)
+                                {
+                                    <span class="pro-price-current is-sale">@p.SalePrice.Value.ToString("n0") đ</span>
+                                    <span class="pro-price-old">@p.Price.ToString("n0") đ</span>
+                                }
+                                else
+                                {
+                                    <span class="pro-price-current">@p.Price.ToString("n0") đ</span>
+                                }
+                            </div>
+
+                            <a class="btn-pro-action" asp-controller="Products" asp-action="Detail" asp-route-id="@p.Id">
+                                <span>Chi tiết</span>
+                                <span>→</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+
+    <!-- 4.5. TIỆN ÍCH & TRẢI NGHIỆM CHUYÊN NGHIỆP TẠI TIÊU ĐAO -->
+    <section class="mb-5">
+        <div class="row g-4">
+            <!-- Feature 1: AI Advisor -->
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white d-flex flex-column justify-content-between position-relative overflow-hidden">
+                    <div>
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <span class="fs-1">⚡</span>
+                            <span class="badge bg-danger rounded-pill px-3 py-1">THUẬT TOÁN AI</span>
+                        </div>
+                        <h4 class="fw-black mb-2 text-dark">Tư Vấn Chọn Vợt Thông Minh</h4>
+                        <p class="text-muted small mb-4">
+                            Chỉ với 3 câu hỏi nhanh về lối đánh công thủ, thể lực cổ tay và ngân sách, hệ thống sẽ đề xuất ngay cây vợt tối ưu nhất cho bạn.
+                        </p>
+                    </div>
+                    <a href="/Tu-Van-Chon-Vot" class="btn btn-outline-danger rounded-pill fw-bold w-100 py-2">
+                        Khám phá cây vợt của bạn →
+                    </a>
+                </div>
+            </div>
+
+            <!-- Feature 2: Stringing Service -->
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white d-flex flex-column justify-content-between position-relative overflow-hidden">
+                    <div>
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <span class="fs-1">🛠️</span>
+                            <span class="badge bg-dark text-white rounded-pill px-3 py-1">LẤY SAU 15 PHÚT</span>
+                        </div>
+                        <h4 class="fw-black mb-2 text-dark">Dịch Vụ Căng Cước 4 Nút</h4>
+                        <p class="text-muted small mb-4">
+                            Máy căng điện tử Victor cao cấp, kẹp 6 chấu kim loại bảo vệ khung, không lo móp méo đầu vợt. Hướng dẫn chọn số kg chuẩn tay.
+                        </p>
+                    </div>
+                    <a href="/Dich-Vu-Cang-Cuoc" class="btn btn-outline-dark rounded-pill fw-bold w-100 py-2">
+                        Xem bảng giá cước →
+                    </a>
+                </div>
+            </div>
+
+            <!-- Feature 3: Size & Grip Guide -->
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white d-flex flex-column justify-content-between position-relative overflow-hidden">
+                    <div>
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <span class="fs-1">📏</span>
+                            <span class="badge bg-primary rounded-pill px-3 py-1">CHUẨN TỪNG MM</span>
+                        </div>
+                        <h4 class="fw-black mb-2 text-dark">Đo Chu Vi Cán Vợt & Size Giày</h4>
+                        <p class="text-muted small mb-4">
+                            Cẩm nang chi tiết phân biệt 3U/4U, cán G5/G6 và bảng quy đổi chiều dài bàn chân sang size giày thi đấu Yonex, Victor chuẩn xác.
+                        </p>
+                    </div>
+                    <a href="/Huong-Dan-Size" class="btn btn-outline-primary rounded-pill fw-bold w-100 py-2">
+                        Xem bảng đo thông số →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. BRAND SHOWCASE (INFINITE REPEATING SLIDER / MARQUEE) -->
+    <section class="mb-5 brand-showcase-section">
+        <div class="text-center mb-4">
+            <span class="badge bg-primary bg-opacity-10 text-primary fw-bold px-3 py-1 mb-2 rounded-pill">
+                🏆 ĐỐI TÁC CHIẾN LƯỢC CHÍNH HÃNG
+            </span>
+            <h2 class="fw-bold text-dark">Thương hiệu phân phối ủy quyền</h2>
+            <p class="text-muted small">Cam kết 100% nhập khẩu chính ngạch, nguyên seal quét mã QR bảo hành điện tử</p>
+        </div>
+
+        <div class="brand-marquee-container">
+            <div class="brand-marquee-track">
+                <!-- Group 1 -->
+                <div class="brand-marquee-group">
+                    @for (int loop = 0; loop < 2; loop++)
+                    {
+                        @foreach (var brand in Model.Brands)
+                        {
+                            <a href="/Danh-Muc?brandId=@brand.Id" class="brand-slide-card text-decoration-none">
+                                <div class="brand-card-glow" style="background: radial-gradient(circle, @brand.AccentColor 0%, transparent 70%);"></div>
+                                <div class="brand-card-top">
+                                    <span class="brand-badge-pill" style="color: @brand.AccentColor; background-color: @(brand.AccentColor)15; border-color: @(brand.AccentColor)35;">
+                                        @brand.BadgeText
+                                    </span>
+                                    <span class="brand-origin-label">@brand.Origin</span>
+                                </div>
+                                <div class="brand-card-body">
+                                    <div class="brand-logo-symbol">
+                                        @if (brand.LogoType == "yonex")
+                                        {
+                                            <div class="yonex-symbol">
+                                                <span class="ydot ydot-green"></span>
+                                                <span class="ydot ydot-blue"></span>
+                                            </div>
+                                        }
+                                        else if (brand.LogoType == "victor")
+                                        {
+                                            <svg class="brand-svg-symbol" viewBox="0 0 24 24" fill="none">
+                                                <path d="M4 4L12 20L20 4L16 4L12 13L8 4H4Z" fill="#0d47a1"/>
+                                                <path d="M8 4L12 12L16 4H19L12 18L5 4H8Z" fill="#dc2626"/>
+                                            </svg>
+                                        }
+                                        else if (brand.LogoType == "lining")
+                                        {
+                                            <svg class="brand-svg-symbol" viewBox="0 0 100 60" fill="#dc2626">
+                                                <path d="M5 45 C20 45, 45 35, 60 20 C75 5, 88 5, 95 10 C98 13, 90 22, 75 30 C55 42, 30 52, 10 50 Z" />
+                                            </svg>
+                                        }
+                                        else if (brand.LogoType == "mizuno")
+                                        {
+                                            <svg class="brand-svg-symbol" viewBox="0 0 100 60" fill="#001e62">
+                                                <path d="M10 30 Q30 10 50 25 Q70 40 90 20 Q70 45 50 35 Q30 25 10 30 Z" />
+                                                <path d="M25 42 Q45 28 65 38 Q45 48 25 42 Z" fill="#ffdd00" />
+                                            </svg>
+                                        }
+                                        else if (brand.LogoType == "kawasaki")
+                                        {
+                                            <svg class="brand-svg-symbol" viewBox="0 0 24 24" fill="#059669">
+                                                <path d="M3 3H7V10L14 3H19L11 11L20 21H14L8 13V21H3V3Z"/>
+                                            </svg>
+                                        }
+                                        else
+                                        {
+                                            <span class="fs-4">🏸</span>
+                                        }
+                                    </div>
+                                    <div class="brand-name-title">@brand.Name.ToUpper()</div>
+                                    <div class="brand-tagline-text">@brand.Tagline</div>
+                                </div>
+                                <div class="brand-card-footer">
+                                    <span class="brand-stock-pill">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                        @(brand.ProductCount > 0 ? $"{brand.ProductCount}+ Mẫu tại shop" : "Chính hãng")
+                                    </span>
+                                    <span class="brand-link-arrow">
+                                        Xem ngay
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                                    </span>
+                                </div>
+                            </a>
+                        }
+                    }
+                </div>
+
+                <!-- Group 2 (Exact Duplicate for Seamless Infinite Marquee Loop) -->
+                <div class="brand-marquee-group" aria-hidden="true">
+                    @for (int loop = 0; loop < 2; loop++)
+                    {
+                        @foreach (var brand in Model.Brands)
+                        {
+                            <a href="/Danh-Muc?brandId=@brand.Id" class="brand-slide-card text-decoration-none" tabindex="-1">
+                                <div class="brand-card-glow" style="background: radial-gradient(circle, @brand.AccentColor 0%, transparent 70%);"></div>
+                                <div class="brand-card-top">
+                                    <span class="brand-badge-pill" style="color: @brand.AccentColor; background-color: @(brand.AccentColor)15; border-color: @(brand.AccentColor)35;">
+                                        @brand.BadgeText
+                                    </span>
+                                    <span class="brand-origin-label">@brand.Origin</span>
+                                </div>
+                                <div class="brand-card-body">
+                                    <div class="brand-logo-symbol">
+                                        @if (brand.LogoType == "yonex")
+                                        {
+                                            <div class="yonex-symbol">
+                                                <span class="ydot ydot-green"></span>
+                                                <span class="ydot ydot-blue"></span>
+                                            </div>
+                                        }
+                                        else if (brand.LogoType == "victor")
+                                        {
+                                            <svg class="brand-svg-symbol" viewBox="0 0 24 24" fill="none">
+                                                <path d="M4 4L12 20L20 4L16 4L12 13L8 4H4Z" fill="#0d47a1"/>
+                                                <path d="M8 4L12 12L16 4H19L12 18L5 4H8Z" fill="#dc2626"/>
+                                            </svg>
+                                        }
+                                        else if (brand.LogoType == "lining")
+                                        {
+                                            <svg class="brand-svg-symbol" viewBox="0 0 100 60" fill="#dc2626">
+                                                <path d="M5 45 C20 45, 45 35, 60 20 C75 5, 88 5, 95 10 C98 13, 90 22, 75 30 C55 42, 30 52, 10 50 Z" />
+                                            </svg>
+                                        }
+                                        else if (brand.LogoType == "mizuno")
+                                        {
+                                            <svg class="brand-svg-symbol" viewBox="0 0 100 60" fill="#001e62">
+                                                <path d="M10 30 Q30 10 50 25 Q70 40 90 20 Q70 45 50 35 Q30 25 10 30 Z" />
+                                                <path d="M25 42 Q45 28 65 38 Q45 48 25 42 Z" fill="#ffdd00" />
+                                            </svg>
+                                        }
+                                        else if (brand.LogoType == "kawasaki")
+                                        {
+                                            <svg class="brand-svg-symbol" viewBox="0 0 24 24" fill="#059669">
+                                                <path d="M3 3H7V10L14 3H19L11 11L20 21H14L8 13V21H3V3Z"/>
+                                            </svg>
+                                        }
+                                        else
+                                        {
+                                            <span class="fs-4">🏸</span>
+                                        }
+                                    </div>
+                                    <div class="brand-name-title">@brand.Name.ToUpper()</div>
+                                    <div class="brand-tagline-text">@brand.Tagline</div>
+                                </div>
+                                <div class="brand-card-footer">
+                                    <span class="brand-stock-pill">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                        @(brand.ProductCount > 0 ? $"{brand.ProductCount}+ Mẫu tại shop" : "Chính hãng")
+                                    </span>
+                                    <span class="brand-link-arrow">
+                                        Xem ngay
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                                    </span>
+                                </div>
+                            </a>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Trust bar under brand slider -->
+        <div class="container mt-4">
+            <div class="brand-trust-bar">
+                <div class="brand-trust-item">
+                    <span class="trust-icon">🛡️</span>
+                    <div>
+                        <strong class="text-dark">100% Chính Hãng</strong>
+                        <small class="text-muted d-block">Đền bù 200% nếu phát hiện giả mạo</small>
+                    </div>
+                </div>
+                <div class="brand-trust-sep d-none d-md-block"></div>
+                <div class="brand-trust-item">
+                    <span class="trust-icon">⚡</span>
+                    <div>
+                        <strong class="text-dark">Căng Cước Điện Tử 4 Nút</strong>
+                        <small class="text-muted d-block">Chuẩn kg thi đấu, lấy ngay 15 phút</small>
+                    </div>
+                </div>
+                <div class="brand-trust-sep d-none d-md-block"></div>
+                <div class="brand-trust-item">
+                    <span class="trust-icon">🚚</span>
+                    <div>
+                        <strong class="text-dark">Freeship Toàn Quốc</strong>
+                        <small class="text-muted d-block">Đơn từ 499k & Bảo hiểm vận chuyển</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. SOCIAL PROOF / KHÁCH HÀNG ĐÁNH GIÁ (TESTIMONIALS) -->
+    <section class="mb-5">
+        <div class="text-center mb-4">
+            <span class="badge bg-success bg-opacity-10 text-success fw-bold px-3 py-1 mb-2 rounded-pill">💬 CỘNG ĐỒNG SÂN CẦU</span>
+            <h2 class="fw-bold">Cảm nhận từ các tay vợt</h2>
+            <p class="text-muted small">Hơn 10,000+ người chơi phong trào và VĐV đã tin tưởng Tiêu Đao Badminton</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div>
+                        <div class="text-warning mb-2">★★★★★</div>
+                        <p class="text-dark small mb-3" style="line-height: 1.7;">
+                            "Vợt Yonex Astrox 100ZZ mua ở shop chuẩn chính hãng, bao check mã cào. Đan cước 11kg nổ cầu cực kỳ đã tay. Giao hàng hỏa tốc trong 2 tiếng rất ưng ý!"
+                        </p>
+                    </div>
+                    <div class="d-flex align-items-center gap-3 pt-3 border-top">
+                        <img src="~/img/tieudao.jpg" class="testimonial-avatar" alt="Avatar" />
+                        <div>
+                            <div class="fw-bold text-dark fs-6">Trần Tuấn Anh</div>
+                            <div class="verified-badge">✓ Đã mua hàng • CLB Cầu Lông Tân Bình</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div>
+                        <div class="text-warning mb-2">★★★★★</div>
+                        <p class="text-dark small mb-3" style="line-height: 1.7;">
+                            "Mình mua đôi giày Victor đệm êm tuyệt đối, đế bám sân gỗ rất tốt không hề bị trơn trượt. Shop tư vấn chuẩn size 42 vừa khít chân."
+                        </p>
+                    </div>
+                    <div class="d-flex align-items-center gap-3 pt-3 border-top">
+                        <img src="~/img/tieudao.jpg" class="testimonial-avatar" alt="Avatar" />
+                        <div>
+                            <div class="fw-bold text-dark fs-6">Nguyễn Hoàng Long</div>
+                            <div class="verified-badge">✓ Đã mua hàng • Sân Cầu Lông Thủ Đức</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div>
+                        <div class="text-warning mb-2">★★★★★</div>
+                        <p class="text-dark small mb-3" style="line-height: 1.7;">
+                            "Áo đấu chất vải mè thể thao mặc thoáng nhẹ, thấm mồ hôi tốt. Dịch vụ chăm sóc khách hàng và chính sách bảo hành 7 ngày rất chuyên nghiệp."
+                        </p>
+                    </div>
+                    <div class="d-flex align-items-center gap-3 pt-3 border-top">
+                        <img src="~/img/tieudao.jpg" class="testimonial-avatar" alt="Avatar" />
+                        <div>
+                            <div class="fw-bold text-dark fs-6">Lê Minh Trang</div>
+                            <div class="verified-badge">✓ Đã mua hàng • VĐV Phong Trào Q.10</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. FEATURED NEWS / CẨM NANG -->
+    @if (Model.FeaturedNews != null && Model.FeaturedNews.Count > 0)
+    {
+        <section class="mb-5">
+            <div class="d-flex justify-content-between align-items-end mb-4">
+                <div>
+                    <span class="badge bg-primary bg-opacity-10 text-primary fw-bold px-3 py-1 mb-2 rounded-pill">📰 CẨM NANG THI ĐẤU</span>
+                    <h2 class="fw-bold mb-0">Kiến thức & Mẹo chọn đồ cầu lông</h2>
+                </div>
+                <a class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold" asp-controller="News" asp-action="Index">
+                    Xem tất cả bài viết →
+                </a>
+            </div>
+
+            <div class="row g-3 g-md-4">
+                @foreach (var n in Model.FeaturedNews)
+                {
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card h-100 border-0 shadow-sm overflow-hidden" style="border-radius: 20px;">
+                            <div style="aspect-ratio: 16/9; overflow: hidden; background: #f1f5f9;">
+                                <img src="@(n.ThumbnailUrl ?? "/img/demo/placeholder.jpg")"
+                                     class="w-100 h-100 object-fit-cover"
+                                     alt="@n.Title" />
+                            </div>
+
+                            <div class="card-body p-4 d-flex flex-column">
+                                <div class="d-flex justify-content-between align-items-center text-muted small mb-2">
+                                    <span>📅 @n.PublishedAt.ToLocalTime().ToString("dd/MM/yyyy")</span>
+                                    <span>⏱️ 3 phút đọc</span>
+                                </div>
+
+                                <h5 class="fw-bold mt-1 text-dark news-title" style="line-height: 1.4;">
+                                    @n.Title
+                                </h5>
+
+                                <p class="text-muted small mt-2 news-summary" style="line-height: 1.6;">
+                                    @n.Summary
+                                </p>
+
+                                <a class="btn btn-outline-dark btn-sm rounded-pill mt-auto w-100 fw-bold"
+                                   asp-controller="News" asp-action="Detail" asp-route-id="@n.Id">
+                                    Đọc bài viết →
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
+    }
+
+</div>
+
+@section Scripts {
+    <script>
+        // Realtime Countdown Timer for Flash Sale
+        let totalSeconds = 8 * 3600 + 24 * 60 + 55;
+        function updateTimer() {
+            if (totalSeconds > 0) {
+                totalSeconds--;
+                const h = Math.floor(totalSeconds / 3600);
+                const m = Math.floor((totalSeconds % 3600) / 60);
+                const s = totalSeconds % 60;
+                
+                const hEl = document.getElementById('cdHours');
+                const mEl = document.getElementById('cdMins');
+                const sEl = document.getElementById('cdSecs');
+
+                if (hEl) hEl.innerText = h < 10 ? '0' + h : h;
+                if (mEl) mEl.innerText = m < 10 ? '0' + m : m;
+                if (sEl) sEl.innerText = s < 10 ? '0' + s : s;
+            }
+        }
+        setInterval(updateTimer, 1000);
+    </script>
+}

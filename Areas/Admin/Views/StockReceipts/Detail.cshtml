@@ -1,0 +1,136 @@
+@model tieudaobadminton.Models.StockReceipt
+@{
+    ViewData["Title"] = $"Phiếu nhập kho #NK{Model.Id:D5}";
+    var receiptCode = $"NK{Model.Id:D5}";
+}
+
+<div class="container-fluid py-3" style="max-width: 860px;">
+
+    <!-- BACK & ACTION -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <a asp-action="Index" class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold">
+            ← Quay lại danh sách phiếu nhập
+        </a>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-dark fs-6 font-monospace">#@receiptCode</span>
+            <span class="badge bg-success fs-6 rounded-pill px-3">Đã nhập kho thành công</span>
+        </div>
+    </div>
+
+    <!-- MAIN CARD -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+
+        <!-- HEADER -->
+        <div class="d-flex justify-content-between align-items-start pb-3 border-bottom mb-4">
+            <div>
+                <h4 class="fw-black text-dark m-0">PHIẾU NHẬP KHO HÀNG HÓA</h4>
+                <div class="text-muted small mt-1">
+                    Ngày nhập: <strong>@Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss")</strong> • Thủ kho: <strong>@Model.CreatedBy</strong>
+                </div>
+            </div>
+            <div class="text-end font-monospace">
+                <span class="badge bg-light text-dark border fs-6 px-3 py-2">
+                    Lô hàng: @(string.IsNullOrWhiteSpace(Model.BatchNumber) ? $"LÔ-{Model.Id:D4}" : Model.BatchNumber)
+                </span>
+            </div>
+        </div>
+
+        <!-- 1. NGUỒN GỐC & NHÀ CUNG CẤP -->
+        <div class="p-3 bg-light rounded-4 mb-4">
+            <div class="text-uppercase fw-bold text-dark small mb-2" style="letter-spacing: 0.5px;">
+                🏢 NGUỒN GỐC & NHÀ PHÂN PHỐI
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="text-muted small">Nhà cung cấp / Đối tác:</div>
+                    <div class="fw-bold text-dark fs-6">@Model.SupplierName</div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-muted small">Xuất xứ sản phẩm:</div>
+                    <div class="fw-semibold text-primary">@Model.OriginCountry</div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-muted small">Số chứng từ / Lô:</div>
+                    <div class="fw-semibold font-monospace text-dark">@(Model.BatchNumber ?? "-")</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. CHI TIẾT SẢN PHẨM & GIÁ NHẬP -->
+        <div class="table-responsive mb-4">
+            <table class="table table-bordered align-middle mb-0">
+                <thead class="table-light small">
+                    <tr>
+                        <th>SẢN PHẨM NHẬP KHO</th>
+                        <th style="width: 130px;">PHÂN LOẠI</th>
+                        <th class="text-center" style="width: 120px;">SỐ LƯỢNG</th>
+                        <th class="text-end" style="width: 140px;">ĐƠN GIÁ NHẬP</th>
+                        <th class="text-end" style="width: 160px;">TỔNG TIỀN VỐN</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="fw-bold text-dark">@Model.Product?.Name</div>
+                            <div class="small text-muted">
+                                Hãng: <strong>@Model.Product?.Brand?.Name</strong> • Danh mục: @Model.Product?.Category?.Name
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border">
+                                @(Model.ProductVariant?.Size ?? "Tiêu chuẩn") @(string.IsNullOrWhiteSpace(Model.ProductVariant?.Color) ? "" : $"- {Model.ProductVariant.Color}")
+                            </span>
+                        </td>
+                        <td class="text-center fw-black fs-5 text-success">
+                            +@Model.QuantityAdded chiếc
+                        </td>
+                        <td class="text-end text-muted fw-semibold">
+                            @(Model.UnitImportPrice > 0 ? Model.UnitImportPrice.ToString("n0") + " đ" : "-")
+                        </td>
+                        <td class="text-end fw-black fs-5 text-danger">
+                            @(Model.TotalImportCost > 0 ? Model.TotalImportCost.ToString("n0") + " đ" : "-")
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 3. BIẾN ĐỘNG KHO HÀNG -->
+        <div class="p-3 bg-light rounded-4 mb-4 border">
+            <div class="row align-items-center text-center">
+                <div class="col-4 border-end">
+                    <div class="text-muted small">TỒN TRƯỚC KHI NHẬP</div>
+                    <div class="fs-4 fw-bold text-muted mt-1">@Model.PreviousStock chiếc</div>
+                </div>
+                <div class="col-4 border-end">
+                    <div class="text-muted small">SỐ LƯỢNG NHẬP THÊM</div>
+                    <div class="fs-4 fw-bold text-success mt-1">+@Model.QuantityAdded chiếc</div>
+                </div>
+                <div class="col-4">
+                    <div class="text-muted small">TỒN KHO SAU KHI NHẬP</div>
+                    <div class="fs-4 fw-black text-primary mt-1">@Model.NewStock chiếc</div>
+                </div>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.Note))
+        {
+            <div class="mb-4">
+                <label class="text-muted small fw-bold">GHI CHÚ KIỂM KHO:</label>
+                <div class="p-3 bg-light rounded-3 text-dark small">@Model.Note</div>
+            </div>
+        }
+
+        <!-- PRINT BUTTON -->
+        <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+            <button type="button" class="btn btn-outline-dark rounded-pill px-4 fw-bold" onclick="window.print();">
+                🖨️ In phiếu nhập kho
+            </button>
+            <a asp-action="Index" class="btn btn-dark rounded-pill px-4 fw-bold">
+                Hoàn tất
+            </a>
+        </div>
+
+    </div>
+
+</div>

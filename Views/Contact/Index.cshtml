@@ -1,0 +1,319 @@
+@model tieudaobadminton.ViewModels.ContactVM
+@{
+    ViewData["Title"] = "Liên hệ & Hỗ trợ";
+}
+
+<!-- 1. HERO HEADER SECTION -->
+<section class="contact-hero-section text-center">
+    <div class="container">
+        <div class="contact-badge-lead">
+            <span>🏸</span>
+            <span>TRUNG TÂM DỊCH VỤ & HỖ TRỢ KHÁCH HÀNG</span>
+        </div>
+        <h1 class="contact-hero-title">
+            Chúng Tôi Luôn Sẵn Sàng Đồng Hành Cùng Đam Mê Của Bạn
+        </h1>
+        <p class="contact-hero-subtitle">
+            Tư vấn chọn vợt theo lực cổ tay, hẹn lịch căng cước máy điện tử 4 nút lấy ngay, hỗ trợ tra cứu đơn hàng hoặc giải đáp mọi thắc mắc chuyên môn.
+        </p>
+    </div>
+</section>
+
+<div class="container pb-5">
+
+    <!-- 2. 4 QUICK ACTION CONTACT CARDS (OVERLAPPING HERO) -->
+    <div class="contact-quick-grid mb-5">
+        <a href="tel:0900000000" class="contact-quick-card">
+            <div class="contact-quick-icon" style="background: #f0f9ff; color: #0284c7;">
+                <i class="bi bi-telephone-fill"></i>
+            </div>
+            <div class="contact-quick-info">
+                <h6>Hotline tư vấn</h6>
+                <p>0900 000 000</p>
+            </div>
+        </a>
+
+        <a href="https://zalo.me" target="_blank" class="contact-quick-card">
+            <div class="contact-quick-icon" style="background: #e0f2fe; color: #0369a1;">
+                <i class="bi bi-chat-dots-fill"></i>
+            </div>
+            <div class="contact-quick-info">
+                <h6>Zalo Chuyên Viên</h6>
+                <p>Chat trực tiếp 1:1</p>
+            </div>
+        </a>
+
+        <a href="#showroomSection" class="contact-quick-card">
+            <div class="contact-quick-icon" style="background: #fef2f2; color: #ef4444;">
+                <i class="bi bi-geo-alt-fill"></i>
+            </div>
+            <div class="contact-quick-info">
+                <h6>Hệ thống Showroom</h6>
+                <p>Q.7, TP. Hồ Chí Minh</p>
+            </div>
+        </a>
+
+        <a href="mailto:hotro@tieudaobadminton.com" class="contact-quick-card">
+            <div class="contact-quick-icon" style="background: #f0fdf4; color: #16a34a;">
+                <i class="bi bi-envelope-check-fill"></i>
+            </div>
+            <div class="contact-quick-info">
+                <h6>Email tiếp nhận</h6>
+                <p class="text-truncate" style="max-width: 140px;">hotro@tieudaobadminton.com</p>
+            </div>
+        </a>
+    </div>
+
+    <!-- 3. MAIN CONTENT: CONTACT FORM & STORE INFO -->
+    <div class="row g-4" id="showroomSection">
+
+        <!-- LEFT COLUMN: CONTACT FORM (7 COLS) -->
+        <div class="col-lg-7">
+            <div class="contact-form-card">
+                <h3 class="contact-form-title">Gửi yêu cầu tư vấn hoặc phản hồi ✉️</h3>
+                <p class="contact-form-subtitle">
+                    Vui lòng điền thông tin bên dưới, kỹ thuật viên của Tiêu Đao sẽ phản hồi bạn trong vòng 15 - 30 phút.
+                </p>
+
+                @if (TempData["Ok"] != null)
+                {
+                    <div class="alert alert-success d-flex align-items-center gap-3 rounded-4 p-3 mb-4 border-0 shadow-sm">
+                        <div class="fs-3">🎉</div>
+                        <div>
+                            <div class="fw-bold fs-6">Gửi thông tin thành công!</div>
+                            <div class="small">@TempData["Ok"]</div>
+                        </div>
+                    </div>
+                }
+
+                <form method="post">
+                    @Html.AntiForgeryToken()
+
+                    @if (!ViewData.ModelState.IsValid && ViewData.ModelState[""]?.Errors.Count > 0)
+                    {
+                        <div class="alert alert-danger py-2 px-3 rounded-3 small mb-3 border-0 bg-danger bg-opacity-10 text-danger fw-semibold d-flex align-items-center gap-2">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <div>@Html.ValidationSummary(true)</div>
+                        </div>
+                    }
+
+                    <!-- FULL NAME -->
+                    <div class="contact-input-wrap">
+                        <label asp-for="FullName" class="contact-input-label">Họ và tên của bạn <span class="text-danger">*</span></label>
+                        <div class="contact-field-box">
+                            <i class="bi bi-person contact-field-icon"></i>
+                            <input asp-for="FullName" class="contact-input-control" placeholder="Ví dụ: Nguyễn Văn A..." required />
+                        </div>
+                        <span asp-validation-for="FullName" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <!-- PHONE & EMAIL -->
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="contact-input-wrap">
+                                <label asp-for="Phone" class="contact-input-label">Số điện thoại <span class="text-danger">*</span></label>
+                                <div class="contact-field-box">
+                                    <i class="bi bi-telephone contact-field-icon"></i>
+                                    <input asp-for="Phone" class="contact-input-control" placeholder="09xx xxx xxx" required />
+                                </div>
+                                <span asp-validation-for="Phone" class="text-danger small mt-1 d-block"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="contact-input-wrap">
+                                <label asp-for="Email" class="contact-input-label">Địa chỉ Email <span class="text-danger">*</span></label>
+                                <div class="contact-field-box">
+                                    <i class="bi bi-envelope contact-field-icon"></i>
+                                    <input asp-for="Email" type="email" class="contact-input-control" placeholder="name@example.com" required />
+                                </div>
+                                <span asp-validation-for="Email" class="text-danger small mt-1 d-block"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TOPIC / SUBJECT SELECTOR -->
+                    <div class="contact-input-wrap">
+                        <label class="contact-input-label">Chủ đề bạn cần hỗ trợ</label>
+                        <select asp-for="Subject" class="form-select rounded-3 py-2 px-3 border-secondary-subtle" style="background-color: #f8fafc; font-size: 0.92rem;">
+                            <option value="Tư vấn chọn vợt & giày phù hợp">🏸 Tư vấn chọn vợt & giày phù hợp lực tay</option>
+                            <option value="Hẹn lịch căng cước máy điện tử 4 nút">🛠️ Hẹn lịch căng cước máy điện tử 4 nút (lấy liền 15p)</option>
+                            <option value="Tra cứu & kiểm tra đơn hàng">📦 Tra cứu hành trình & kiểm tra đơn hàng</option>
+                            <option value="Bảo hành & đổi trả sản phẩm">🛡️ Yêu cầu bảo hành hoặc đổi size sản phẩm</option>
+                            <option value="Hợp tác sân cầu & câu lạc bộ">🤝 Hợp tác đại lý, sân cầu & câu lạc bộ phong trào</option>
+                            <option value="Ý kiến đóng góp khác">💬 Ý kiến đóng góp & phản hồi dịch vụ</option>
+                        </select>
+                    </div>
+
+                    <!-- MESSAGE -->
+                    <div class="contact-input-wrap">
+                        <label asp-for="Message" class="contact-input-label">Nội dung chi tiết <span class="text-danger">*</span></label>
+                        <textarea asp-for="Message" class="contact-textarea-control" rows="5" placeholder="Hãy mô tả chi tiết yêu cầu của bạn (ví dụ: cần tư vấn vợt công thủ toàn diện tầm giá 2 triệu, lối đánh phản tạt...)" required></textarea>
+                        <span asp-validation-for="Message" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <!-- SUBMIT BUTTON -->
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mt-4 pt-2">
+                        <button type="submit" class="btn-contact-submit">
+                            <span>Gửi tin nhắn liên hệ</span>
+                            <i class="bi bi-send-fill"></i>
+                        </button>
+                        <span class="small text-muted d-flex align-items-center gap-1">
+                            <i class="bi bi-shield-check text-success"></i> Thông tin được mã hóa bảo mật 100%
+                        </span>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: SHOWROOM & STORE INFO (5 COLS) -->
+        <div class="col-lg-5">
+            <div class="contact-store-card">
+                <div class="store-card-heading">
+                    <span class="fs-4">🏸</span>
+                    <span>Showroom Trải Nghiệm Tiêu Đao</span>
+                </div>
+
+                <div class="store-detail-row">
+                    <div class="store-detail-icon">
+                        <i class="bi bi-geo-alt-fill"></i>
+                    </div>
+                    <div class="store-detail-text">
+                        <h6>Địa chỉ trải nghiệm & căng cước</h6>
+                        <p>123 Đường Cầu Lông, Phường Tân Phong, Quận 7, TP. Hồ Chí Minh</p>
+                    </div>
+                </div>
+
+                <div class="store-detail-row">
+                    <div class="store-detail-icon">
+                        <i class="bi bi-clock-fill"></i>
+                    </div>
+                    <div class="store-detail-text">
+                        <h6>Thời gian mở cửa</h6>
+                        <p>08:00 - 21:30 (Mở cửa tất cả các ngày trong tuần, kể cả ngày lễ)</p>
+                    </div>
+                </div>
+
+                <div class="store-detail-row">
+                    <div class="store-detail-icon">
+                        <i class="bi bi-telephone-inbound-fill"></i>
+                    </div>
+                    <div class="store-detail-text">
+                        <h6>Hotline đặt lịch & giao hàng</h6>
+                        <p><a href="tel:0900000000" class="text-primary text-decoration-none fw-bold">0900 000 000</a> (Phục vụ 24/7)</p>
+                    </div>
+                </div>
+
+                <div class="store-detail-row">
+                    <div class="store-detail-icon">
+                        <i class="bi bi-envelope-at-fill"></i>
+                    </div>
+                    <div class="store-detail-text">
+                        <h6>Hòm thư điện tử</h6>
+                        <p><a href="mailto:hotro@tieudaobadminton.com" class="text-secondary text-decoration-none">hotro@tieudaobadminton.com</a></p>
+                    </div>
+                </div>
+
+                <div class="store-services-chips">
+                    <span class="store-service-pill">⚡ Đan cước 15 phút</span>
+                    <span class="store-service-pill">👟 Đo size chân 3D</span>
+                    <span class="store-service-pill">🏸 Cân bằng trọng lượng vợt</span>
+                    <span class="store-service-pill">🛡️ 100% Chính hãng Yonex/Victor</span>
+                </div>
+
+                <div class="d-flex gap-2 mt-3 pt-3 border-top">
+                    <a href="https://zalo.me" target="_blank" class="btn btn-outline-primary btn-sm rounded-pill flex-grow-1 fw-bold py-2">
+                        💬 Nhắn tin Zalo
+                    </a>
+                    <a href="tel:0900000000" class="btn btn-dark btn-sm rounded-pill flex-grow-1 fw-bold py-2">
+                        📞 Gọi trực tiếp
+                    </a>
+                </div>
+            </div>
+
+            <!-- EMBEDDED MAP PREVIEW -->
+            <div class="contact-map-card shadow-sm">
+                <iframe 
+                    title="Bản đồ chỉ đường tới Tiêu Đao Badminton"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.9540671803735!2d106.69834167586835!3d10.738023559899176!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f9023a3a85d%3A0x9259bad708e23630!2zUXXhuq1uIDcsIFRow6BuaCBwaOG7kSBI4buTIENow60gTWluaA!5e0!3m2!1svi!2s!4v1705900000000!5m2!1svi!2s" 
+                    allowfullscreen="" 
+                    loading="lazy" 
+                    referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 4. FREQUENTLY ASKED QUESTIONS (FAQ ACCORDION) -->
+    <section class="contact-faq-section">
+        <div class="text-center mb-4">
+            <span class="text-primary fw-bold small text-uppercase" style="letter-spacing: 0.05em;">Hỏi & Đáp Nhanh</span>
+            <h3 class="fw-bold text-dark m-0">Những Câu Hỏi Thường Gặp</h3>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="accordion" id="contactFaqAccordion">
+
+                    <!-- FAQ 1 -->
+                    <div class="faq-accordion-item">
+                        <button class="faq-header-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1" aria-expanded="true" aria-controls="faq1">
+                            <span>1. Dịch vụ căng cước máy điện tử 4 nút tại Tiêu Đao mất bao lâu?</span>
+                            <i class="bi bi-chevron-down text-muted"></i>
+                        </button>
+                        <div id="faq1" class="collapse show" data-bs-parent="#contactFaqAccordion">
+                            <div class="faq-body-content">
+                                Tại Tiêu Đao Sport, quy trình đan cước bằng máy điện tử chuẩn 4 nút Yonex quốc tế chỉ mất từ <strong>15 - 20 phút</strong>. Bạn có thể ngồi tại phòng chờ máy lạnh, uống nước và test thử các mẫu vợt mới trong lúc kỹ thuật viên căng cước.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 2 -->
+                    <div class="faq-accordion-item">
+                        <button class="faq-header-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2" aria-expanded="false" aria-controls="faq2">
+                            <span>2. Khi đặt vợt online, shop có hỗ trợ đan cước sẵn theo yêu cầu không?</span>
+                            <i class="bi bi-chevron-down text-muted"></i>
+                        </button>
+                        <div id="faq2" class="collapse" data-bs-parent="#contactFaqAccordion">
+                            <div class="faq-body-content">
+                                <strong>Hoàn toàn có!</strong> Trong bước thanh toán hoặc đặt hàng, bạn chỉ cần chọn loại cước và ghi chú số kg mong muốn (ví dụ: Yonex BG65Ti đan 10.5kg). Kỹ thuật viên sẽ căng chuẩn xác, dán tem bảo hành và đóng thùng xốp chống va đập gửi tận tay bạn.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 3 -->
+                    <div class="faq-accordion-item">
+                        <button class="faq-header-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3" aria-expanded="false" aria-controls="faq3">
+                            <span>3. Chính sách đổi trả nếu tôi mua giày hoặc áo không vừa size như thế nào?</span>
+                            <i class="bi bi-chevron-down text-muted"></i>
+                        </button>
+                        <div id="faq3" class="collapse" data-bs-parent="#contactFaqAccordion">
+                            <div class="faq-body-content">
+                                Tiêu Đao hỗ trợ đổi size miễn phí trong vòng <strong>7 ngày</strong> kể từ khi nhận hàng đối với sản phẩm còn nguyên tem mác, hộp và chưa qua thi đấu trên sân. Bạn chỉ cần liên hệ qua hotline hoặc Zalo để nhân viên gửi size mới đổi tận nhà.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 4 -->
+                    <div class="faq-accordion-item">
+                        <button class="faq-header-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4" aria-expanded="false" aria-controls="faq4">
+                            <span>4. Shop có giao hàng COD toàn quốc và cho kiểm tra hàng trước không?</span>
+                            <i class="bi bi-chevron-down text-muted"></i>
+                        </button>
+                        <div id="faq4" class="collapse" data-bs-parent="#contactFaqAccordion">
+                            <div class="faq-body-content">
+                                <strong>100% đơn hàng</strong> tại Tiêu Đao Badminton đều được áp dụng hình thức nhận hàng - kiểm tra - thanh toán (COD). Bạn được phép mở hộp kiểm tra đúng model, phụ kiện đi kèm trước khi thanh toán cho nhân viên giao hàng.
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

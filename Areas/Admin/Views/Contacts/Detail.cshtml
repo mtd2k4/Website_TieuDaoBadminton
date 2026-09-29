@@ -1,0 +1,117 @@
+@model tieudaobadminton.Models.ContactMessage
+@{
+    ViewData["Title"] = $"Tin nhắn liên hệ #{Model.Id}";
+}
+
+<div class="container-fluid py-3" style="max-width: 860px;">
+
+    <!-- BACK -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <a asp-action="Index" class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold">
+            ← Quay lại hộp thư
+        </a>
+        <div>
+            @if (Model.IsReplied)
+            {
+                <span class="badge bg-success-subtle text-success fs-6 rounded-pill px-3 py-1">
+                    ✓ Đã phản hồi
+                </span>
+            }
+            else
+            {
+                <span class="badge bg-warning-subtle text-warning-emphasis fs-6 rounded-pill px-3 py-1">
+                    Chờ xử lý
+                </span>
+            }
+        </div>
+    </div>
+
+    <!-- ALERTS -->
+    @if (TempData["Ok"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Ok"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- MAIN CARD -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+
+        <!-- HEADER -->
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 pb-3 border-bottom mb-3">
+            <div>
+                <h4 class="fw-black text-dark m-0">@(string.IsNullOrWhiteSpace(Model.Subject) ? "Không có tiêu đề" : Model.Subject)</h4>
+                <div class="text-muted small mt-1">
+                    Gửi lúc: <strong>@Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss")</strong>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="tel:@Model.Phone" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold">
+                    <i class="bi bi-telephone-fill me-1"></i> Gọi ngay: @Model.Phone
+                </a>
+                <a href="mailto:@Model.Email?subject=Phản hồi từ Tiêu Đao Badminton" class="btn btn-outline-secondary btn-sm rounded-pill px-3 fw-bold">
+                    <i class="bi bi-envelope-fill me-1"></i> Gửi Email
+                </a>
+            </div>
+        </div>
+
+        <!-- CUSTOMER SENDER INFO -->
+        <div class="row g-3 p-3 bg-light rounded-4 mb-4">
+            <div class="col-md-4">
+                <div class="text-muted small">Khách hàng:</div>
+                <div class="fw-bold text-dark fs-6">@Model.FullName</div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-muted small">Số điện thoại:</div>
+                <div class="fw-bold text-primary fs-6">@Model.Phone</div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-muted small">Hòm thư Email:</div>
+                <div class="fw-semibold text-dark fs-6 text-break">@Model.Email</div>
+            </div>
+        </div>
+
+        <!-- MESSAGE BODY -->
+        <div class="mb-4">
+            <label class="text-muted small fw-bold text-uppercase mb-2" style="letter-spacing: 0.5px;">NỘI DUNG YÊU CẦU / TƯ VẤN:</label>
+            <div class="p-4 rounded-4 border bg-white text-dark fs-6" style="white-space: pre-wrap; line-height: 1.6; min-height: 120px;">@Model.Message</div>
+        </div>
+
+        <!-- STAFF ACTIONS & NOTE -->
+        <div class="pt-3 border-top">
+            <form asp-action="ToggleStatus" asp-route-id="@Model.Id" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-dark small">GHI CHÚ NỘI BỘ NHÂN VIÊN</label>
+                    <textarea name="staffNote" rows="2" class="form-control rounded-3" placeholder="Nhập ghi chú xử lý (ví dụ: Đã gọi điện tư vấn khách hẹn chiều mai qua căng cước...)">@Model.StaffNote</textarea>
+                </div>
+
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div>
+                        <button type="submit" class="btn @(Model.IsReplied ? "btn-outline-warning" : "btn-success") rounded-pill px-4 fw-bold">
+                            @if (Model.IsReplied)
+                            {
+                                <span>↩ Chuyển về "Chưa phản hồi" & Lưu ghi chú</span>
+                            }
+                            else
+                            {
+                                <span>✓ Đánh dấu "Đã phản hồi" & Lưu ghi chú</span>
+                            }
+                        </button>
+                    </div>
+
+                    <form asp-action="Delete" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Bạn có chắc muốn xóa vĩnh viễn tin nhắn này?');">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                            <i class="bi bi-trash me-1"></i> Xóa tin nhắn
+                        </button>
+                    </form>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+</div>

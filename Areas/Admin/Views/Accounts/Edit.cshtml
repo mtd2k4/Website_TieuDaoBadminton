@@ -1,0 +1,65 @@
+﻿@model tieudaobadminton.ViewModels.AdminEditUserVM
+@{
+    ViewData["Title"] = "Sửa tài khoản";
+    var roles = ViewBag.Roles as List<string> ?? new();
+}
+
+<h3 class="mb-3">Sửa tài khoản</h3>
+
+@if (TempData["Ok"] != null)
+{
+    <div class="alert alert-success">@TempData["Ok"]</div>
+}
+@if (TempData["Err"] != null)
+{
+    <div class="alert alert-danger">@TempData["Err"]</div>
+}
+
+<form method="post" class="card p-4 mb-3">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <div class="text-danger">@Html.ValidationSummary()</div>
+
+    <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input asp-for="Email" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Role</label>
+        <select asp-for="Role" class="form-select">
+            @foreach (var r in roles)
+            {
+                <option value="@r">@r</option>
+            }
+        </select>
+        <div class="small text-muted">Gợi ý: Staff = nhân viên, Customer = khách</div>
+    </div>
+
+    <div class="form-check mb-3">
+        <input class="form-check-input" asp-for="IsLocked" />
+        <label class="form-check-label">Khóa tài khoản</label>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button class="btn btn-dark">Lưu</button>
+        <a class="btn btn-outline-dark" asp-area="Admin" asp-controller="Accounts" asp-action="Index">Quay lại</a>
+    </div>
+</form>
+
+<!-- Reset password -->
+<form method="post" class="card p-4"
+      asp-area="Admin" asp-controller="Accounts" asp-action="ResetPassword">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" value="@Model.Id" />
+
+    <div class="fw-semibold mb-2">Reset mật khẩu</div>
+    <div class="row g-2">
+        <div class="col-md-6">
+            <input class="form-control" name="newPassword" value="User@123" />
+        </div>
+        <div class="col-md-3">
+            <button class="btn btn-outline-dark w-100">Reset</button>
+        </div>
+    </div>
+</form>

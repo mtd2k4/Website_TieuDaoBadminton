@@ -1,0 +1,160 @@
+@model tieudaobadminton.ViewModels.AdminProductFormVM
+@{
+    ViewData["Title"] = "Thêm sản phẩm mới";
+}
+
+<div class="container-fluid py-3" style="max-width: 960px;">
+
+    <!-- BACK -->
+    <div class="mb-3">
+        <a asp-action="Index" class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold">
+            ← Quay lại danh sách sản phẩm
+        </a>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+                <div class="fs-2 text-primary">🏸</div>
+                <div>
+                    <h4 class="fw-black text-dark m-0">Thêm sản phẩm mới</h4>
+                    <div class="text-muted small">Khai báo thông số kỹ thuật, giá bán và cấu hình tồn kho ban đầu</div>
+                </div>
+            </div>
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="row g-3">
+                <!-- 1. TÊN SẢN PHẨM -->
+                <div class="col-md-8">
+                    <label asp-for="Name" class="form-label fw-bold text-dark">Tên sản phẩm <span class="text-danger">*</span></label>
+                    <input asp-for="Name" class="form-control rounded-3 py-2" placeholder="Ví dụ: Vợt Yonex Astrox 88D Pro 2026..." autofocus />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+
+                <!-- 2. TRẠNG THÁI -->
+                <div class="col-md-4">
+                    <label asp-for="IsActive" class="form-label fw-bold text-dark">Trạng thái bán</label>
+                    <select asp-for="IsActive" class="form-select rounded-3 py-2">
+                        <option value="true">Đang mở bán (Hiển thị ngoài shop)</option>
+                        <option value="false">Tạm ẩn (Chỉ lưu trong kho)</option>
+                    </select>
+                </div>
+
+                <!-- 3. DANH MỤC & HÃNG -->
+                <div class="col-md-6">
+                    <label asp-for="CategoryId" class="form-label fw-bold text-dark">Danh mục sản phẩm <span class="text-danger">*</span></label>
+                    <select asp-for="CategoryId" class="form-select rounded-3 py-2" asp-items="Model.Categories"></select>
+                    <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="BrandId" class="form-label fw-bold text-dark">Thương hiệu / Hãng <span class="text-danger">*</span></label>
+                    <select asp-for="BrandId" class="form-select rounded-3 py-2" asp-items="Model.Brands"></select>
+                    <span asp-validation-for="BrandId" class="text-danger small"></span>
+                </div>
+
+                <!-- 4. GIÁ BÁN & GIÁ KHUYẾN MÃI -->
+                <div class="col-md-6">
+                    <label asp-for="Price" class="form-label fw-bold text-dark">Giá niêm yết (VNĐ) <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <input asp-for="Price" type="number" class="form-control rounded-start-3 py-2" placeholder="4200000" />
+                        <span class="input-group-text bg-light border-start-0">đ</span>
+                    </div>
+                    <span asp-validation-for="Price" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="SalePrice" class="form-label fw-bold text-dark">Giá khuyến mãi (VNĐ) (Tùy chọn)</label>
+                    <div class="input-group">
+                        <input asp-for="SalePrice" type="number" class="form-control rounded-start-3 py-2" placeholder="3890000" />
+                        <span class="input-group-text bg-light border-start-0">đ</span>
+                    </div>
+                    <small class="text-muted">Để trống nếu sản phẩm không chạy chương trình giảm giá.</small>
+                </div>
+
+                <!-- 5. HÌNH ẢNH SẢN PHẨM -->
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-dark">Tải ảnh sản phẩm (Upload từ máy tính)</label>
+                    <input asp-for="ImageFile" type="file" class="form-control rounded-3 py-2" accept=".jpg,.jpeg,.png,.webp" />
+                    <small class="text-muted">Hỗ trợ định dạng JPG, PNG, WebP.</small>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="MainImageUrl" class="form-label fw-bold text-dark">Hoặc đường dẫn ảnh (URL)</label>
+                    <input asp-for="MainImageUrl" class="form-control rounded-3 py-2" placeholder="/img/products/rackets/r1.jfif" />
+                    <small class="text-muted">Nếu không tải ảnh lên, có thể điền link ảnh có sẵn.</small>
+                </div>
+
+                <!-- 6. MÔ TẢ SẢN PHẨM -->
+                <div class="col-md-12">
+                    <label asp-for="Description" class="form-label fw-bold text-dark">Mô tả sản phẩm & Thông số kỹ thuật</label>
+                    <textarea asp-for="Description" class="form-control rounded-3" rows="4" placeholder="Nhập thông tin giới thiệu, chất liệu, điểm cân bằng, độ cứng đũa, bảo hành..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. QUẢN LÝ KHO HÀNG & PHÂN LOẠI BAN ĐẦU -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4 border-start border-4 border-primary">
+            <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
+                <div class="fs-2 text-success">📦</div>
+                <div>
+                    <h5 class="fw-black text-dark m-0">Khởi tạo Kho hàng & Số lượng ban đầu</h5>
+                    <div class="text-muted small">Cài đặt số lượng hàng có sẵn trong kho để khách hàng có thể đặt mua ngay lập tức</div>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="InitialStock" class="form-label fw-bold text-dark">
+                        Số lượng nhập kho ban đầu <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-group">
+                        <input asp-for="InitialStock" type="number" min="0" class="form-control rounded-start-3 py-2 fw-bold text-primary fs-5" />
+                        <span class="input-group-text bg-light border-start-0">sản phẩm</span>
+                    </div>
+                    <small class="text-muted">Số lượng này sẽ được gán cho sản phẩm (hoặc cho từng size/màu nếu có bên dưới).</small>
+                    <span asp-validation-for="InitialStock" class="text-danger small d-block"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Sku" class="form-label fw-bold text-dark">Mã quản lý kho (Mã SKU)</label>
+                    <input asp-for="Sku" class="form-control rounded-3 py-2 font-monospace" placeholder="Ví dụ: RKT-YONEX-99P (để trống hệ thống tự sinh)" />
+                    <small class="text-muted">Mã định danh duy nhất để quản lý xuất/nhập và dán tem kho.</small>
+                </div>
+
+                <!-- PHÂN LOẠI KÍCH THƯỚC & MÀU SẮC (DÀNH CHO VỢT, GIÀY, QUẦN ÁO) -->
+                <div class="col-md-6">
+                    <label asp-for="InitialSizes" class="form-label fw-semibold text-dark">
+                        Phân loại kích thước / Size (Nếu có)
+                    </label>
+                    <input asp-for="InitialSizes" class="form-control rounded-3 py-2" placeholder="Ví dụ: 4U-G5, 3U-G5 (vợt) hoặc 39, 40, 41... hoặc S, M, L, XL, XXL" />
+                    <small class="text-muted">Phân cách các size bằng dấu phẩy (Ví dụ: 4U-G5, 3U-G5 đối với vợt; 39, 40 đối với giày; S, M, L đối với quần áo).</small>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="InitialColors" class="form-label fw-semibold text-dark">
+                        Phân loại màu sắc (Nếu có)
+                    </label>
+                    <input asp-for="InitialColors" class="form-control rounded-3 py-2" placeholder="Ví dụ: Trắng / Đỏ, Đen / Vàng, Xanh Navy" />
+                    <small class="text-muted">Phân cách các màu bằng dấu phẩy. Hỗ trợ phối 2 màu bằng dấu gạch chéo '/' (Ví dụ: Trắng / Đỏ).</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="d-flex justify-content-end gap-2 mb-5">
+            <a asp-action="Index" class="btn btn-light rounded-pill px-4 fw-bold">Hủy bỏ</a>
+            <button type="submit" class="btn btn-dark rounded-pill px-5 fw-bold shadow-sm">
+                ✓ Lưu sản phẩm & Nhập kho
+            </button>
+        </div>
+    </form>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

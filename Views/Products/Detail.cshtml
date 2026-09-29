@@ -1,0 +1,1897 @@
+@model tieudaobadminton.Models.Product
+@using tieudaobadminton.Models
+@using tieudaobadminton.Helpers
+@{
+    ViewData["Title"] = $"{Model.Name} - Chính Hãng";
+    var wishlistIds = Context.Session.GetObject<List<int>>("WISHLIST") ?? new List<int>();
+    var isModelFav = wishlistIds.Contains(Model.Id);
+    var variants = ViewBag.Variants as List<ProductVariant> ?? new();
+    var totalStock = variants.Sum(v => v.Stock);
+    var relatedProducts = ViewBag.RelatedProducts as List<Product> ?? new();
+    var price = Model.SalePrice ?? Model.Price;
+
+    // Đánh giá & Xếp hạng
+    var reviews = ViewBag.Reviews as List<ProductReview> ?? new();
+    var avgRating = (double)(ViewBag.AverageRating ?? 5.0);
+    var reviewCount = (int)(ViewBag.ReviewCount ?? reviews.Count);
+    var starCounts = ViewBag.StarCounts as int[] ?? new int[6];
+
+    var discountPercent = 0;
+    decimal saveAmount = 0;
+    if (Model.SalePrice.HasValue && Model.Price > 0 && Model.SalePrice < Model.Price)
+    {
+        discountPercent = (int)Math.Round((1 - (Model.SalePrice.Value / Model.Price)) * 100);
+        saveAmount = Model.Price - Model.SalePrice.Value;
+    }
+
+    var catSlug = Model.Category?.Slug?.ToLower() ?? "";
+    var prodName = Model.Name.ToLower();
+    var isRacket = catSlug == "vot" || catSlug.Contains("vot") || prodName.Contains("vợt") || prodName.Contains("racket") || prodName.Contains("astrox") || prodName.Contains("nanoflare") || prodName.Contains("arcsaber") || prodName.Contains("axforce") || prodName.Contains("halbertec") || prodName.Contains("blade") || prodName.Contains("drivex") || prodName.Contains("auraspeed") || prodName.Contains("thruster");
+    var isShoe = catSlug == "giay" || catSlug.Contains("giay") || prodName.Contains("giày") || prodName.Contains("shoe") || prodName.Contains("shb");
+    var isApparel = catSlug == "quan-ao" || catSlug.Contains("ao") || prodName.Contains("áo") || prodName.Contains("quần") || prodName.Contains("trang phục");
+
+    int GetSizeSortWeight(string? size)
+    {
+        if (string.IsNullOrWhiteSpace(size)) return 999;
+        var s = size.Trim().ToUpper();
+        if (s == "XS") return 10;
+        if (s == "S") return 20;
+        if (s == "M") return 30;
+        if (s == "L") return 40;
+        if (s == "XL") return 50;
+        if (s == "XXL" || s == "2XL") return 60;
+        if (s == "XXXL" || s == "3XL") return 70;
+        if (s.StartsWith("5U")) return 110;
+        if (s.StartsWith("4U")) return 120;
+        if (s.StartsWith("3U")) return 130;
+        if (s.StartsWith("2U")) return 140;
+        if (int.TryParse(s, out var num)) return 200 + num;
+        return 500;
+    }
+
+    var availableColors = variants
+        .Where(v => !string.IsNullOrWhiteSpace(v.Color) && v.Color.Trim() != "-")
+        .Select(v => v.Color!.Trim())
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .ToList();
+
+    var availableSizes = variants
+        .Where(v => !string.IsNullOrWhiteSpace(v.Size) && v.Size.Trim() != "-")
+        .Select(v => v.Size!.Trim())
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .OrderBy(s => GetSizeSortWeight(s))
+        .ToList();
+
+    var hasColors = availableColors.Count > 0;
+    var hasSizes = availableSizes.Count > 0;
+
+    string ResolveSingleColorHex(string cName)
+    {
+        var c = (cName ?? "").ToLower().Trim();
+        if (c.Contains("trắng") || c.Contains("white") || c.Contains("bạch") || c.Contains("tuyết") || c.Contains("ngọc")) return "#ffffff";
+        if (c.Contains("đen") || c.Contains("black") || c.Contains("huyền") || c.Contains("nhám")) return "#0f172a";
+        if (c.Contains("đỏ") || c.Contains("red") || c.Contains("ruby") || c.Contains("cherry") || c.Contains("hổ phách") || c.Contains("bão táp")) return "#ef4444";
+        if (c.Contains("xanh navy") || c.Contains("navy") || c.Contains("biển sâu") || c.Contains("đậm")) return "#1e3a8a";
+        if (c.Contains("xanh cyan") || c.Contains("cyan")) return "#06b6d4";
+        if (c.Contains("xanh dương") || c.Contains("lam") || c.Contains("blue") || c.Contains("biển") || c.Contains("cổ điển")) return "#2563eb";
+        if (c.Contains("xanh ngọc") || c.Contains("lục bảo")) return "#059669";
+        if (c.Contains("xanh chuối") || c.Contains("xanh lá") || c.Contains("lục") || c.Contains("green") || c.Contains("lime") || c.Contains("neon") || c.Contains("rêu")) return "#10b981";
+        if (c.Contains("vàng") || c.Contains("yellow") || c.Contains("gold") || c.Contains("chớp") || c.Contains("sấm")) return "#f59e0b";
+        if (c.Contains("cam") || c.Contains("orange") || c.Contains("camel")) return "#f97316";
+        if (c.Contains("hồng") || c.Contains("pink") || c.Contains("pastel")) return "#ec4899";
+        if (c.Contains("tím") || c.Contains("purple") || c.Contains("ảo")) return "#8b5cf6";
+        if (c.Contains("xám") || c.Contains("ghi") || c.Contains("gray") || c.Contains("grey") || c.Contains("bạc") || c.Contains("titan") || c.Contains("kim loại")) return "#64748b";
+        return "#3b82f6";
+    }
+
+    string GetColorHex(string colorName)
+    {
+        var raw = (colorName ?? "").Trim();
+        if (raw.Contains("/"))
+        {
+            var parts = raw.Split('/', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length >= 2)
+            {
+                var h1 = ResolveSingleColorHex(parts[0]);
+                var h2 = ResolveSingleColorHex(parts[1]);
+                return $"linear-gradient(135deg, {h1} 50%, {h2} 50%)";
+            }
+        }
+        return ResolveSingleColorHex(raw);
+    }
+
+    var allImages = new List<string>();
+    if (!string.IsNullOrWhiteSpace(Model.MainImageUrl)) allImages.Add(Model.MainImageUrl);
+    if (Model.Images != null)
+    {
+        foreach (var img in Model.Images)
+        {
+            if (!string.IsNullOrWhiteSpace(img.Url) && !allImages.Contains(img.Url))
+                allImages.Add(img.Url);
+        }
+    }
+}
+
+<style>
+    /* PRODUCT DETAIL MODERN STYLING */
+    .detail-gallery-card {
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 24px;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+        position: relative;
+    }
+    .detail-main-img-box {
+        position: relative;
+        overflow: hidden;
+        border-radius: 18px;
+        background: radial-gradient(circle at center, #f8fafc 0%, #f1f5f9 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 420px;
+        cursor: crosshair;
+    }
+    .detail-main-img-box img {
+        max-height: 400px;
+        width: 100%;
+        object-fit: contain;
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .detail-main-img-box:hover img {
+        transform: scale(1.06);
+    }
+    .thumb-item-btn {
+        width: 72px;
+        height: 72px;
+        border-radius: 14px;
+        border: 2px solid transparent;
+        padding: 4px;
+        background: #f8fafc;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        object-fit: contain;
+    }
+    .thumb-item-btn.active, .thumb-item-btn:hover {
+        border-color: #0f172a;
+        background: #ffffff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transform: translateY(-2px);
+    }
+    .pro-trust-box {
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        border-radius: 16px;
+        padding: 16px 12px;
+        transition: all 0.3s ease;
+    }
+    .pro-trust-box:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+        border-color: rgba(0, 0, 0, 0.12);
+    }
+    .star-gold {
+        color: #f59e0b;
+    }
+    .star-gray {
+        color: #e2e8f0;
+    }
+    .review-score-box {
+        background: linear-gradient(145deg, #0f172a, #1e293b);
+        color: white;
+        border-radius: 20px;
+        padding: 28px 24px;
+        text-align: center;
+    }
+    .review-progress-track {
+        background: #f1f5f9;
+        height: 8px;
+        border-radius: 99px;
+        overflow: hidden;
+    }
+    .review-progress-fill {
+        background: #f59e0b;
+        height: 100%;
+        border-radius: 99px;
+    }
+    .review-user-avatar {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-transform: uppercase;
+        flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+    }
+    .review-card-item {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 22px;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+        margin-bottom: 16px;
+        transition: all 0.2s ease;
+    }
+    .review-card-item:hover {
+        border-color: rgba(0, 0, 0, 0.12);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    }
+    .star-picker-item {
+        font-size: 2rem;
+        cursor: pointer;
+        color: #cbd5e1;
+        transition: color 0.15s ease, transform 0.15s ease;
+    }
+    .star-picker-item:hover, .star-picker-item.active {
+        color: #f59e0b;
+        transform: scale(1.15);
+    }
+    .price-gradient-card {
+        background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        padding: 20px 24px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+    }
+
+    /* MODERN SEPARATE SIZE & COLOR SELECTOR STYLES */
+    .variant-selector-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        padding: 22px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+    }
+    
+    /* Modern Color Tiles */
+    .modern-color-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 10px;
+    }
+    .modern-color-tile {
+        position: relative;
+        border: 2px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 10px 14px;
+        background: #ffffff;
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        user-select: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 52px;
+    }
+    .modern-color-tile:hover:not(.out-of-stock) {
+        border-color: #0f172a;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+    }
+    .color-chip-radio:checked + .modern-color-tile {
+        border-color: #0f172a;
+        background: #0f172a;
+        color: #ffffff;
+        box-shadow: 0 6px 20px rgba(15, 23, 42, 0.18);
+        transform: translateY(-2px);
+    }
+    .color-chip-radio:checked + .modern-color-tile .color-label {
+        color: #ffffff;
+    }
+    .color-chip-radio:checked + .modern-color-tile .color-stock-sub {
+        color: #94a3b8;
+    }
+    .color-chip-radio:checked + .modern-color-tile .variant-check-badge {
+        display: flex;
+    }
+    .color-swatch-circle {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        border: 2px solid #ffffff;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.18);
+        flex-shrink: 0;
+    }
+    .color-label {
+        font-size: 0.92rem;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.2;
+    }
+    .color-stock-sub {
+        font-size: 0.7rem;
+        color: #64748b;
+    }
+
+    /* Modern Size Tiles */
+    .modern-size-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+        gap: 10px;
+    }
+    .modern-size-tile {
+        position: relative;
+        border: 2px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 10px 8px;
+        text-align: center;
+        background: #ffffff;
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        user-select: none;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 64px;
+    }
+    .modern-size-tile:hover:not(.out-of-stock) {
+        border-color: #0f172a;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+    }
+    .size-chip-radio:checked + .modern-size-tile {
+        border-color: #0f172a;
+        background: #0f172a;
+        color: #ffffff;
+        box-shadow: 0 6px 20px rgba(15, 23, 42, 0.2);
+        transform: translateY(-2px);
+    }
+    .size-chip-radio:checked + .modern-size-tile .size-label {
+        color: #ffffff;
+    }
+    .size-chip-radio:checked + .modern-size-tile .size-stock {
+        color: #94a3b8;
+    }
+    .size-chip-radio:checked + .modern-size-tile .variant-check-badge {
+        display: flex;
+    }
+    .variant-check-badge {
+        display: none;
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #10b981;
+        color: #ffffff;
+        font-size: 10px;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+        box-shadow: 0 2px 6px rgba(16, 185, 129, 0.4);
+        z-index: 2;
+    }
+    .modern-size-tile.out-of-stock, .modern-color-tile.out-of-stock {
+        background: #f8fafc;
+        border-color: #f1f5f9;
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+    .modern-size-tile.out-of-stock .size-label {
+        text-decoration: line-through;
+        color: #94a3b8;
+    }
+    .size-label {
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: #0f172a;
+        line-height: 1.2;
+    }
+    .size-stock {
+        font-size: 0.72rem;
+        color: #64748b;
+        margin-top: 3px;
+        font-weight: 500;
+    }
+    .variant-feedback-banner {
+        border-radius: 14px;
+        padding: 12px 16px;
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.88rem;
+        margin-top: 16px;
+        transition: all 0.25s ease;
+    }
+</style>
+
+<div class="container py-4">
+
+    <!-- ALERTS -->
+    @if (TempData["Ok"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Ok"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- 1. BREADCRUMB -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-muted text-decoration-none">Trang chủ</a></li>
+            <li class="breadcrumb-item">
+                <a href="/Danh-Muc?cat=@Model.Category?.Slug" class="text-muted text-decoration-none">
+                    @(Model.Category?.Name ?? "Sản phẩm")
+                </a>
+            </li>
+            <li class="breadcrumb-item active text-dark fw-bold text-truncate" style="max-width: 320px;" aria-current="page">
+                @Model.Name
+            </li>
+        </ol>
+    </nav>
+
+    <!-- 2. MAIN PRODUCT SECTION (GALLERY & DETAILS) -->
+    <div class="row g-4 g-lg-5 align-items-start mb-5">
+
+        <!-- LEFT COLUMN: IMAGE SHOWCASE & THUMBNAILS (6 COLS) -->
+        <div class="col-lg-6">
+            <div class="detail-gallery-card">
+                <div class="detail-main-img-box mb-3">
+                    <img id="mainProductImg"
+                         src="@(Model.MainImageUrl ?? "/img/demo/placeholder.jpg")"
+                         alt="@Model.Name" />
+
+                    <!-- Badges on image -->
+                    <div class="pro-card-badges">
+                        @if (!string.IsNullOrWhiteSpace(Model.Brand?.Name))
+                        {
+                            <span class="badge-brand-pro">@Model.Brand.Name</span>
+                        }
+                        @if (discountPercent > 0)
+                        {
+                            <span class="badge-sale-pro">-@discountPercent%</span>
+                        }
+                    </div>
+                </div>
+
+                <!-- THUMBNAILS CAROUSEL (IF ANY EXTRA IMAGES) -->
+                @if (allImages.Count > 1)
+                {
+                    <div class="d-flex align-items-center gap-2 overflow-auto pb-2 justify-content-center">
+                        @for (int i = 0; i < allImages.Count; i++)
+                        {
+                            var imgUrl = allImages[i];
+                            <img src="@imgUrl"
+                                 class="thumb-item-btn @(i == 0 ? "active" : "")"
+                                 onclick="switchImage('@imgUrl', this)"
+                                 alt="@Model.Name - Góc xem @(i + 1)" />
+                        }
+                    </div>
+                }
+
+                <!-- TRUST / COMMITMENT BADGES -->
+                <div class="row g-2 mt-3 text-center">
+                    <div class="col-6 col-sm-3">
+                        <div class="pro-trust-box h-100">
+                            <div class="fs-4 mb-1">🛡️</div>
+                            <div class="fw-bold text-dark small" style="font-size: 0.78rem;">100% CHÍNH HÃNG</div>
+                            <div class="text-muted" style="font-size: 0.7rem;">Quét mã cào bảo hành</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="pro-trust-box h-100">
+                            <div class="fs-4 mb-1">⚡</div>
+                            <div class="fw-bold text-dark small" style="font-size: 0.78rem;">GIAO HỎA TỐC</div>
+                            <div class="text-muted" style="font-size: 0.7rem;">Freeship từ 499k</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="pro-trust-box h-100">
+                            <div class="fs-4 mb-1">🔄</div>
+                            <div class="fw-bold text-dark small" style="font-size: 0.78rem;">ĐỔI MỚI 7 NGÀY</div>
+                            <div class="text-muted" style="font-size: 0.7rem;">Lỗi nhà sản xuất 1-1</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="pro-trust-box h-100">
+                            <div class="fs-4 mb-1">🎁</div>
+                            <div class="fw-bold text-dark small" style="font-size: 0.78rem;">QUÀ TẶNG KÈM</div>
+                            <div class="text-muted" style="font-size: 0.7rem;">Tặng cước & bao nhung</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: PRODUCT INFO & PURCHASING FORM (6 COLS) -->
+        <div class="col-lg-6">
+
+            <!-- Category, Brand & Wishlist -->
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-dark text-white fw-bold px-3 py-1 rounded-pill">@(Model.Brand?.Name ?? "CHÍNH HÃNG")</span>
+                    <span class="badge bg-light text-muted border px-2 py-1 rounded-pill">@(Model.Category?.Name ?? "Dụng cụ")</span>
+                    @if (Model.IsActive)
+                    {
+                        <span class="badge bg-success bg-opacity-10 text-success fw-bold px-2 py-1 rounded-pill">✓ Sẵn hàng tại kho</span>
+                    }
+                </div>
+
+                <button type="button"
+                        class="pro-wishlist-btn position-static @(isModelFav ? "active" : "")"
+                        onclick="toggleWishlist(@Model.Id, this);"
+                        title="@(isModelFav ? "Bỏ lưu yêu thích" : "Thêm vào yêu thích")">
+                    @(isModelFav ? "❤️" : "🤍")
+                </button>
+            </div>
+
+            <!-- Product Title -->
+            <h1 class="fw-black fs-2 text-dark mb-2" style="letter-spacing: -0.5px;">@Model.Name</h1>
+
+            <!-- Social Proof Rating Row -->
+            <div class="d-flex align-items-center flex-wrap gap-2 mb-3 small">
+                <a href="#reviews-section" class="text-decoration-none d-flex align-items-center gap-1">
+                    <div class="star-gold fs-6">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            if (i <= Math.Round(avgRating))
+                            {
+                                <span>★</span>
+                            }
+                            else
+                            {
+                                <span class="star-gray">★</span>
+                            }
+                        }
+                    </div>
+                    <span class="fw-bold text-dark fs-6 ms-1">@avgRating.ToString("0.0")</span>
+                </a>
+                <span class="text-muted">•</span>
+                <a href="#reviews-section" class="text-primary text-decoration-none fw-semibold">
+                    @reviewCount đánh giá thực tế
+                </a>
+                <span class="text-muted">•</span>
+                <span class="text-muted">Đã bán 350+</span>
+                <span class="text-muted">•</span>
+                <span class="badge @(totalStock > 5 ? "bg-success-subtle text-success border border-success-subtle" : (totalStock > 0 ? "bg-warning-subtle text-warning border border-warning-subtle" : "bg-danger-subtle text-danger border border-danger-subtle")) fw-bold px-2 py-1">
+                    📦 Kho hàng: @(totalStock > 0 ? $"Còn {totalStock} chiếc" : "Tạm hết hàng")
+                </span>
+                <span class="badge bg-success bg-opacity-10 text-success fw-semibold ms-auto">✓ Đã kiểm định chất lượng</span>
+            </div>
+
+            <!-- PRICE CARD -->
+            <div class="price-gradient-card mb-4">
+                <div class="d-flex align-items-baseline gap-3 flex-wrap">
+                    @if (Model.SalePrice.HasValue)
+                    {
+                        <span class="fs-1 fw-black text-danger">@Model.SalePrice.Value.ToString("n0") đ</span>
+                        <span class="text-muted text-decoration-line-through fs-5">@Model.Price.ToString("n0") đ</span>
+                        @if (discountPercent > 0)
+                        {
+                            <span class="badge bg-danger fw-bold ms-auto p-2 rounded-pill shadow-xs">
+                                TIẾT KIỆM @saveAmount.ToString("n0") đ (-@discountPercent%)
+                            </span>
+                        }
+                    }
+                    else
+                    {
+                        <span class="fs-1 fw-black text-dark">@Model.Price.ToString("n0") đ</span>
+                    }
+                </div>
+
+                <!-- Flash Perk -->
+                <div class="d-flex align-items-center gap-2 mt-3 pt-3 border-top text-muted small">
+                    <span class="fs-5">⚡</span>
+                    <span><strong>Đặc quyền khách hàng:</strong> Miễn phí công đan cước máy điện tử 4 nút chuẩn thi đấu quốc tế trị giá 60.000đ.</span>
+                </div>
+            </div>
+
+            <!-- ADD TO CART FORM -->
+            <form id="addToCartForm" method="post" asp-controller="Cart" asp-action="Add">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="productId" value="@Model.Id" />
+                <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+
+                <!-- 1. PHÂN LOẠI HÀNG: TÁCH RIÊNG BIỆT MÀU SẮC VÀ SIZE (KHÔNG CHỌN MẶC ĐỊNH) -->
+                @if (hasColors || hasSizes)
+                {
+                    <div class="mb-4 variant-selector-card" id="variantSelectorCard">
+                        <!-- HIDDEN INPUT NỘP FORM LÊN CART / CHECKOUT -->
+                        <input type="hidden" name="variantId" id="activeVariantId" value="" />
+
+                        <!-- PHẦN A: CHỌN MÀU SẮC (NẾU CÓ MÀU) -->
+                        @if (hasColors)
+                        {
+                            <div class="color-selection-block mb-3" id="colorSelectionBlock">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <label class="form-label fw-black text-dark mb-0 fs-6">
+                                        <span>🎨 1. CHỌN MÀU SẮC:</span>
+                                    </label>
+                                    <span class="small text-muted">
+                                        Đang chọn: <span id="selectedColorDisplay" class="badge bg-light text-muted border px-2 py-1">Chưa chọn</span>
+                                    </span>
+                                </div>
+
+                                <div class="modern-color-grid">
+                                    @for (int cIdx = 0; cIdx < availableColors.Count; cIdx++)
+                                    {
+                                        var colorName = availableColors[cIdx];
+                                        var radioColorId = $"color_{cIdx}_{Model.Id}";
+                                        var hexCode = GetColorHex(colorName);
+                                        var totalColorStock = variants.Where(v => v.Color?.Trim().Equals(colorName, StringComparison.OrdinalIgnoreCase) == true).Sum(v => v.Stock);
+
+                                        <input type="radio"
+                                               class="color-chip-radio d-none"
+                                               name="selectedColorRadio"
+                                               id="@radioColorId"
+                                               value="@colorName"
+                                               onchange="onColorChanged(this.value)" />
+
+                                        <label for="@radioColorId" class="modern-color-tile @(totalColorStock <= 0 ? "out-of-stock" : "")">
+                                            <div class="variant-check-badge">✓</div>
+                                            <div class="color-swatch-circle" style="background: @hexCode;"></div>
+                                            <div>
+                                                <div class="color-label">@colorName</div>
+                                                <div class="color-stock-sub">@(totalColorStock > 0 ? $"Kho còn {totalColorStock}" : "Hết hàng")</div>
+                                            </div>
+                                        </label>
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                        <!-- PHẦN B: CHỌN KÍCH CỠ / SIZE (NẾU CÓ SIZE) -->
+                        @if (hasSizes)
+                        {
+                            <div class="size-selection-block @(hasColors ? "pt-3 border-top" : "")" id="sizeSelectionBlock">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <label class="form-label fw-black text-dark mb-0 fs-6">
+                                            <span>📏 @(hasColors ? "2. CHỌN KÍCH CỠ / SIZE:" : "CHỌN KÍCH CỠ / SIZE:")</span>
+                                        </label>
+                                        <span class="small text-muted ms-2">
+                                            Đang chọn: <span id="selectedSizeDisplay" class="badge bg-light text-muted border px-2 py-1">@(hasColors ? "Chờ chọn màu" : "Chưa chọn")</span>
+                                        </span>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill fw-bold px-3 shadow-xs" data-bs-toggle="modal" data-bs-target="#sizeGuideModal">
+                                        📏 Bảng quy đổi Size
+                                    </button>
+                                </div>
+
+                                @if (hasColors)
+                                {
+                                    <!-- HƯỚNG DẪN KHI CHƯA CHỌN MÀU -->
+                                    <div id="sizePromptNoColor" class="p-3 bg-light rounded-4 border text-center text-muted small my-2">
+                                        <span class="fs-6 me-1">🎨</span> Vui lòng <strong>chọn Màu sắc</strong> ở trên để xem các kích cỡ và số lượng có sẵn tại kho.
+                                    </div>
+                                }
+
+                                <!-- LƯỚI SIZE HIỂN THỊ KHI ĐÃ CHỌN MÀU (HOẶC KHI SẢN PHẨM KHÔNG CÓ MÀU) -->
+                                <div class="modern-size-grid" id="sizeGridContainer" style="@(hasColors ? "display: none;" : "")">
+                                    @for (int sIdx = 0; sIdx < availableSizes.Count; sIdx++)
+                                    {
+                                        var sizeName = availableSizes[sIdx];
+                                        var radioSizeId = $"size_{sIdx}_{Model.Id}";
+                                        var sizeVariant = variants.FirstOrDefault(v => v.Size?.Trim().Equals(sizeName, StringComparison.OrdinalIgnoreCase) == true);
+                                        var sizeStock = sizeVariant?.Stock ?? 0;
+
+                                        <input type="radio"
+                                               class="size-chip-radio d-none"
+                                               name="selectedSizeRadio"
+                                               id="@radioSizeId"
+                                               value="@sizeName"
+                                               onchange="onSizeChanged(this.value)" />
+
+                                        <label for="@radioSizeId" class="modern-size-tile @(sizeStock <= 0 && !hasColors ? "out-of-stock" : "")">
+                                            <div class="variant-check-badge">✓</div>
+                                            <div class="size-label">@sizeName</div>
+                                            <div class="size-stock">@(hasColors ? "Chờ chọn màu" : (sizeStock > 0 ? $"Còn {sizeStock}" : "Hết hàng"))</div>
+                                        </label>
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                        <!-- BANNER PHẢN HỒI TỒN KHO TỨC THÌ THEO MÀU & SIZE -->
+                        <div id="variantFeedbackBanner" class="variant-feedback-banner" style="background: #f8fafc; border-color: #e2e8f0;">
+                            <span class="fs-5" id="variantFeedbackIcon">💡</span>
+                            <span id="variantFeedbackText" class="fw-semibold text-muted">
+                                @(hasColors && hasSizes ? "Vui lòng chọn Màu sắc và Kích cỡ phù hợp với bạn." : (hasColors ? "Vui lòng chọn Màu sắc bạn yêu thích." : "Vui lòng chọn Kích cỡ phù hợp với bạn."))
+                            </span>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <input type="hidden" name="variantId" value="@(variants.FirstOrDefault()?.Id)" />
+                    <div class="mb-3 d-flex align-items-center gap-2">
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-bold">
+                            ✓ Có sẵn @(variants.FirstOrDefault()?.Stock ?? 10) sản phẩm sẵn sàng giao
+                        </span>
+                        <span class="text-muted small">Quy cách: Tiêu chuẩn chính hãng</span>
+                    </div>
+                }
+
+                <!-- 2. DỊCH VỤ CĂNG DÂY (DÀNH RIÊNG CHO VỢT) -->
+                @if (isRacket)
+                {
+                    <div class="mb-4 p-3 bg-white border rounded-4 shadow-xs">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label fw-bold text-dark mb-0">
+                                <span>Mức căng cước theo yêu cầu:</span>
+                                <span class="badge bg-success-subtle text-success px-2 py-1 rounded-pill small ms-1">Miễn phí đan máy</span>
+                            </label>
+                            <a href="/Dich-Vu-Cang-Cuoc" target="_blank" class="text-primary small fw-semibold text-decoration-none">
+                                🛠️ Hướng dẫn số Kg & Cước ➔
+                            </a>
+                        </div>
+
+                        <div class="tension-chips-container mb-2">
+                            <input type="radio" class="tension-chip-radio" name="stringTension" id="tension_105" value="10.5 kg (Mới chơi)" data-desc="Trợ lực đàn hồi cao, đẩy phông nhẹ nhàng, bảo vệ cổ tay và khớp vai cho người mới." checked />
+                            <label for="tension_105" class="tension-chip-btn">
+                                10.5 kg (Mới chơi)
+                            </label>
+
+                            <input type="radio" class="tension-chip-radio" name="stringTension" id="tension_110" value="11.0 kg (Phong trào)" data-desc="Mức chuẩn vàng được 80% người chơi phong trào lựa chọn, cân bằng tuyệt đối giữa trợ lực và kiểm soát góc đánh." />
+                            <label for="tension_110" class="tension-chip-btn">
+                                11.0 kg (Phong trào)
+                            </label>
+
+                            <input type="radio" class="tension-chip-radio" name="stringTension" id="tension_115" value="11.5 kg (Cổ tay khỏe)" data-desc="Mặt cước cứng vừa, đường cầu đi cắm góc sân, smash uy lực. Yêu cầu lực cổ tay trung bình khá trở lên." />
+                            <label for="tension_115" class="tension-chip-btn">
+                                11.5 kg (Cổ tay khỏe)
+                            </label>
+
+                            <input type="radio" class="tension-chip-radio" name="stringTension" id="tension_none" value="Khung mộc (Không đan)" data-desc="Shop giao vợt khung mộc nguyên bản kèm bao vợt để bạn tự đan loại cước theo sở thích riêng." />
+                            <label for="tension_none" class="tension-chip-btn">
+                                Không đan dây
+                            </label>
+                        </div>
+
+                        <div id="tensionDescBox" class="small text-muted p-2 rounded-3 bg-light border border-light d-flex align-items-center gap-2">
+                            <span>💡</span>
+                            <span id="tensionDescText">Trợ lực đàn hồi cao, đẩy phông nhẹ nhàng, bảo vệ cổ tay và khớp vai cho người mới.</span>
+                        </div>
+                    </div>
+                }
+
+                <!-- 3. SỐ LƯỢNG (QUANTITY STEPPER) -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-dark">Số lượng đặt mua:</label>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="stepper-wrap">
+                            <button type="button" class="stepper-btn" onclick="adjustQty(-1)">−</button>
+                            <input type="number" id="buyQty" class="stepper-input" name="quantity" value="1" min="1" max="99" />
+                            <button type="button" class="stepper-btn" onclick="adjustQty(1)">+</button>
+                        </div>
+                        <span class="text-muted small">Đóng gói bọc bóng khí chống va đập 3 lớp chuyên dụng</span>
+                    </div>
+                </div>
+
+                <!-- 4. DUAL ACTION BUTTONS (THÊM GIỎ HÀNG & MUA NGAY) -->
+                <div class="row g-2 mt-4">
+                    <div class="col-12 col-sm-6">
+                        <button type="submit" class="btn btn-outline-dark btn-lg w-100 rounded-pill py-3 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2">
+                            <span>🛒</span>
+                            <span>Thêm vào giỏ</span>
+                        </button>
+                    </div>
+                    <div class="col-12 col-sm-6">
+                        <button type="button" onclick="buyNowSubmit();" class="btn btn-dark btn-lg w-100 rounded-pill py-3 fw-bold shadow-lg d-flex align-items-center justify-content-center gap-2">
+                            <span>⚡</span>
+                            <span>Mua ngay lập tức</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- HOTLINE SUPPORT -->
+                <div class="text-center mt-3 small text-muted">
+                    Cần tư vấn lực tay & kích thước chuẩn? Gọi ngay: <a href="tel:0900000000" class="fw-bold text-primary text-decoration-none">0900 000 000</a> (8:00 - 21:30)
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <!-- 3. PRODUCT SPECS & DETAILS (TABS) -->
+    <section class="card border-0 shadow-sm rounded-4 p-4 p-md-5 mb-5 bg-white">
+        <!-- Tabs Header -->
+        <ul class="nav nav-pills mb-4 gap-2 border-bottom pb-3" id="productTab" role="tablist">
+            <li class="nav-item">
+                <button class="btn btn-outline-dark rounded-pill active px-4 fw-bold" id="desc-tab" data-bs-toggle="pill" data-bs-target="#tab-desc" type="button">
+                    📖 Giới thiệu chi tiết
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="btn btn-outline-dark rounded-pill px-4 fw-bold" id="specs-tab" data-bs-toggle="pill" data-bs-target="#tab-specs" type="button">
+                    ⚙️ Thông số kỹ thuật
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="btn btn-outline-dark rounded-pill px-4 fw-bold" id="policy-tab" data-bs-toggle="pill" data-bs-target="#tab-policy" type="button">
+                    🛡️ Chính sách bảo hành
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tabs Content -->
+        <div class="tab-content" id="productTabContent">
+            <!-- TAB 1: MÔ TẢ -->
+            <div class="tab-pane fade show active" id="tab-desc">
+                <h5 class="fw-bold text-dark mb-3">Đặc điểm nổi bật của @Model.Name</h5>
+                <p class="text-muted" style="line-height: 1.85; font-size: 0.98rem;">
+                    @(Model.Description ?? "Sản phẩm được chế tạo từ vật liệu carbon cao cấp, qua quy trình kiểm định nghiêm ngặt theo tiêu chuẩn của các giải đấu cầu lông quốc tế. Khung vợt khí động học giúp giảm tối đa sức cản gió, mang lại độ vung thanh thoát và khả năng trợ lực vượt trội cho người chơi.")
+                </p>
+                <div class="row g-3 mt-3">
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded-4 border">
+                            <div class="fw-bold text-dark mb-1">🚀 Công nghệ trợ lực cao</div>
+                            <small class="text-muted">Gia tăng uy lực cho các pha đập cầu cắm sân và phông cầu cuối sân thanh thoát.</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded-4 border">
+                            <div class="fw-bold text-dark mb-1">🛡️ Triệt tiêu rung chấn</div>
+                            <small class="text-muted">Bảo vệ cổ tay và khớp vai sau các pha cầu dồn dập ở cường độ cao.</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded-4 border">
+                            <div class="fw-bold text-dark mb-1">💎 Độ bền chuẩn thi đấu</div>
+                            <small class="text-muted">Chịu lực va chạm cao, cam kết tem chống hàng giả và bảo hành chính hãng.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: THÔNG SỐ KỸ THUẬT -->
+            <div class="tab-pane fade" id="tab-specs">
+                <h5 class="fw-bold text-dark mb-3">Bảng thông số kỹ thuật tiêu chuẩn</h5>
+                <div class="table-responsive" style="max-width: 700px;">
+                    <table class="table table-bordered align-middle">
+                        <tbody>
+                            <tr>
+                                <th class="bg-light text-muted" style="width: 35%;">Thương hiệu</th>
+                                <td class="fw-bold">@(Model.Brand?.Name ?? "Chính hãng")</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light text-muted">Danh mục</th>
+                                <td class="fw-semibold">@(Model.Category?.Name ?? "Dụng cụ cầu lông")</td>
+                            </tr>
+                            @if (isRacket)
+                            {
+                                <tr>
+                                    <th class="bg-light text-muted">Trọng lượng / Cán (Kho)</th>
+                                    <td class="fw-semibold text-primary">@(hasSizes ? string.Join(", ", availableSizes) : "4U (80-84g) / G5")</td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light text-muted">Điểm cân bằng</th>
+                                    <td class="fw-semibold">295 ± 3mm (Hơi nặng đầu - Công thủ toàn diện)</td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light text-muted">Độ cứng đũa</th>
+                                    <td class="fw-semibold">Trung bình (Medium Flex)</td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light text-muted">Sức căng tối đa</th>
+                                    <td class="fw-semibold text-danger">28 lbs (~12.5 kg)</td>
+                                </tr>
+                            }
+                            else if (isShoe)
+                            {
+                                <tr>
+                                    <th class="bg-light text-muted">Kích cỡ có sẵn (Kho)</th>
+                                    <td class="fw-semibold text-primary">@(hasSizes ? string.Join(", ", availableSizes) : "Chuẩn quốc tế")</td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light text-muted">Đế ngoài</th>
+                                    <td class="fw-semibold">Cao su tự nhiên chống trơn trượt (Non-marking)</td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light text-muted">Bộ đệm</th>
+                                    <td class="fw-semibold">Power Cushion giảm chấn thương</td>
+                                </tr>
+                            }
+                            else if (isApparel)
+                            {
+                                <tr>
+                                    <th class="bg-light text-muted">Kích cỡ có sẵn (Kho)</th>
+                                    <td class="fw-semibold text-primary">@(hasSizes ? string.Join(", ", availableSizes) : "S, M, L, XL, XXL")</td>
+                                </tr>
+                            }
+                            <tr>
+                                <th class="bg-light text-muted">Màu sắc trong kho</th>
+                                <td class="fw-semibold">@(hasColors ? string.Join(", ", availableColors) : "Tiêu chuẩn chính hãng")</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light text-muted">Tồn kho khả dụng</th>
+                                <td class="fw-bold @(totalStock > 0 ? "text-success" : "text-danger")">
+                                    @(totalStock > 0 ? $"✓ Còn {totalStock} sản phẩm có sẵn tại kho (Giao ngay)" : "✕ Tạm hết hàng tại kho")
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light text-muted">Mã SKU quản lý kho</th>
+                                <td class="font-monospace text-dark fw-bold">@(variants.FirstOrDefault(v => !string.IsNullOrEmpty(v.Sku))?.Sku ?? $"SP-{Model.Id:D4}")</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light text-muted">Tình trạng</th>
+                                <td class="fw-semibold text-success">Mới 100% nguyên hộp, tem chống hàng giả</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 3: BẢO HÀNH -->
+            <div class="tab-pane fade" id="tab-policy">
+                <h5 class="fw-bold text-dark mb-3">Chính sách bảo hành & Đổi trả</h5>
+                <ul class="text-muted" style="line-height: 2;">
+                    <li><strong>Bảo hành chính hãng:</strong> 03 tháng kể từ ngày mua hàng.</li>
+                    <li><strong>1 đổi 1 trong 7 ngày:</strong> Nếu phát hiện lỗi nứt khung do nhà sản xuất trong quá trình căng dây đầu tiên.</li>
+                    <li><strong>Bảo hành đan cước:</strong> Hỗ trợ đan lại miễn phí nếu lỗi đứt dây do kỹ thuật căng trong vòng 24h.</li>
+                    <li><strong>Vận chuyển toàn quốc:</strong> Khách hàng được quyền đồng kiểm (mở hộp xem hàng) trước khi thanh toán.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. DEDICATED RATING & REVIEWS SECTION -->
+    <section id="reviews-section" class="card border-0 shadow-sm rounded-4 p-4 p-md-5 mb-5 bg-white">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+            <div>
+                <span class="badge bg-warning bg-opacity-10 text-dark fw-bold px-3 py-1 mb-2 rounded-pill">
+                    ⭐ ĐÁNH GIÁ TỪ NGƯỜI DÙNG THỰC TẾ
+                </span>
+                <h3 class="fw-black text-dark mb-0">Khách Hàng Đánh Giá Về Sản Phẩm</h3>
+            </div>
+
+            <!-- NÚT VIẾT ĐÁNH GIÁ (YÊU CẦU ĐĂNG NHẬP) -->
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <button type="button" class="btn btn-dark rounded-pill px-4 py-2 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#reviewModal">
+                    <i class="bi bi-pencil-square me-1"></i> Viết đánh giá của bạn
+                </button>
+            }
+            else
+            {
+                <a href="/Account/Login?returnUrl=@(Context.Request.Path + Context.Request.QueryString + "#reviews-section")"
+                   class="btn btn-outline-dark rounded-pill px-4 py-2 fw-bold shadow-sm d-flex align-items-center gap-2">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    <span>Đăng nhập để viết đánh giá</span>
+                </a>
+            }
+        </div>
+
+        <!-- RATING BREAKDOWN CARD -->
+        <div class="row g-4 align-items-center mb-5 p-4 rounded-4 bg-light border">
+            <!-- Left: Big numerical score -->
+            <div class="col-md-4 text-center border-end-md">
+                <div class="fs-1 fw-black text-dark lh-1 mb-2">@avgRating.ToString("0.0")<small class="fs-5 text-muted fw-normal"> / 5.0</small></div>
+                <div class="star-gold fs-4 mb-2">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        if (i <= Math.Round(avgRating))
+                        {
+                            <span>★</span>
+                        }
+                        else
+                        {
+                            <span class="star-gray">★</span>
+                        }
+                    }
+                </div>
+                <div class="text-muted small">Dựa trên <strong>@reviewCount</strong> lượt nhận xét thực tế</div>
+                <div class="badge bg-success bg-opacity-10 text-success fw-bold px-3 py-1 rounded-pill mt-2">
+                    ✓ 100% người mua hài lòng
+                </div>
+            </div>
+
+            <!-- Right: Breakdown bars -->
+            <div class="col-md-8 ps-md-4">
+                @for (int star = 5; star >= 1; star--)
+                {
+                    var count = starCounts[star];
+                    var pct = reviewCount > 0 ? (int)Math.Round((double)count / reviewCount * 100) : 0;
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="small fw-bold text-dark text-nowrap" style="width: 50px;">@star sao</span>
+                        <div class="star-gold small">★</div>
+                        <div class="flex-grow-1 review-progress-track">
+                            <div class="review-progress-fill" style="width: @pct%;"></div>
+                        </div>
+                        <span class="small text-muted text-end text-nowrap" style="width: 75px;">@pct% (@count)</span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- REVIEW FILTER CHIPS -->
+        <div class="d-flex flex-wrap gap-2 mb-4 align-items-center">
+            <span class="small fw-bold text-muted me-2">Lọc theo:</span>
+            <button type="button" class="btn btn-sm btn-dark rounded-pill px-3 review-filter-chip active" data-rating="all">
+                Tất cả (@reviewCount)
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 review-filter-chip" data-rating="5">
+                5 sao (@starCounts[5])
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 review-filter-chip" data-rating="4">
+                4 sao (@starCounts[4])
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 review-filter-chip" data-rating="3">
+                3 sao (@starCounts[3])
+            </button>
+            @if (starCounts[2] > 0)
+            {
+                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 review-filter-chip" data-rating="2">
+                    2 sao (@starCounts[2])
+                </button>
+            }
+            @if (starCounts[1] > 0)
+            {
+                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 review-filter-chip" data-rating="1">
+                    1 sao (@starCounts[1])
+                </button>
+            }
+        </div>
+
+        <!-- REVIEWS LIST -->
+        <div id="reviewsListContainer">
+            @if (reviews.Count == 0)
+            {
+                <div class="text-center py-5 text-muted">
+                    <div class="fs-1">💬</div>
+                    <div class="mt-2 fw-semibold">Chưa có đánh giá nào cho sản phẩm này.</div>
+                    <p class="small text-muted">Hãy là người đầu tiên trải nghiệm và chia sẻ cảm nhận với cộng đồng cầu lông!</p>
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <button type="button" class="btn btn-dark rounded-pill px-4 mt-2 fw-bold" data-bs-toggle="modal" data-bs-target="#reviewModal">
+                            Viết đánh giá ngay
+                        </button>
+                    }
+                    else
+                    {
+                        <a href="/Account/Login?returnUrl=@(Context.Request.Path + Context.Request.QueryString + "#reviews-section")" class="btn btn-dark rounded-pill px-4 mt-2 fw-bold">
+                            Đăng nhập để viết đánh giá
+                        </a>
+                    }
+                </div>
+            }
+            else
+            {
+                @foreach (var r in reviews)
+                {
+                    var initials = "";
+                    if (!string.IsNullOrWhiteSpace(r.UserName))
+                    {
+                        var parts = r.UserName.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                        if (parts.Length == 1) initials = parts[0].Substring(0, 1).ToUpper();
+                        else if (parts.Length > 1) initials = $"{parts[0].Substring(0, 1)}{parts[^1].Substring(0, 1)}".ToUpper();
+                    }
+
+                    <div class="review-card-item" data-rating="@r.Rating">
+                        <div class="d-flex align-items-start gap-3">
+                            <!-- Avatar with initials -->
+                            <div class="review-user-avatar">
+                                @(string.IsNullOrEmpty(initials) ? "KH" : initials)
+                            </div>
+
+                            <!-- Review Content -->
+                            <div class="flex-grow-1">
+                                <div class="d-flex flex-wrap justify-content-between align-items-center gap-1 mb-1">
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                        <span class="fw-bold text-dark">@r.UserName</span>
+                                        @if (r.IsVerifiedPurchase)
+                                        {
+                                            <span class="badge bg-success-subtle text-success rounded-pill px-2 py-1 small fw-semibold">
+                                                ✓ Đã mua hàng tại shop
+                                            </span>
+                                        }
+                                    </div>
+                                    <small class="text-muted">@r.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
+                                </div>
+
+                                <!-- Star rating -->
+                                <div class="star-gold small mb-2">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        if (i <= r.Rating)
+                                        {
+                                            <span>★</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="star-gray">★</span>
+                                        }
+                                    }
+                                </div>
+
+                                @if (!string.IsNullOrWhiteSpace(r.Title))
+                                {
+                                    <h6 class="fw-bold text-dark mb-1">@r.Title</h6>
+                                }
+
+                                <p class="text-muted mb-3" style="line-height: 1.7; font-size: 0.95rem;">
+                                    @r.Comment
+                                </p>
+
+                                <!-- Helpful button -->
+                                <div class="d-flex align-items-center gap-3 pt-2 border-top border-light">
+                                    <button type="button" class="btn btn-sm btn-light rounded-pill px-3 helpful-vote-btn text-muted fw-semibold"
+                                            onclick="voteHelpful(@r.Id, this);">
+                                        👍 Hữu ích (<span class="helpful-counter">@r.HelpfulCount</span>)
+                                    </button>
+                                    <span class="small text-muted">Đánh giá này có hữu ích với bạn không?</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </section>
+
+    <!-- 5. RELATED PRODUCTS SECTION (SẢN PHẨM CÙNG DANH MỤC) -->
+    @if (relatedProducts.Count > 0)
+    {
+        <section class="mb-5">
+            <div class="d-flex justify-content-between align-items-end mb-4">
+                <div>
+                    <span class="badge bg-primary bg-opacity-10 text-primary fw-bold px-3 py-1 mb-2 rounded-pill">KHÁM PHÁ THÊM</span>
+                    <h3 class="fw-bold mb-0">Sản phẩm tương tự bạn có thể thích</h3>
+                </div>
+                <a class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold" href="/Danh-Muc?cat=@Model.Category?.Slug">
+                    Xem thêm →
+                </a>
+            </div>
+
+            <div class="row g-3 g-md-4">
+                @foreach (var p in relatedProducts)
+                {
+                    var pDiscount = 0;
+                    if (p.SalePrice.HasValue && p.Price > 0 && p.SalePrice < p.Price)
+                    {
+                        pDiscount = (int)Math.Round((1 - (p.SalePrice.Value / p.Price)) * 100);
+                    }
+
+                    <div class="col-6 col-lg-3">
+                        <div class="pro-card h-100">
+                            <div class="pro-card-media">
+                                <img class="pro-card-img" src="@(p.MainImageUrl ?? "/img/demo/placeholder.jpg")" alt="@p.Name" loading="lazy" />
+                                <div class="pro-card-badges">
+                                    @if (!string.IsNullOrWhiteSpace(p.Brand?.Name))
+                                    {
+                                        <span class="badge-brand-pro">@p.Brand.Name</span>
+                                    }
+                                    @if (pDiscount > 0)
+                                    {
+                                        <span class="badge-sale-pro">-@pDiscount%</span>
+                                    }
+                                </div>
+                                @{
+                                    var isPFav = wishlistIds.Contains(p.Id);
+                                }
+                                <button type="button" class="pro-wishlist-btn @(isPFav ? "active" : "")" onclick="toggleWishlist(@p.Id, this);" title="Yêu thích">
+                                    @(isPFav ? "❤️" : "🤍")
+                                </button>
+                            </div>
+
+                            <div class="pro-card-body">
+                                <div class="small text-muted mb-1">@(p.Brand?.Name ?? "CHÍNH HÃNG")</div>
+                                <h6 class="pro-card-title" title="@p.Name">@p.Name</h6>
+
+                                <div class="pro-price-wrap">
+                                    @if (p.SalePrice.HasValue)
+                                    {
+                                        <span class="pro-price-current is-sale">@p.SalePrice.Value.ToString("n0") đ</span>
+                                        <span class="pro-price-old">@p.Price.ToString("n0") đ</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="pro-price-current">@p.Price.ToString("n0") đ</span>
+                                    }
+                                </div>
+
+                                <a class="btn-pro-action" asp-action="Detail" asp-route-id="@p.Id">
+                                    <span>Xem ngay</span>
+                                    <span>→</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
+    }
+
+    <!-- 6. MOBILE STICKY BUY BAR (CỐ ĐỊNH Ở ĐÁY ĐIỆN THOẠI KHI CUỘN) -->
+    <div class="sticky-buy-bar">
+        <div class="d-flex align-items-center gap-2">
+            <img src="@(Model.MainImageUrl ?? "/img/demo/placeholder.jpg")"
+                 style="width: 44px; height: 44px; object-fit: cover; border-radius: 8px;" />
+            <div>
+                <small class="text-muted d-block" style="font-size: 0.72rem;">Giá ưu đãi</small>
+                <span class="fw-bold text-danger fs-6">@price.ToString("n0") đ</span>
+            </div>
+        </div>
+        <button type="button" onclick="document.getElementById('addToCartForm').submit();"
+                class="btn btn-dark rounded-pill px-4 py-2 fw-bold">
+            🛒 Mua ngay
+        </button>
+    </div>
+
+</div>
+
+<!-- SIZE GUIDE MODAL (BẢNG QUY ĐỔI SIZE CHUẨN) -->
+<div class="modal fade" id="sizeGuideModal" tabindex="-1" aria-labelledby="sizeGuideModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header border-bottom pb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="fs-4">📏</span>
+                    <div>
+                        <h5 class="modal-title fw-black text-dark m-0" id="sizeGuideModalLabel">Bảng Quy Đổi Size Tiêu Chuẩn Quốc Tế</h5>
+                        <small class="text-muted">Hướng dẫn đo chân và chọn size giày / trang phục chuẩn thi đấu</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <ul class="nav nav-pills gap-2 mb-3" id="sizeModalTab" role="tablist">
+                    @if (isRacket)
+                    {
+                        <li class="nav-item">
+                            <button class="btn btn-outline-dark rounded-pill active px-4 fw-bold" data-bs-toggle="pill" data-bs-target="#tab-racketspec" type="button">
+                                🏸 Trọng Lượng & Cán Vợt (3U / 4U / 5U)
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="btn btn-outline-dark rounded-pill px-4 fw-bold" data-bs-toggle="pill" data-bs-target="#tab-shoesize" type="button">
+                                👟 Size Giày Cầu Lông (EU/CM)
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="btn btn-outline-dark rounded-pill px-4 fw-bold" data-bs-toggle="pill" data-bs-target="#tab-clothsize" type="button">
+                                👕 Size Quần Áo (S/M/L/XL/XXL)
+                            </button>
+                        </li>
+                    }
+                    else if (isShoe)
+                    {
+                        <li class="nav-item">
+                            <button class="btn btn-outline-dark rounded-pill active px-4 fw-bold" data-bs-toggle="pill" data-bs-target="#tab-shoesize" type="button">
+                                👟 Size Giày Cầu Lông (EU/CM)
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="btn btn-outline-dark rounded-pill px-4 fw-bold" data-bs-toggle="pill" data-bs-target="#tab-clothsize" type="button">
+                                👕 Size Quần Áo (S/M/L/XL/XXL)
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="btn btn-outline-dark rounded-pill px-4 fw-bold" data-bs-toggle="pill" data-bs-target="#tab-racketspec" type="button">
+                                🏸 Trọng Lượng & Cán Vợt (3U / 4U / 5U)
+                            </button>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <button class="btn btn-outline-dark rounded-pill active px-4 fw-bold" data-bs-toggle="pill" data-bs-target="#tab-clothsize" type="button">
+                                👕 Size Quần Áo (S/M/L/XL/XXL)
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="btn btn-outline-dark rounded-pill px-4 fw-bold" data-bs-toggle="pill" data-bs-target="#tab-shoesize" type="button">
+                                👟 Size Giày Cầu Lông (EU/CM)
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="btn btn-outline-dark rounded-pill px-4 fw-bold" data-bs-toggle="pill" data-bs-target="#tab-racketspec" type="button">
+                                🏸 Trọng Lượng & Cán Vợt (3U / 4U / 5U)
+                            </button>
+                        </li>
+                    }
+                </ul>
+
+                <div class="tab-content">
+                    <!-- TAB 1: RACKET SPECS -->
+                    <div class="tab-pane fade @(isRacket ? "show active" : "")" id="tab-racketspec">
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle text-center table-hover">
+                                <thead class="table-light small fw-bold">
+                                    <tr>
+                                        <th>Thông số (Size)</th>
+                                        <th>Trọng lượng</th>
+                                        <th>Lực cổ tay phù hợp</th>
+                                        <th>Lối chơi khuyến nghị</th>
+                                        <th>Đặc tính cảm giác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="fw-bold text-primary fs-6">4U - G5</td>
+                                        <td>80 - 84 gram</td>
+                                        <td>Trung bình / Khá (Phong trào)</td>
+                                        <td>Công thủ toàn diện, phản tạt nhanh</td>
+                                        <td>Chuẩn quốc dân tại VN, trợ lực tốt, vung vợt thanh thoát</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold text-danger fs-6">3U - G5</td>
+                                        <td>85 - 89 gram</td>
+                                        <td>Khỏe / Bán chuyên / Đánh lâu năm</td>
+                                        <td>Thiên công, smash cắm sân uy lực</td>
+                                        <td>Đầm đầu, lực đập cực nặng nhưng yêu cầu thể lực dẻo dai</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold text-success fs-6">5U - G5</td>
+                                        <td>75 - 79 gram</td>
+                                        <td>Mới chơi / Nữ giới / Lực tay mềm</td>
+                                        <td>Bắt lưới, phòng thủ, gài cầu</td>
+                                        <td>Siêu nhẹ, tốc độ xoay chuyển linh hoạt, bảo vệ khớp vai</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="alert alert-info border-0 rounded-3 small mt-2 mb-0">
+                            💡 <strong>Gợi ý chọn vợt:</strong> Nếu bạn đang phân vân, <strong>4U-G5 là sự lựa chọn an toàn và tối ưu nhất (chiếm 90% người chơi)</strong>. Chu vi cán <strong>G5 (81mm)</strong> là kích thước chuẩn tay người Việt, vừa vặn để dán thêm quấn cán mỏng chống trơn.
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: SHOE SIZES -->
+                    <div class="tab-pane fade @(isShoe ? "show active" : (!isRacket && !isApparel ? "show active" : ""))" id="tab-shoesize">
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle text-center table-hover">
+                                <thead class="table-light small fw-bold">
+                                    <tr>
+                                        <th>Chiều dài chân (cm)</th>
+                                        <th>Size VN / EU</th>
+                                        <th>Size US Nam</th>
+                                        <th>Size UK</th>
+                                        <th>Khuyến nghị</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>23.5 - 24.0 cm</td><td class="fw-bold text-primary">38</td><td>5.5</td><td>5.0</td><td>Chân nhỏ / Nữ giới</td></tr>
+                                    <tr><td>24.0 - 24.5 cm</td><td class="fw-bold text-primary">39</td><td>6.5</td><td>6.0</td><td>Ôm chân vừa vặn</td></tr>
+                                    <tr><td>24.5 - 25.5 cm</td><td class="fw-bold text-primary">40</td><td>7.5</td><td>7.0</td><td>Chuẩn thi đấu</td></tr>
+                                    <tr><td>25.5 - 26.0 cm</td><td class="fw-bold text-primary">41</td><td>8.5</td><td>8.0</td><td>Phổ biến nhất</td></tr>
+                                    <tr><td>26.0 - 26.5 cm</td><td class="fw-bold text-primary">42</td><td>9.0</td><td>8.5</td><td>Phổ biến nhất</td></tr>
+                                    <tr><td>26.5 - 27.0 cm</td><td class="fw-bold text-primary">43</td><td>10.0</td><td>9.5</td><td>Cổ chân to / mu dày</td></tr>
+                                    <tr><td>27.0 - 27.5 cm</td><td class="fw-bold text-primary">44</td><td>10.5</td><td>10.0</td><td>Chân bè ngang</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="alert alert-info border-0 rounded-3 small mt-2 mb-0">
+                            💡 <strong>Mẹo chọn giày cầu lông:</strong> Bạn nên <strong>chọn tăng 0.5 đến 1 size</strong> so với giày đi bộ hàng ngày để khi di chuyển phanh dừng đột ngột trên sân cầu, các đầu ngón chân không bị cọ ép vào mũi giày gây đau hoặc chấn thương móng chân.
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: CLOTH SIZES -->
+                    <div class="tab-pane fade @(isApparel ? "show active" : "")" id="tab-clothsize">
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle text-center table-hover">
+                                <thead class="table-light small fw-bold">
+                                    <tr>
+                                        <th>Size</th>
+                                        <th>Chiều cao</th>
+                                        <th>Cân nặng</th>
+                                        <th>Vòng ngực (cm)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td class="fw-bold text-primary">S</td><td>1m55 - 1m64</td><td>48 - 56 kg</td><td>84 - 88</td></tr>
+                                    <tr><td class="fw-bold text-primary">M</td><td>1m65 - 1m70</td><td>57 - 65 kg</td><td>88 - 92</td></tr>
+                                    <tr><td class="fw-bold text-primary">L</td><td>1m71 - 1m76</td><td>66 - 73 kg</td><td>92 - 96</td></tr>
+                                    <tr><td class="fw-bold text-primary">XL</td><td>1m77 - 1m82</td><td>74 - 82 kg</td><td>96 - 100</td></tr>
+                                    <tr><td class="fw-bold text-primary">XXL</td><td>1m80 - 1m88</td><td>83 - 92 kg</td><td>100 - 106</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top">
+                <button type="button" class="btn btn-dark rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Đã hiểu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- REVIEW SUBMISSION MODAL (CHỈ HIỂN THỊ KHI ĐÃ ĐĂNG NHẬP) -->
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow-lg">
+                <form method="post" asp-controller="Products" asp-action="AddReview">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="productId" value="@Model.Id" />
+                    <input type="hidden" name="rating" id="reviewRatingInput" value="5" />
+
+                    <div class="modal-header border-bottom pb-3">
+                        <div>
+                            <h5 class="modal-title fw-black text-dark" id="reviewModalLabel">Đánh Giá Sản Phẩm</h5>
+                            <small class="text-muted">@Model.Name</small>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body p-4">
+                        <!-- Logged In User Info Badge -->
+                        <div class="mb-3 p-3 bg-light rounded-4 d-flex align-items-center gap-3 border">
+                            <div class="review-user-avatar" style="width: 44px; height: 44px; font-size: 1rem;">
+                                @(User.Identity?.Name?.Substring(0, 1).ToUpper() ?? "U")
+                            </div>
+                            <div>
+                                <div class="fw-bold text-dark">@User.Identity?.Name</div>
+                                <div class="text-success small fw-semibold">✓ Đã xác thực tài khoản thành viên</div>
+                            </div>
+                        </div>
+
+                        <!-- Interactive Star Rating Picker -->
+                        <div class="text-center mb-4 p-3 bg-light rounded-4 border">
+                            <label class="form-label fw-bold small text-muted text-uppercase mb-1">Mức độ hài lòng của bạn</label>
+                            <div class="d-flex justify-content-center gap-2 my-1" id="starPickerGroup">
+                                <span class="star-picker-item active" data-val="1">★</span>
+                                <span class="star-picker-item active" data-val="2">★</span>
+                                <span class="star-picker-item active" data-val="3">★</span>
+                                <span class="star-picker-item active" data-val="4">★</span>
+                                <span class="star-picker-item active" data-val="5">★</span>
+                            </div>
+                            <div id="starPickerLabel" class="fw-bold text-dark small mt-1">Tuyệt vời (5 sao)</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-dark">Tiêu đề đánh giá</label>
+                            <input type="text" name="title" class="form-control rounded-3 py-2" placeholder="Ví dụ: Vợt đầm tay, smash cắm sân rất đã..." />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-dark">Nội dung nhận xét chi tiết <span class="text-danger">*</span></label>
+                            <textarea name="comment" rows="4" class="form-control rounded-3" placeholder="Chia sẻ cảm nhận thực tế về chất lượng sản phẩm, cảm giác cầm vợt, độ êm của giày..." required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer border-top pt-3">
+                        <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Hủy bỏ</button>
+                        <button type="submit" class="btn btn-dark rounded-pill px-4 fw-bold">
+                            ✓ Gửi đánh giá ngay
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Chuyển ảnh chính khi click thumbnail
+        function switchImage(src, element) {
+            const mainImg = document.getElementById('mainProductImg');
+            if (mainImg) {
+                mainImg.src = src;
+            }
+            document.querySelectorAll('.thumb-item-btn').forEach(btn => btn.classList.remove('active'));
+            if (element) {
+                element.classList.add('active');
+            }
+        }
+
+        function adjustQty(delta) {
+            const input = document.getElementById('buyQty');
+            if (input) {
+                let val = parseInt(input.value) || 1;
+                val += delta;
+                if (val < 1) val = 1;
+                if (val > 99) val = 99;
+                input.value = val;
+            }
+        }
+
+        // MA TRẬN BIẾN THỂ (TÁCH RIÊNG MÀU SẮC & KÍCH CỠ) - SỬ DỤNG JSON RAW ĐỂ TRÁNH RAZOR HTML ENCODE CÁC KÝ TỰ TIẾNG VIỆT
+        const variantMatrix = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(variants.Select(v => new {
+            id = v.Id,
+            size = (v.Size ?? "").Trim(),
+            color = (v.Color ?? "").Trim(),
+            stock = v.Stock,
+            sku = (v.Sku ?? "").Trim()
+        })));
+
+        const hasColorSelection = @(hasColors ? "true" : "false");
+        const hasSizeSelection = @(hasSizes ? "true" : "false");
+
+        // KHÔNG CHỌN MẶC ĐỊNH MÀU VÀ SIZE
+        let selectedColor = "";
+        let selectedSize = "";
+
+        // Chuẩn hóa chuỗi so sánh (loại bỏ khoảng trắng, đưa về chữ thường và Unicode NFC)
+        function normStr(str) {
+            return (str || '').toString().trim().normalize('NFC').toLowerCase();
+        }
+
+        function findMatchingVariant(color, size) {
+            const cNorm = normStr(color);
+            const sNorm = normStr(size);
+            return variantMatrix.find(v => {
+                const vColor = normStr(v.color);
+                const vSize = normStr(v.size);
+                const matchColor = !cNorm || vColor === cNorm;
+                const matchSize = !sNorm || vSize === sNorm;
+                return matchColor && matchSize;
+            });
+        }
+
+        function updateStockFeedback() {
+            const activeInput = document.getElementById('activeVariantId');
+            const feedbackText = document.getElementById('variantFeedbackText');
+            const feedbackBanner = document.getElementById('variantFeedbackBanner');
+            const feedbackIcon = document.getElementById('variantFeedbackIcon');
+
+            // 1. Trường hợp cần chọn màu nhưng chưa chọn màu
+            if (hasColorSelection && !selectedColor) {
+                if (activeInput) activeInput.value = "";
+                if (feedbackBanner && feedbackText) {
+                    feedbackBanner.style.background = '#f8fafc';
+                    feedbackBanner.style.borderColor = '#e2e8f0';
+                    if (feedbackIcon) feedbackIcon.textContent = '💡';
+                    feedbackText.className = 'fw-semibold text-muted';
+                    feedbackText.innerHTML = hasSizeSelection
+                        ? 'Vui lòng <strong>chọn Màu sắc</strong> và <strong>Kích cỡ</strong> phù hợp với bạn.'
+                        : 'Vui lòng <strong>chọn Màu sắc</strong> bạn yêu thích.';
+                }
+                return;
+            }
+
+            // 2. Đã chọn màu (hoặc ko có màu) nhưng chưa chọn size
+            if (hasSizeSelection && !selectedSize) {
+                if (activeInput) activeInput.value = "";
+                if (feedbackBanner && feedbackText) {
+                    feedbackBanner.style.background = '#eff6ff';
+                    feedbackBanner.style.borderColor = '#bfdbfe';
+                    if (feedbackIcon) feedbackIcon.textContent = '👉';
+                    feedbackText.className = 'fw-bold text-primary';
+                    feedbackText.innerHTML = hasColorSelection
+                        ? `✓ Đã chọn màu: <strong>${selectedColor}</strong>. Vui lòng chọn tiếp <strong>Kích cỡ (Size)</strong> bên dưới.`
+                        : 'Vui lòng <strong>chọn Kích cỡ (Size)</strong> phù hợp với bạn.';
+                }
+                return;
+            }
+
+            // 3. Đã chọn đủ cả màu và size (hoặc chỉ có 1 trong 2 và đã chọn xong)
+            const v = findMatchingVariant(selectedColor, selectedSize);
+
+            if (!v) {
+                if (activeInput) activeInput.value = "";
+                if (feedbackBanner && feedbackText) {
+                    feedbackBanner.style.background = '#fef2f2';
+                    feedbackBanner.style.borderColor = '#fecaca';
+                    if (feedbackIcon) feedbackIcon.textContent = '⚠️';
+                    feedbackText.className = 'fw-bold text-danger';
+                    feedbackText.innerHTML = `Phân loại này hiện không khả dụng. Vui lòng chọn phối màu hoặc kích cỡ khác!`;
+                }
+                return;
+            }
+
+            if (v.stock > 0) {
+                if (activeInput) activeInput.value = v.id;
+            } else {
+                if (activeInput) activeInput.value = "";
+            }
+
+            let desc = "";
+            if (selectedColor && selectedSize) {
+                desc = `Màu <strong>${selectedColor}</strong> • Size <strong>${selectedSize}</strong>`;
+            } else if (selectedColor) {
+                desc = `Màu <strong>${selectedColor}</strong>`;
+            } else if (selectedSize) {
+                desc = `Size <strong>${selectedSize}</strong>`;
+            } else {
+                desc = `Phiên bản tiêu chuẩn`;
+            }
+
+            if (feedbackBanner && feedbackText) {
+                if (v.stock > 0) {
+                    feedbackBanner.style.background = '#f0fdf4';
+                    feedbackBanner.style.borderColor = '#bbf7d0';
+                    if (feedbackIcon) feedbackIcon.textContent = '🟢';
+                    feedbackText.className = 'fw-bold text-success';
+                    feedbackText.innerHTML = `✓ Đã chọn: ${desc} — Kho hàng còn sẵn <strong>${v.stock}</strong> chiếc (Mã SKU kho: <span class="font-monospace text-dark fw-bold">${v.sku || 'SP-' + v.id}</span>)`;
+                } else {
+                    feedbackBanner.style.background = '#fef2f2';
+                    feedbackBanner.style.borderColor = '#fecaca';
+                    if (feedbackIcon) feedbackIcon.textContent = '🔴';
+                    feedbackText.className = 'fw-bold text-danger';
+                    feedbackText.innerHTML = `✕ Đã chọn: ${desc} — <strong>Tạm hết hàng trong kho</strong>, vui lòng chọn màu hoặc size khác!`;
+                }
+            }
+        }
+
+        // Khi người dùng chọn Màu sắc: MỞ KHÓA & HIỂN THỊ CÁC SIZE CÓ TRONG KHO THEO MÀU
+        function onColorChanged(colorName) {
+            selectedColor = (colorName || '').trim();
+            const colorDisplay = document.getElementById('selectedColorDisplay');
+            if (colorDisplay) {
+                colorDisplay.className = 'badge bg-primary px-2 py-1 fw-bold text-white';
+                colorDisplay.textContent = selectedColor;
+            }
+
+            // Cập nhật nhãn size: từ "Chờ chọn màu" sang "Chưa chọn size" khi vừa chọn màu
+            const sizeDisplay = document.getElementById('selectedSizeDisplay');
+            if (sizeDisplay && !selectedSize) {
+                sizeDisplay.className = 'badge bg-light text-muted border px-2 py-1';
+                sizeDisplay.textContent = 'Chưa chọn size';
+            }
+
+            // Ẩn thông báo chờ và hiển thị lưới size
+            const promptBox = document.getElementById('sizePromptNoColor');
+            if (promptBox) promptBox.style.display = 'none';
+
+            const sizeGrid = document.getElementById('sizeGridContainer');
+            if (sizeGrid) {
+                sizeGrid.style.display = 'grid';
+            }
+
+            // Lọc và cập nhật chính xác các size từ kho hàng cho màu được chọn
+            let currentSelectedSizeHasStock = false;
+
+            document.querySelectorAll('.size-chip-radio').forEach(sizeRadio => {
+                const sVal = sizeRadio.value;
+                const v = findMatchingVariant(selectedColor, sVal);
+                const tile = document.querySelector(`label[for="${sizeRadio.id}"]`);
+                const stockSpan = tile ? tile.querySelector('.size-stock') : null;
+
+                // Nếu trong kho hàng không có phân loại này cho màu đang chọn -> ẩn đi
+                if (!v) {
+                    if (tile) tile.style.display = 'none';
+                    return;
+                }
+
+                // Nếu có trong kho -> hiển thị tile
+                if (tile) tile.style.display = 'flex';
+
+                const stock = v.stock;
+                if (stockSpan) {
+                    stockSpan.innerHTML = stock > 0 ? `<span class="text-success fw-bold">Còn ${stock}</span>` : `<span class="text-danger">Hết hàng</span>`;
+                }
+
+                if (tile) {
+                    if (stock > 0) {
+                        tile.classList.remove('out-of-stock');
+                        if (normStr(sVal) === normStr(selectedSize)) {
+                            currentSelectedSizeHasStock = true;
+                        }
+                    } else {
+                        tile.classList.add('out-of-stock');
+                    }
+                }
+            });
+
+            // Nếu trước đó đã chọn 1 size nhưng sang màu mới size này hết hàng hoặc không có: reset size đã chọn
+            if (selectedSize && !currentSelectedSizeHasStock) {
+                selectedSize = "";
+                document.querySelectorAll('.size-chip-radio').forEach(r => r.checked = false);
+                if (sizeDisplay) {
+                    sizeDisplay.className = 'badge bg-light text-muted border px-2 py-1';
+                    sizeDisplay.textContent = 'Chưa chọn size';
+                }
+            }
+
+            updateStockFeedback();
+        }
+
+        // Khi người dùng chọn Size
+        function onSizeChanged(sizeName) {
+            selectedSize = (sizeName || '').trim();
+            const sizeDisplay = document.getElementById('selectedSizeDisplay');
+            if (sizeDisplay) {
+                sizeDisplay.className = 'badge bg-dark text-white px-2 py-1 fw-bold';
+                sizeDisplay.textContent = selectedSize;
+            }
+
+            updateStockFeedback();
+        }
+
+        // Kiểm tra hợp lệ trước khi submit form mua hàng
+        function validateVariantSelection() {
+            const selectorCard = document.getElementById('variantSelectorCard');
+            const feedbackBanner = document.getElementById('variantFeedbackBanner');
+            const feedbackText = document.getElementById('variantFeedbackText');
+            const feedbackIcon = document.getElementById('variantFeedbackIcon');
+
+            if (hasColorSelection && !selectedColor) {
+                if (feedbackBanner && feedbackText) {
+                    feedbackBanner.style.background = '#fef2f2';
+                    feedbackBanner.style.borderColor = '#fecaca';
+                    if (feedbackIcon) feedbackIcon.textContent = '⚠️';
+                    feedbackText.className = 'fw-bold text-danger';
+                    feedbackText.innerHTML = '👉 Vui lòng chọn <strong>Màu sắc</strong> sản phẩm trước khi mua hàng!';
+                }
+                if (selectorCard) {
+                    selectorCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    selectorCard.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.4)';
+                    setTimeout(() => selectorCard.style.boxShadow = '', 2200);
+                }
+                return false;
+            }
+
+            if (hasSizeSelection && !selectedSize) {
+                if (feedbackBanner && feedbackText) {
+                    feedbackBanner.style.background = '#fef2f2';
+                    feedbackBanner.style.borderColor = '#fecaca';
+                    if (feedbackIcon) feedbackIcon.textContent = '⚠️';
+                    feedbackText.className = 'fw-bold text-danger';
+                    feedbackText.innerHTML = '👉 Vui lòng chọn <strong>Kích cỡ (Size)</strong> sản phẩm trước khi mua hàng!';
+                }
+                if (selectorCard) {
+                    selectorCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    selectorCard.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.4)';
+                    setTimeout(() => selectorCard.style.boxShadow = '', 2200);
+                }
+                return false;
+            }
+
+            const activeInput = document.getElementById('activeVariantId');
+            if ((hasColorSelection || hasSizeSelection) && (!activeInput || !activeInput.value)) {
+                if (feedbackBanner && feedbackText) {
+                    feedbackBanner.style.background = '#fef2f2';
+                    feedbackBanner.style.borderColor = '#fecaca';
+                    if (feedbackIcon) feedbackIcon.textContent = '🔴';
+                    feedbackText.className = 'fw-bold text-danger';
+                    feedbackText.innerHTML = 'Phân loại bạn chọn hiện <strong>đang hết hàng</strong>. Vui lòng chọn màu hoặc size khác!';
+                }
+                return false;
+            }
+
+            return true;
+        }
+
+        // Bắt sự kiện nộp form Thêm vào giỏ
+        const addCartForm = document.getElementById('addToCartForm');
+        if (addCartForm) {
+            addCartForm.addEventListener('submit', function (e) {
+                if (!validateVariantSelection()) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        }
+
+        // Nút Mua ngay: Submit form và chuyển hướng tới giỏ/checkout
+        function buyNowSubmit() {
+            if (!validateVariantSelection()) return;
+            const form = document.getElementById('addToCartForm');
+            const returnInput = form.querySelector('input[name="returnUrl"]');
+            if (returnInput) {
+                returnInput.value = '/Checkout';
+            }
+            form.submit();
+        }
+
+        // Lắng nghe thay đổi mức căng cước để cập nhật lời khuyên
+        document.querySelectorAll('.tension-chip-radio').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const descText = document.getElementById('tensionDescText');
+                if (descText && this.dataset.desc) {
+                    descText.textContent = this.dataset.desc;
+                }
+            });
+        });
+
+        // INTERACTIVE STAR PICKER TRONG MODAL ĐÁNH GIÁ
+        const starLabels = {
+            1: "Chưa hài lòng (1 sao)",
+            2: "Tạm được (2 sao)",
+            3: "Bình thường (3 sao)",
+            4: "Rất tốt (4 sao)",
+            5: "Tuyệt vời (5 sao)"
+        };
+
+        const starPickerItems = document.querySelectorAll('.star-picker-item');
+        const starRatingInput = document.getElementById('reviewRatingInput');
+        const starPickerLabel = document.getElementById('starPickerLabel');
+
+        starPickerItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const val = parseInt(this.getAttribute('data-val'));
+                if (starRatingInput) starRatingInput.value = val;
+                if (starPickerLabel) starPickerLabel.textContent = starLabels[val] || `${val} sao`;
+
+                starPickerItems.forEach(star => {
+                    const starVal = parseInt(star.getAttribute('data-val'));
+                    if (starVal <= val) {
+                        star.classList.add('active');
+                    } else {
+                        star.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        // LỌC ĐÁNH GIÁ CLIENT-SIDE THEO SỐ SAO
+        document.querySelectorAll('.review-filter-chip').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.review-filter-chip').forEach(b => {
+                    b.classList.remove('btn-dark', 'active');
+                    b.classList.add('btn-outline-secondary');
+                });
+                this.classList.add('btn-dark', 'active');
+                this.classList.remove('btn-outline-secondary');
+
+                const ratingFilter = this.getAttribute('data-rating');
+                const reviewCards = document.querySelectorAll('.review-card-item');
+
+                reviewCards.forEach(card => {
+                    const cardRating = card.getAttribute('data-rating');
+                    if (ratingFilter === 'all' || cardRating === ratingFilter) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // VOTE HỮU ÍCH AJAX
+        function voteHelpful(reviewId, btnElement) {
+            if (btnElement.classList.contains('voted')) return;
+
+            fetch('/Products/VoteHelpful?reviewId=' + reviewId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const counter = btnElement.querySelector('.helpful-counter');
+                    if (counter) {
+                        counter.textContent = data.helpfulCount;
+                    }
+                    btnElement.classList.add('voted', 'btn-success', 'text-white');
+                    btnElement.classList.remove('btn-light', 'text-muted');
+                }
+            })
+            .catch(err => console.error(err));
+        }
+
+        // Đồng bộ dữ liệu kho hàng khi trang tải (Dành cho sản phẩm chỉ có Size mà không có Màu)
+        document.addEventListener('DOMContentLoaded', function () {
+            if (!hasColorSelection && hasSizeSelection) {
+                document.querySelectorAll('.size-chip-radio').forEach(sizeRadio => {
+                    const sVal = sizeRadio.value;
+                    const v = findMatchingVariant("", sVal);
+                    const tile = document.querySelector(`label[for="${sizeRadio.id}"]`);
+                    const stockSpan = tile ? tile.querySelector('.size-stock') : null;
+
+                    if (!v) {
+                        if (tile) tile.style.display = 'none';
+                        return;
+                    }
+                    if (tile) tile.style.display = 'flex';
+
+                    const stock = v.stock;
+                    if (stockSpan) {
+                        stockSpan.innerHTML = stock > 0 ? `<span class="text-success fw-bold">Còn ${stock}</span>` : `<span class="text-danger">Hết hàng</span>`;
+                    }
+                    if (tile) {
+                        if (stock > 0) {
+                            tile.classList.remove('out-of-stock');
+                        } else {
+                            tile.classList.add('out-of-stock');
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+}

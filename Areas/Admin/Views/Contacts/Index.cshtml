@@ -1,0 +1,137 @@
+@model List<tieudaobadminton.Models.ContactMessage>
+@{
+    ViewData["Title"] = "Hộp thư liên hệ & tư vấn";
+    var currentStatus = ViewBag.CurrentStatus as string ?? "";
+}
+
+<div class="container-fluid py-3">
+
+    <!-- HEADER & BUTTONS -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+        <div>
+            <h4 class="fw-black text-dark m-0">✉️ Hộp thư khách hàng</h4>
+            <div class="text-muted small">Tiếp nhận và phản hồi các yêu cầu tư vấn sản phẩm, hẹn lịch đan cước từ website</div>
+        </div>
+    </div>
+
+    <!-- ALERTS -->
+    @if (TempData["Ok"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Ok"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- STATS SUMMARY -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-md-4">
+            <div class="card border-0 shadow-sm p-3 rounded-4 bg-white">
+                <div class="text-muted small fw-bold">TỔNG TIN NHẮN</div>
+                <div class="fs-3 fw-bold text-dark mt-1">@ViewBag.TotalCount</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-4">
+            <div class="card border-0 shadow-sm p-3 rounded-4 bg-white">
+                <div class="text-muted small fw-bold">CHƯA PHẢN HỒI</div>
+                <div class="fs-3 fw-bold text-warning mt-1">@ViewBag.UnrepliedCount</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-4">
+            <div class="card border-0 shadow-sm p-3 rounded-4 bg-white">
+                <div class="text-muted small fw-bold">ĐÃ PHẢN HỒI</div>
+                <div class="fs-3 fw-bold text-success mt-1">@ViewBag.RepliedCount</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FILTER TABS -->
+    <div class="card border-0 shadow-sm p-3 rounded-4 mb-4 bg-white">
+        <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-sm rounded-pill @(string.IsNullOrEmpty(currentStatus) ? "btn-dark" : "btn-light border")"
+               asp-action="Index">
+                Tất cả thư (@ViewBag.TotalCount)
+            </a>
+            <a class="btn btn-sm rounded-pill @(currentStatus == "unread" ? "btn-warning text-dark fw-bold" : "btn-light border")"
+               asp-action="Index" asp-route-status="unread">
+                Chờ phản hồi (@ViewBag.UnrepliedCount)
+            </a>
+            <a class="btn btn-sm rounded-pill @(currentStatus == "replied" ? "btn-success text-white fw-bold" : "btn-light border")"
+               asp-action="Index" asp-route-status="replied">
+                Đã giải quyết (@ViewBag.RepliedCount)
+            </a>
+        </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+        @if (Model.Count == 0)
+        {
+            <div class="text-center py-5 text-muted">
+                <div class="fs-1">📭</div>
+                <div class="mt-2">Không có tin nhắn nào trong mục này.</div>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-muted small">
+                        <tr>
+                            <th class="ps-4">NGƯỜI GỬI</th>
+                            <th>TIÊU ĐỀ / NỘI DUNG</th>
+                            <th>NGÀY GỬI</th>
+                            <th class="text-center">TRẠNG THÁI</th>
+                            <th class="text-end pe-4" style="width: 180px;">THAO TÁC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var msg in Model)
+                        {
+                            <tr class="@(!msg.IsReplied ? "table-light fw-medium" : "")">
+                                <td class="ps-4">
+                                    <div class="fw-bold text-dark">@msg.FullName</div>
+                                    <div class="small text-muted">
+                                        <a href="tel:@msg.Phone" class="text-decoration-none">📞 @msg.Phone</a> • 
+                                        <a href="mailto:@msg.Email" class="text-decoration-none">✉️ @msg.Email</a>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold text-dark text-truncate" style="max-width: 320px;">
+                                        @(string.IsNullOrWhiteSpace(msg.Subject) ? "Không có tiêu đề" : msg.Subject)
+                                    </div>
+                                    <div class="small text-muted text-truncate" style="max-width: 380px;">
+                                        @msg.Message
+                                    </div>
+                                </td>
+                                <td class="small text-muted">
+                                    @msg.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                                </td>
+                                <td class="text-center">
+                                    @if (msg.IsReplied)
+                                    {
+                                        <span class="badge bg-success-subtle text-success fw-bold px-3 py-1 rounded-pill">
+                                            ✓ Đã phản hồi
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning-subtle text-warning-emphasis fw-bold px-3 py-1 rounded-pill">
+                                            Chờ xử lý
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-end pe-4">
+                                    <a asp-action="Detail" asp-route-id="@msg.Id" class="btn btn-sm btn-dark rounded-pill px-3 fw-semibold">
+                                        Xem & Phản hồi →
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+</div>

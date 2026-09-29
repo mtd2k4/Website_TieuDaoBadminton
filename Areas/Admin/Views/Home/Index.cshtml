@@ -1,0 +1,470 @@
+@model tieudaobadminton.Areas.Admin.ViewModels.AdminDashboardVM
+@{
+    ViewData["Title"] = "Dashboard Tổng Quan";
+}
+
+<div class="admin-dashboard-wrapper">
+    
+    <!-- 1. TOP WELCOME & QUICK ACTIONS -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h3 class="fw-black text-dark m-0 d-flex align-items-center gap-2">
+                <span>📊</span>
+                <span>Trung Tâm Điều Hành Quản Trị</span>
+            </h3>
+            <p class="text-muted small m-0 mt-1">
+                Theo dõi tình trạng đơn hàng, doanh thu thực tế và chỉ số vận hành cửa hàng Tiêu Đao Sport.
+            </p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a asp-area="Admin" asp-controller="Orders" asp-action="Index" asp-route-status="Pending" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold shadow-sm">
+                <span>⏳ Đơn cần duyệt (@Model.PendingOrdersCount)</span>
+            </a>
+            <a asp-area="Admin" asp-controller="Products" asp-action="Create" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold shadow-sm">
+                <span>+ Thêm sản phẩm</span>
+            </a>
+            <a asp-area="Admin" asp-controller="News" asp-action="Create" class="btn btn-success btn-sm rounded-pill px-3 fw-bold shadow-sm">
+                <span>✍️ Đăng tin mới</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- 2. 4 HERO KPI METRICS -->
+    <div class="row g-3 mb-4">
+        
+        <!-- KPI 1: DOANH THU THỰC TẾ -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 kpi-card">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <span class="text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Tổng doanh thu</span>
+                        <h4 class="fw-black text-success m-0 mt-1">@Model.TotalRevenue.ToString("N0") ₫</h4>
+                    </div>
+                    <div class="kpi-icon-badge bg-success bg-opacity-10 text-success">
+                        💰
+                    </div>
+                </div>
+                <div class="small text-muted pt-2 border-top mt-auto">
+                    <span>Tháng này: <strong class="text-dark">@Model.MonthRevenue.ToString("N0") ₫</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI 2: ĐƠN HÀNG MỚI CẦN DUYỆT -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 kpi-card">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <span class="text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Đơn hàng</span>
+                        <h4 class="fw-black text-dark m-0 mt-1">@Model.TotalOrders <small class="fs-6 text-muted fw-normal">đơn</small></h4>
+                    </div>
+                    <div class="kpi-icon-badge bg-primary bg-opacity-10 text-primary">
+                        📦
+                    </div>
+                </div>
+                <div class="small text-muted pt-2 border-top mt-auto d-flex justify-content-between align-items-center">
+                    <span>Chờ xác nhận:</span>
+                    @if (Model.PendingOrdersCount > 0)
+                    {
+                        <span class="badge bg-danger rounded-pill px-2 py-1">@Model.PendingOrdersCount đơn mới</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-light text-muted border rounded-pill">0 đơn</span>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI 3: KHO SẢN PHẨM & HÃNG -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 kpi-card">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <span class="text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Sản phẩm đang bán</span>
+                        <h4 class="fw-black text-dark m-0 mt-1">@Model.TotalProducts <small class="fs-6 text-muted fw-normal">mẫu</small></h4>
+                    </div>
+                    <div class="kpi-icon-badge bg-info bg-opacity-10 text-info">
+                        🏸
+                    </div>
+                </div>
+                <div class="small text-muted pt-2 border-top mt-auto d-flex justify-content-between">
+                    <a asp-controller="Brands" asp-action="Index" class="text-decoration-none text-muted fw-semibold">
+                        🏷️ @Model.TotalBrands hãng
+                    </a>
+                    <span>•</span>
+                    <a asp-controller="Categories" asp-action="Index" class="text-decoration-none text-muted fw-semibold">
+                        📂 @Model.TotalCategories danh mục
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI 4: KHÁCH HÀNG & BÀI VIẾT -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 kpi-card">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <span class="text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Khách hàng thành viên</span>
+                        <h4 class="fw-black text-dark m-0 mt-1">@Model.TotalCustomers <small class="fs-6 text-muted fw-normal">user</small></h4>
+                    </div>
+                    <div class="kpi-icon-badge bg-warning bg-opacity-10 text-warning">
+                        👥
+                    </div>
+                </div>
+                <div class="small text-muted pt-2 border-top mt-auto">
+                    <span>Đã đăng: <strong class="text-dark">@Model.TotalNewsPosts</strong> bài cẩm nang</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 2.5 ĐỐI CHIẾU BÁN & NHẬP - TỶ SUẤT LÃI SUẤT -->
+    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white mb-4 border-start border-4 border-success">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="fs-2 text-success">📊</div>
+                <div>
+                    <div class="fw-bold text-dark fs-6">Đối Chiếu Bán & Nhập — Hiệu Quả Lãi Suất</div>
+                    <div class="small text-muted">Thống kê đối chiếu giữa doanh thu bán hàng và chi phí vốn nhập kho</div>
+                </div>
+            </div>
+
+            <div class="d-flex flex-wrap align-items-center gap-4">
+                <div>
+                    <span class="text-muted small">Doanh thu bán:</span>
+                    <strong class="text-primary d-block fs-6">@Model.TotalRevenue.ToString("n0") đ</strong>
+                </div>
+                <div class="border-start ps-3">
+                    <span class="text-muted small">Giá vốn xuất bán:</span>
+                    <strong class="text-danger d-block fs-6">@Model.TotalCostOfSoldGoods.ToString("n0") đ</strong>
+                </div>
+                <div class="border-start ps-3">
+                    <span class="text-muted small">Lợi nhuận gộp:</span>
+                    <strong class="text-success d-block fs-6">+@Model.GrossProfit.ToString("n0") đ</strong>
+                </div>
+                <div class="border-start ps-3">
+                    <span class="text-muted small">Tỷ suất lãi suất:</span>
+                    <span class="badge bg-success fs-6 rounded-pill px-3 py-1 d-block mt-1">+@Model.ProfitMarginPercent%</span>
+                </div>
+                <div class="border-start ps-3">
+                    <a asp-area="Admin" asp-controller="StockReceipts" asp-action="Report" class="btn btn-sm btn-outline-dark rounded-pill px-3 fw-bold">
+                        Báo cáo chi tiết →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. CHARTS ROW (DOANH THU 7 NGÀY & PHÂN BỔ THƯƠNG HIỆU) -->
+    <div class="row g-4 mb-4">
+        
+        <!-- REVENUE CHART 7 DAYS (8 COLS) -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h5 class="fw-bold text-dark m-0">📈 Doanh thu 7 ngày gần nhất</h5>
+                        <small class="text-muted">Thống kê dòng tiền từ các đơn hàng phát sinh trong tuần</small>
+                    </div>
+                    <span class="badge bg-light text-secondary border px-3 py-1 rounded-pill small fw-semibold">
+                        7 Ngày qua
+                    </span>
+                </div>
+                <div style="height: 300px; position: relative;">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- BRAND SHARE DOUGHNUT CHART (4 COLS) -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h5 class="fw-bold text-dark m-0">🏸 Cơ cấu thương hiệu</h5>
+                        <small class="text-muted">Tỷ trọng sản phẩm theo hãng</small>
+                    </div>
+                </div>
+                <div style="height: 240px; position: relative;" class="d-flex align-items-center justify-content-center">
+                    <canvas id="brandChart"></canvas>
+                </div>
+                <div class="small text-muted text-center mt-3 pt-2 border-top">
+                    Cập nhật tự động theo danh mục sản phẩm hiện có
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 4. RECENT ORDERS & TOP PRODUCTS (2 COLUMNS) -->
+    <div class="row g-4">
+        
+        <!-- RECENT ORDERS (7 COLS) -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                    <div>
+                        <h5 class="fw-bold text-dark m-0">📦 Đơn hàng vừa đặt mới nhất</h5>
+                        <small class="text-muted">Các đơn hàng phát sinh gần nhất cần xử lý</small>
+                    </div>
+                    <a asp-area="Admin" asp-controller="Orders" asp-action="Index" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold">
+                        Xem tất cả đơn →
+                    </a>
+                </div>
+
+                @if (Model.RecentOrders == null || !Model.RecentOrders.Any())
+                {
+                    <div class="text-center py-5 text-muted">
+                        <div class="fs-1 mb-2">📭</div>
+                        <div>Chưa có đơn hàng nào phát sinh.</div>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light small text-muted">
+                                <tr>
+                                    <th>MÃ ĐƠN</th>
+                                    <th>KHÁCH HÀNG</th>
+                                    <th>NGÀY ĐẶT</th>
+                                    <th>TỔNG TIỀN</th>
+                                    <th>TRẠNG THÁI</th>
+                                    <th class="text-end">THAO TÁC</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var o in Model.RecentOrders)
+                                {
+                                    var badgeStyle = o.Status switch
+                                    {
+                                        "Pending" => "badge text-bg-warning",
+                                        "Shipping" => "badge text-bg-primary",
+                                        "Done" => "badge text-bg-success",
+                                        "Cancelled" => "badge text-bg-danger",
+                                        _ => "badge text-bg-secondary"
+                                    };
+
+                                    var statusLabel = o.Status switch
+                                    {
+                                        "Pending" => "Chờ duyệt",
+                                        "Shipping" => "Đang giao",
+                                        "Done" => "Hoàn thành",
+                                        "Cancelled" => "Đã hủy",
+                                        _ => o.Status
+                                    };
+
+                                    <tr>
+                                        <td>
+                                            <span class="fw-bold text-dark font-monospace">#@($"DH{o.Id:D5}")</span>
+                                        </td>
+                                        <td>
+                                            <div class="fw-bold text-dark">@o.FullName</div>
+                                            <small class="text-muted">@o.Phone</small>
+                                        </td>
+                                        <td class="small text-muted">
+                                            @o.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                                        </td>
+                                        <td class="fw-bold text-danger">
+                                            @o.Total.ToString("N0") ₫
+                                        </td>
+                                        <td>
+                                            <span class="@badgeStyle rounded-pill px-2 py-1 small">@statusLabel</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <a asp-area="Admin" asp-controller="Orders" asp-action="Detail" asp-route-id="@o.Id" 
+                                               class="btn btn-sm btn-outline-dark rounded-pill px-3 fw-bold">
+                                                Chi tiết
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- TOP PRODUCTS (4 COLS) -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                    <div>
+                        <h5 class="fw-bold text-dark m-0">🔥 Top Sản Phẩm Nổi Bật</h5>
+                        <small class="text-muted">Sản phẩm được đặt mua nhiều</small>
+                    </div>
+                    <a asp-area="Admin" asp-controller="Products" asp-action="Index" class="small text-primary fw-bold text-decoration-none">
+                        Kho hàng →
+                    </a>
+                </div>
+
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var p in Model.TopProducts)
+                    {
+                        <div class="d-flex align-items-center gap-3 p-2 rounded-3 bg-light bg-opacity-50 border">
+                            <img src="@(p.ImageUrl ?? "/img/demo/placeholder.jpg")" 
+                                 alt="@p.ProductName" 
+                                 class="rounded-3 flex-shrink-0"
+                                 style="width: 52px; height: 52px; object-fit: cover; border: 1px solid rgba(0,0,0,0.08);" />
+                            <div class="flex-grow-1 overflow-hidden">
+                                <div class="fw-bold text-dark text-truncate small" title="@p.ProductName">@p.ProductName</div>
+                                <div class="d-flex align-items-center justify-content-between mt-1">
+                                    <span class="text-danger fw-bold small">@p.Price.ToString("N0") ₫</span>
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill small">Đã bán: @p.TotalSold</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 1. REVENUE CHART (7 DAYS)
+            const revCtx = document.getElementById('revenueChart');
+            if (revCtx) {
+                const days = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ChartDays));
+                const revData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ChartRevenue));
+                const countData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ChartOrderCounts));
+
+                new Chart(revCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: days,
+                        datasets: [
+                            {
+                                type: 'line',
+                                label: 'Doanh thu (₫)',
+                                data: revData,
+                                borderColor: '#0284c7',
+                                backgroundColor: 'rgba(2, 132, 199, 0.1)',
+                                borderWidth: 3,
+                                fill: true,
+                                tension: 0.35,
+                                yAxisID: 'y'
+                            },
+                            {
+                                type: 'bar',
+                                label: 'Số đơn hàng',
+                                data: countData,
+                                backgroundColor: 'rgba(15, 23, 42, 0.18)',
+                                borderRadius: 6,
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    boxWidth: 12,
+                                    font: { family: 'inherit', weight: 'bold' }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        if (context.dataset.yAxisID === 'y') {
+                                            return 'Doanh thu: ' + new Intl.NumberFormat('vi-VN').format(context.raw) + ' ₫';
+                                        }
+                                        return 'Đơn hàng: ' + context.raw + ' đơn';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                ticks: {
+                                    callback: function(value) {
+                                        if (value >= 1000000) return (value / 1000000).toFixed(1) + ' tr';
+                                        if (value >= 1000) return (value / 1000).toFixed(0) + ' k';
+                                        return value;
+                                    }
+                                },
+                                grid: {
+                                    color: 'rgba(0,0,0,0.05)'
+                                }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                grid: {
+                                    drawOnChartArea: false,
+                                },
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 2. BRAND SHARE DOUGHNUT CHART
+            const brandCtx = document.getElementById('brandChart');
+            if (brandCtx) {
+                const bLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BrandLabels));
+                const bCounts = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BrandCounts));
+
+                new Chart(brandCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: bLabels,
+                        datasets: [{
+                            data: bCounts,
+                            backgroundColor: [
+                                '#0284c7', // Yonex Blue
+                                '#f97316', // Victor Orange
+                                '#ef4444', // Li-Ning Red
+                                '#10b981', // Mizuno Green
+                                '#8b5cf6', // Kawasaki Purple
+                                '#64748b'  // Other
+                            ],
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    boxWidth: 10,
+                                    font: { family: 'inherit', size: 11 }
+                                }
+                            }
+                        },
+                        cutout: '65%'
+                    }
+                });
+            }
+        });
+    </script>
+}
