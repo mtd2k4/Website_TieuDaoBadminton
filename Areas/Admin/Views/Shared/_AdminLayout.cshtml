@@ -1,6 +1,13 @@
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@inject tieudaobadminton.Data.ApplicationDbContext DbContext
 @{
     var currentCtrl = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var pendingOrders = DbContext.Orders
+        .Where(o => o.Status == "Pending")
+        .OrderByDescending(o => o.CreatedAt)
+        .Take(8)
+        .ToList();
+    var totalPendingCount = DbContext.Orders.Count(o => o.Status == "Pending");
 }
 <!DOCTYPE html>
 <html lang="vi">
@@ -47,6 +54,10 @@
                    asp-area="Admin" asp-controller="Orders" asp-action="Index">
                     <i class="bi bi-box-seam-fill nav-icon"></i>
                     <span>Quản lý Đơn hàng</span>
+                    @if (totalPendingCount > 0)
+                    {
+                        <span class="badge bg-danger rounded-pill ms-auto">@totalPendingCount mới</span>
+                    }
                 </a>
 
                 <a class="admin-nav-item @(currentCtrl == "Products" ? "active" : "")"
@@ -135,6 +146,53 @@
                 </div>
 
                 <div class="d-flex align-items-center gap-3">
+                    <!-- CHUÔNG THÔNG BÁO ĐƠN HÀNG MỚI -->
+                    <div class="dropdown">
+                        <button class="btn btn-sm @(totalPendingCount > 0 ? "btn-danger" : "btn-outline-secondary") rounded-pill px-3 fw-bold position-relative d-flex align-items-center gap-2"
+                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-bell-fill"></i>
+                            <span>Đơn hàng mới</span>
+                            <span class="badge @(totalPendingCount > 0 ? "bg-white text-danger" : "bg-secondary text-white") rounded-pill">@totalPendingCount</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end shadow-lg border-0 p-0 mt-2" style="width: 340px; border-radius: 16px; overflow: hidden;">
+                            <div class="p-3 bg-dark text-white d-flex justify-content-between align-items-center">
+                                <span class="fw-bold small">🔔 Thông báo đơn hàng chờ xử lý</span>
+                                <span class="badge bg-danger rounded-pill">@totalPendingCount đơn</span>
+                            </div>
+                            <div style="max-height: 320px; overflow-y: auto;">
+                                @if (pendingOrders.Count == 0)
+                                {
+                                    <div class="p-4 text-center text-muted small">
+                                        ✓ Hiện không có đơn hàng mới nào đang chờ duyệt.
+                                    </div>
+                                }
+                                else
+                                {
+                                    @foreach (var ord in pendingOrders)
+                                    {
+                                        <a asp-area="Admin" asp-controller="Orders" asp-action="Index"
+                                           class="dropdown-item p-3 border-bottom text-wrap">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <span class="fw-bold text-primary small">#DH@(ord.Id.ToString("D5"))</span>
+                                                <small class="text-muted" style="font-size: 0.72rem;">@ord.CreatedAt.ToLocalTime().ToString("dd/MM HH:mm")</small>
+                                            </div>
+                                            <div class="fw-semibold text-dark small">@ord.FullName (@ord.Phone)</div>
+                                            <div class="d-flex justify-content-between align-items-center mt-1">
+                                                <span class="badge bg-warning text-dark" style="font-size: 0.7rem;">Chờ xác nhận</span>
+                                                <span class="fw-bold text-danger small">@ord.Total.ToString("n0") đ</span>
+                                            </div>
+                                        </a>
+                                    }
+                                }
+                            </div>
+                            <div class="p-2 bg-light text-center border-top">
+                                <a asp-area="Admin" asp-controller="Orders" asp-action="Index" class="small fw-bold text-primary text-decoration-none">
+                                    Xem tất cả đơn hàng →
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
                     <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold" target="_blank">
                         <i class="bi bi-shop me-1"></i> Xem cửa hàng ngoài shop
                     </a>

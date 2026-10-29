@@ -21,8 +21,30 @@
                     Cảm ơn quý khách đã tin tưởng mua sắm tại <strong>Tiêu Đao Badminton</strong>. Đơn hàng của bạn đã được tiếp nhận và nhân viên sẽ liên hệ xác nhận trong thời gian sớm nhất.
                 </p>
 
-                <div class="badge bg-light text-dark border px-3 py-2 fs-6 mb-4">
+                <div class="badge bg-light text-dark border px-3 py-2 fs-6 mb-3">
                     Mã đơn hàng: <strong class="text-primary">#@orderCode</strong>
+                </div>
+
+                @{
+                    var customerEmail = TempData["CustomerEmail"] as string;
+                    var emailSent = TempData["EmailSent"] as bool? ?? false;
+                }
+                <div class="alert @(emailSent ? "alert-success" : "alert-info") rounded-4 py-2 px-3 small mb-4 d-flex align-items-center justify-content-center gap-2 mx-auto" style="max-width: 580px;">
+                    <i class="bi bi-envelope-check-fill fs-5"></i>
+                    <span>
+                        @if (emailSent && !string.IsNullOrWhiteSpace(customerEmail))
+                        {
+                            <text>Đã gửi email xác nhận đặt hàng qua SMTP tới <strong>@customerEmail</strong> và thông báo đơn mới về <strong>Admin</strong>!</text>
+                        }
+                        else if (!string.IsNullOrWhiteSpace(customerEmail))
+                        {
+                            <text>Thông tin đơn hàng đã ghi nhận cho email <strong>@customerEmail</strong> và đã gửi thông báo đơn hàng mới lên bảng điều khiển <strong>Admin</strong>!</text>
+                        }
+                        else
+                        {
+                            <text>Đã gửi thông báo đơn hàng mới <strong>#@orderCode</strong> trực tiếp về hệ thống <strong>Admin</strong>!</text>
+                        }
+                    </span>
                 </div>
 
                 <!-- VIETQR SECTION (NẾU CHỌN CHUYỂN KHOẢN) -->

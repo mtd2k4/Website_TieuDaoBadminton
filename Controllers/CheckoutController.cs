@@ -12,10 +12,12 @@ namespace tieudaobadminton.Controllers
     {
         private const string CART_KEY = "CART";
         private readonly ApplicationDbContext _db;
+        private readonly OrderNotificationEmailService _emailService;
 
-        public CheckoutController(ApplicationDbContext db)
+        public CheckoutController(ApplicationDbContext db, OrderNotificationEmailService emailService)
         {
             _db = db;
+            _emailService = emailService;
         }
 
         [HttpGet]
@@ -41,7 +43,10 @@ namespace tieudaobadminton.Controllers
             // Nếu khách đã đăng nhập, tự điền tên/email
             if (User?.Identity?.IsAuthenticated == true)
             {
-                vm.FullName = User.Identity.Name ?? "";
+                var identityName = User.Identity.Name ?? "";
+                vm.FullName = identityName;
+                var emailClaim = User.FindFirstValue(ClaimTypes.Email) ?? (identityName.Contains("@") ? identityName : "");
+                vm.Email = emailClaim;
             }
 
             return View(vm);
@@ -71,15 +76,21 @@ namespace tieudaobadminton.Controllers
 
             // 1. Tạo đơn hàng mới
             var userId = User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? (User?.Identity?.IsAuthenticated == true ? User.Identity.Name! : "guest");
+            var emailTrimmed = vm.Email?.Trim() ?? "";
+            var extraInfo = new List<string>();
+            if (!string.IsNullOrWhiteSpace(emailTrimmed))
+                extraInfo.Add($"Email: {emailTrimmed}");
+            if (!string.IsNullOrWhiteSpace(vm.Note))
+                extraInfo.Add($"Ghi chú: {vm.Note.Trim()}");
 
             var order = new Order
             {
                 UserId = userId,
                 FullName = vm.FullName.Trim(),
                 Phone = vm.Phone.Trim(),
-                Address = string.IsNullOrWhiteSpace(vm.Note) 
-                    ? vm.Address.Trim() 
-                    : $"{vm.Address.Trim()} (Ghi chú: {vm.Note.Trim()})",
+                Address = extraInfo.Count > 0
+                    ? $"{vm.Address.Trim()} ({string.Join(" | ", extraInfo)})"
+                    : vm.Address.Trim(),
                 Total = grandTotal,
                 Status = "Pending",
                 CreatedAt = DateTime.UtcNow
@@ -116,10 +127,22 @@ namespace tieudaobadminton.Controllers
 
             await _db.SaveChangesAsync();
 
-            // 3. Xóa sạch giỏ hàng trong Session
+            // 3. Gửi thông báo Email SMTP về cho Khách hàng (User) và Quản trị viên (Admin)
+            var emailSent = await _emailService.SendOrderNotificationsAsync(
+                order,
+                cart,
+                emailTrimmed,
+                vm.PaymentMethod,
+                shipping
+            );
+
+            TempData["CustomerEmail"] = emailTrimmed;
+            TempData["EmailSent"] = emailSent;
+
+            // 4. Xóa sạch giỏ hàng trong Session
             HttpContext.Session.Remove(CART_KEY);
 
-            // 4. Chuyển hướng tới trang đặt hàng thành công
+            // 5. Chuyển hướng tới trang đặt hàng thành công
             return RedirectToAction(nameof(Success), new { id = order.Id, method = vm.PaymentMethod });
         }
 

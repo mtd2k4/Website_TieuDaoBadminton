@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using tieudaobadminton.Data;
 
@@ -29,8 +29,10 @@ builder.Services
     .AddDefaultTokenProviders();
 
 // =======================
-// 3. MVC + Razor
+// 3. MVC + Razor + Services
 // =======================
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<tieudaobadminton.Helpers.OrderNotificationEmailService>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages(); // ⚠ BẮT BUỘC cho Identity UI
 

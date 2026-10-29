@@ -14,6 +14,11 @@ namespace tieudaobadminton.ViewModels
         [Display(Name = "Số điện thoại")]
         public string Phone { get; set; } = "";
 
+        [Required(ErrorMessage = "Vui lòng nhập email để nhận thông báo đơn hàng")]
+        [EmailAddress(ErrorMessage = "Địa chỉ email không hợp lệ")]
+        [Display(Name = "Email nhận thông báo")]
+        public string Email { get; set; } = "";
+
         [Required(ErrorMessage = "Vui lòng nhập địa chỉ giao hàng")]
         [Display(Name = "Địa chỉ nhận hàng")]
         public string Address { get; set; } = "";

@@ -468,10 +468,88 @@
         <span id="toastMsg">Thông báo thành công</span>
     </div>
 
+    <!-- 4. FLOATING UTILITY WIDGET (BACK TO TOP + CALL + CHATBOT) -->
+    <div class="floating-widget-dock" id="floatingWidgetDock">
+        <!-- Nút Quay về đầu trang -->
+        <button type="button" class="fw-btn fw-btn-top" id="btnBackToTop" title="Quay về đầu trang" aria-label="Quay về đầu trang">
+            <i class="bi bi-arrow-up-short fs-3"></i>
+            <span class="fw-tooltip">Lên đầu trang</span>
+        </button>
+
+        <!-- Nút Gọi tư vấn -->
+        <a href="tel:0900000000" class="fw-btn fw-btn-call" title="Gọi tư vấn miễn phí: 0900 000 000" aria-label="Gọi tư vấn">
+            <span class="fw-pulse-ring"></span>
+            <i class="bi bi-telephone-inbound-fill fs-5"></i>
+            <span class="fw-tooltip">Gọi tư vấn: 0900 000 000</span>
+        </a>
+
+        <!-- Nút Mở Chatbot -->
+        <button type="button" class="fw-btn fw-btn-chat" id="btnToggleChatbot" title="Chat với Trợ lý Tiêu Đao AI" aria-label="Mở Chatbot">
+            <span class="fw-chat-badge" id="chatbotUnreadBadge">1</span>
+            <i class="bi bi-chat-dots-fill fs-5" id="chatbotTriggerIcon"></i>
+            <span class="fw-tooltip">Trợ lý AI 24/7</span>
+        </button>
+    </div>
+
+    <!-- KHUNG CHATBOT TƯ VẤN THÔNG MINH -->
+    <div class="pro-chatbot-window" id="proChatbotWindow" aria-hidden="true">
+        <!-- Header Chatbot -->
+        <div class="chatbot-header">
+            <div class="d-flex align-items-center gap-2">
+                <div class="chatbot-avatar">
+                    <span>🏸</span>
+                    <span class="chatbot-online-dot"></span>
+                </div>
+                <div>
+                    <div class="chatbot-title">Trợ Lý Tiêu Đao AI</div>
+                    <div class="chatbot-status">Trực tuyến • Tư vấn tồn kho thực tế</div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-1">
+                <a href="tel:0900000000" class="chatbot-header-btn" title="Gọi trực tiếp Hotline">
+                    <i class="bi bi-telephone-fill"></i>
+                </a>
+                <button type="button" class="chatbot-header-btn" id="btnCloseChatbot" title="Đóng cửa sổ chat">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Body tin nhắn -->
+        <div class="chatbot-messages" id="chatbotMessages">
+            <div class="chat-msg bot">
+                <div class="chat-bubble">
+                    Xin chào! 👋 Mình là <strong>Trợ lý AI của Tiêu Đao Badminton</strong>.<br/>
+                    Bạn đang cần tìm hiểu thông tin gì hôm nay? Hãy chọn chủ đề bên dưới hoặc nhập câu hỏi nhé!
+                </div>
+                <div class="chat-time">Vừa xong</div>
+            </div>
+        </div>
+
+        <!-- Gợi ý câu hỏi nhanh (Quick Replies) -->
+        <div class="chatbot-quick-replies" id="chatbotQuickReplies">
+            <button type="button" class="quick-reply-chip" data-query="Tư vấn chọn vợt phù hợp">🏸 Tư vấn chọn vợt</button>
+            <button type="button" class="quick-reply-chip" data-query="Bảng giá căng cước 4 nút">🛠️ Giá căng cước</button>
+            <button type="button" class="quick-reply-chip" data-query="Hướng dẫn chọn size giày">👟 Chọn size giày</button>
+            <button type="button" class="quick-reply-chip" data-query="Tra cứu đơn hàng">📦 Tra cứu đơn</button>
+            <button type="button" class="quick-reply-chip" data-query="Chính sách bảo hành & Freeship">🛡️ Bảo hành & Ship</button>
+            <button type="button" class="quick-reply-chip" data-query="Liên hệ hotline cửa hàng">📞 Gặp nhân viên</button>
+        </div>
+
+        <!-- Ô nhập tin nhắn -->
+        <form class="chatbot-input-bar" id="chatbotForm" onsubmit="handleChatbotSubmit(event)">
+            <input type="text" id="chatbotInput" placeholder="Nhập câu hỏi (VD: vợt cho người mới...)" autocomplete="off" />
+            <button type="submit" class="chatbot-send-btn" title="Gửi tin nhắn">
+                <i class="bi bi-send-fill"></i>
+            </button>
+        </form>
+    </div>
+
     <!-- Scripts -->
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Scroll header effect
+        // Scroll header & Back-to-top effect
+        const btnBackToTop = document.getElementById('btnBackToTop');
         window.addEventListener('scroll', () => {
             const header = document.querySelector('.pro-header');
             if (header) {
@@ -481,7 +559,181 @@
                     header.classList.remove('scrolled');
                 }
             }
+            if (btnBackToTop) {
+                if (window.scrollY > 300) {
+                    btnBackToTop.classList.add('visible');
+                } else {
+                    btnBackToTop.classList.remove('visible');
+                }
+            }
         });
+
+        // Back to top click
+        btnBackToTop?.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Chatbot Widget Logic
+        const chatbotWindow = document.getElementById('proChatbotWindow');
+        const btnToggleChatbot = document.getElementById('btnToggleChatbot');
+        const btnCloseChatbot = document.getElementById('btnCloseChatbot');
+        const chatbotUnreadBadge = document.getElementById('chatbotUnreadBadge');
+        const chatbotTriggerIcon = document.getElementById('chatbotTriggerIcon');
+        const chatbotMessages = document.getElementById('chatbotMessages');
+        const chatbotInput = document.getElementById('chatbotInput');
+
+        function toggleChatbotWindow(forceClose = false) {
+            if (!chatbotWindow) return;
+            const isOpen = chatbotWindow.classList.contains('open');
+            if (isOpen || forceClose) {
+                chatbotWindow.classList.remove('open');
+                chatbotWindow.setAttribute('aria-hidden', 'true');
+                if (chatbotTriggerIcon) chatbotTriggerIcon.className = 'bi bi-chat-dots-fill fs-5';
+            } else {
+                chatbotWindow.classList.add('open');
+                chatbotWindow.setAttribute('aria-hidden', 'false');
+                if (chatbotUnreadBadge) chatbotUnreadBadge.classList.add('d-none');
+                if (chatbotTriggerIcon) chatbotTriggerIcon.className = 'bi bi-chevron-down fs-5';
+                setTimeout(() => chatbotInput?.focus(), 200);
+            }
+        }
+
+        btnToggleChatbot?.addEventListener('click', () => toggleChatbotWindow(false));
+        btnCloseChatbot?.addEventListener('click', () => toggleChatbotWindow(true));
+
+        // Quick Reply Chips
+        document.querySelectorAll('.quick-reply-chip').forEach(chip => {
+            chip.addEventListener('click', function () {
+                const query = this.getAttribute('data-query');
+                if (query) {
+                    sendUserChatMessage(query);
+                }
+            });
+        });
+
+        function handleChatbotSubmit(e) {
+            e.preventDefault();
+            if (!chatbotInput) return;
+            const text = chatbotInput.value.trim();
+            if (!text) return;
+            chatbotInput.value = '';
+            sendUserChatMessage(text);
+        }
+
+        function appendChatMessage(htmlContent, sender = 'bot') {
+            if (!chatbotMessages) return;
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `chat-msg ${sender}`;
+            msgDiv.innerHTML = `
+                <div class="chat-bubble">${htmlContent}</div>
+                <div class="chat-time">${timeStr}</div>
+            `;
+            chatbotMessages.appendChild(msgDiv);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }
+
+        const chatHistory = [];
+
+        async function sendUserChatMessage(text) {
+            // Escape user text safely
+            const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            appendChatMessage(escaped, 'user');
+
+            // Typing indicator
+            const typingId = 'typing-' + Date.now();
+            if (chatbotMessages) {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'chat-msg bot';
+                typingDiv.id = typingId;
+                typingDiv.innerHTML = `<div class="chat-bubble typing-dots"><span></span><span></span><span></span></div>`;
+                chatbotMessages.appendChild(typingDiv);
+                chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+            }
+
+            try {
+                const response = await fetch('/api/Chatbot/Ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: text,
+                        history: chatHistory.slice(-6)
+                    })
+                });
+
+                document.getElementById(typingId)?.remove();
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const replyHtml = data.reply || generateBotResponse(text);
+                    appendChatMessage(replyHtml, 'bot');
+
+                    chatHistory.push({ role: 'user', text: text });
+                    chatHistory.push({ role: 'model', text: replyHtml.replace(/<[^>]*>?/gm, ' ') });
+                } else {
+                    appendChatMessage(generateBotResponse(text), 'bot');
+                }
+            } catch (err) {
+                document.getElementById(typingId)?.remove();
+                appendChatMessage(generateBotResponse(text), 'bot');
+            }
+        }
+
+        function generateBotResponse(input) {
+            const q = input.toLowerCase();
+
+            if (q.includes('vợt') || q.includes('chọn vợt') || q.includes('người mới') || q.includes('công thủ') || q.includes('smash')) {
+                return `🏸 <strong>Gợi ý chọn vợt cầu lông chuẩn:</strong><br/>
+                • <strong>Người mới / Cổ tay vừa:</strong> Nên chọn vợt <strong>4U (80-84g)</strong>, thân dẻo hoặc trung bình để trợ lực tốt.<br/>
+                • <strong>Chuyên công Smash:</strong> Chọn vợt nặng đầu (Head-Heavy >295mm).<br/>
+                • <strong>Phản tạt / Đánh lưới:</strong> Chọn vợt nhẹ đầu hoặc cân bằng.<br/>
+                👉 <a href="/Tu-Van-Chon-Vot" class="chat-action-link">Trắc nghiệm chọn vợt AI ngay →</a>
+                <a href="/Danh-Muc?cat=vot" class="chat-action-link">Xem danh sách vợt chính hãng →</a>`;
+            }
+
+            if (q.includes('cước') || q.includes('căng') || q.includes('đan') || q.includes('kg')) {
+                return `🛠️ <strong>Dịch vụ Căng Cước Điện Tử 4 Nút:</strong><br/>
+                • <strong>Miễn phí công đan máy</strong> trị giá 60.000đ khi mua vợt tại shop!<br/>
+                • <strong>Mức cân gợi ý:</strong> Người mới (9.5 - 10.5kg) • Phong trào (10.5 - 11.5kg) • Bán chuyên (12kg+).<br/>
+                • Cước phổ biến: Yonex BG65 Ti, BG80 Power, Exbolt 63/65, Aerobite.<br/>
+                👉 <a href="/Dich-Vu-Cang-Cuoc" class="chat-action-link">Xem bảng giá cước & quy trình đan 15p →</a>`;
+            }
+
+            if (q.includes('giày') || q.includes('size') || q.includes('chân') || q.includes('áo') || q.includes('quần')) {
+                return `👟 <strong>Hướng dẫn chọn Size Giày & Trang Phục:</strong><br/>
+                • Đo chiều dài bàn chân (cm) và cộng thêm <strong>0.5cm</strong> (trừ hao tất dày thi đấu).<br/>
+                • Bàn chân bè ngang nên ưu tiên dòng <strong>Wide (3E/4E)</strong> để êm mũi chân.<br/>
+                👉 <a href="/Huong-Dan-Size" class="chat-action-link">Mở bảng quy đổi Size chuẩn →</a>
+                <a href="/Danh-Muc?cat=giay" class="chat-action-link">Xem các mẫu giày giảm chấn →</a>`;
+            }
+
+            if (q.includes('đơn') || q.includes('tra cứu') || q.includes('vận chuyển') || q.includes('giao hàng')) {
+                return `📦 <strong>Tra cứu đơn hàng & Vận chuyển:</strong><br/>
+                • Giao siêu tốc nội thành <strong>2-4 giờ</strong>, toàn quốc 2-3 ngày.<br/>
+                • Bạn có thể kiểm tra trạng thái đơn bằng <strong>Mã đơn hàng</strong> hoặc <strong>Số điện thoại</strong>.<br/>
+                👉 <a href="/Tra-Cuu-Don-Hang" class="chat-action-link">Tra cứu tiến độ đơn hàng ngay →</a>`;
+            }
+
+            if (q.includes('bảo hành') || q.includes('freeship') || q.includes('đổi trả') || q.includes('chính sách') || q.includes('ship')) {
+                return `🛡️ <strong>Chính sách Ưu đãi & Bảo hành:</strong><br/>
+                • Cam kết <strong>100% Chính hãng</strong> (Yonex, Victor, Li-Ning, Mizuno, Kawasaki).<br/>
+                • <strong>Freeship toàn quốc</strong> cho đơn hàng từ 499.000đ.<br/>
+                • Đổi trả miễn phí trong <strong>7 ngày</strong> nếu có lỗi từ nhà sản xuất.`;
+            }
+
+            if (q.includes('liên hệ') || q.includes('hotline') || q.includes('nhân viên') || q.includes('địa chỉ') || q.includes('gọi') || q.includes('sđt')) {
+                return `📞 <strong>Thông tin Liên hệ Tiêu Đao Badminton:</strong><br/>
+                • <strong>Hotline Tư vấn 24/7:</strong> <a href="tel:0900000000" class="fw-bold text-danger">0900 000 000</a><br/>
+                • <strong>Địa chỉ:</strong> 123 Đường Cầu Lông, TP. Hồ Chí Minh (8:00 - 21:30)<br/>
+                👉 <a href="tel:0900000000" class="chat-action-link">📞 Gọi ngay cho kỹ thuật viên →</a>
+                <a href="/Contact" class="chat-action-link">📍 Xem bản đồ cửa hàng →</a>`;
+            }
+
+            return `Cảm ơn câu hỏi của bạn! 🏸 Để được hỗ trợ nhanh và chính xác nhất về <strong>"${input}"</strong>, bạn có thể:<br/>
+            • Khám phá <a href="/Tu-Van-Chon-Vot" class="fw-bold text-primary">Trợ lý Tư vấn Vợt AI</a> hoặc <a href="/Danh-Muc" class="fw-bold text-primary">Danh mục sản phẩm</a>.<br/>
+            • Hoặc gọi trực tiếp Hotline <a href="tel:0900000000" class="fw-bold text-danger">0900 000 000</a> để kỹ thuật viên tư vấn 1-1 ngay nhé!`;
+        }
 
         // Interactive Toast Function
         function showToast(message, icon = '✨') {

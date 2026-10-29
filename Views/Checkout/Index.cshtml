@@ -35,16 +35,65 @@
                         <span asp-validation-for="FullName" class="text-danger small"></span>
                     </div>
 
-                    <div class="mb-3">
-                        <label asp-for="Phone" class="form-label fw-bold">Số điện thoại liên hệ <span class="text-danger">*</span></label>
-                        <input asp-for="Phone" class="form-control rounded-3 py-2" placeholder="Ví dụ: 0901234567" />
-                        <span asp-validation-for="Phone" class="text-danger small"></span>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="Phone" class="form-label fw-bold">Số điện thoại liên hệ <span class="text-danger">*</span></label>
+                            <input asp-for="Phone" class="form-control rounded-3 py-2" placeholder="Ví dụ: 0901234567" />
+                            <span asp-validation-for="Phone" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label fw-bold">Email nhận thông báo đơn hàng <span class="text-danger">*</span></label>
+                            <input asp-for="Email" type="email" class="form-control rounded-3 py-2" placeholder="Ví dụ: khachhang@gmail.com" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <!-- CHỌN ĐỊA CHỈ HÀNH CHÍNH 2 CẤP SAU SÁP NHẬP (TỈNH/THÀNH ➔ PHƯỜNG/XÃ) -->
+                    <div class="p-3 rounded-4 border mb-3" style="background: #f8fafc;">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small fw-bold text-primary">
+                                <i class="bi bi-geo-alt-fill me-1"></i> Đơn vị hành chính mới (Sau sáp nhập 2 cấp: Tỉnh/TP ➔ Phường/Xã)
+                            </span>
+                            <span id="apiAddressStatus" class="badge bg-success-subtle text-success border border-success-subtle" style="font-size: 0.7rem;">
+                                API v2 Trực tuyến
+                            </span>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="provinceSelect" class="form-label fw-bold small mb-1">
+                                    Tỉnh / Thành phố (Sau sáp nhập) <span class="text-danger">*</span>
+                                </label>
+                                <select id="provinceSelect" class="form-select rounded-3 py-2">
+                                    <option value="">-- Đang tải danh sách Tỉnh/Thành... --</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="wardSelect" class="form-label fw-bold small mb-1">
+                                    Phường / Xã / Đặc khu (Sau sáp nhập) <span class="text-danger">*</span>
+                                </label>
+                                <select id="wardSelect" class="form-select rounded-3 py-2" disabled>
+                                    <option value="">-- Chọn Tỉnh/Thành trước --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="streetDetailInput" class="form-label fw-bold small mb-1">
+                                Số nhà, tên đường, tòa nhà / thôn, khu phố <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" id="streetDetailInput" class="form-control rounded-3 py-2"
+                                   placeholder="Ví dụ: Số 125 Lê Lợi, Tòa nhà Viettel..." />
+                        </div>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Address" class="form-label fw-bold">Địa chỉ nhận hàng chi tiết <span class="text-danger">*</span></label>
-                        <input asp-for="Address" class="form-control rounded-3 py-2" placeholder="Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành..." />
-                        <span asp-validation-for="Address" class="text-danger small"></span>
+                        <label asp-for="Address" class="form-label fw-bold">Địa chỉ nhận hàng đầy đủ <span class="text-danger">*</span></label>
+                        <input asp-for="Address" id="fullAddressInput" class="form-control rounded-3 py-2 bg-light fw-semibold"
+                               placeholder="Địa chỉ sẽ tự động ghép khi bạn chọn Tỉnh/Thành, Phường/Xã và nhập Số nhà..." />
+                        <small class="text-muted">Hệ thống tự động tổng hợp địa chỉ chuẩn theo đơn vị hành chính mới sau sáp nhập.</small>
+                        <span asp-validation-for="Address" class="text-danger small d-block"></span>
                     </div>
 
                     <div class="mb-2">
@@ -169,4 +218,162 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const API_BASE_V2 = 'https://provinces.open-api.vn/api/v2';
+            const provinceSelect = document.getElementById('provinceSelect');
+            const wardSelect = document.getElementById('wardSelect');
+            const streetDetailInput = document.getElementById('streetDetailInput');
+            const fullAddressInput = document.getElementById('fullAddressInput');
+            const apiStatusBadge = document.getElementById('apiAddressStatus');
+
+            // Dữ liệu dự phòng 34 Tỉnh/Thành phố sau sáp nhập (nếu mất kết nối Internet)
+            const FALLBACK_MERGED_PROVINCES = [
+                { code: 1, name: "Thành phố Hà Nội" },
+                { code: 79, name: "Thành phố Hồ Chí Minh (Sáp nhập TP.HCM - Bình Dương - Bà Rịa Vũng Tàu)" },
+                { code: 31, name: "Thành phố Hải Phòng (Sáp nhập Hải Phòng - Hải Dương)" },
+                { code: 48, name: "Thành phố Đà Nẵng (Sáp nhập Đà Nẵng - Quảng Nam)" },
+                { code: 92, name: "Thành phố Cần Thơ (Sáp nhập Cần Thơ - Sóc Trăng - Hậu Giang)" },
+                { code: 46, name: "Thành phố Huế" },
+                { code: 38, name: "Tỉnh Thanh Hóa" },
+                { code: 40, name: "Tỉnh Nghệ An" },
+                { code: 42, name: "Tỉnh Hà Tĩnh" },
+                { code: 14, name: "Tỉnh Sơn La" },
+                { code: 12, name: "Tỉnh Lai Châu" },
+                { code: 11, name: "Tỉnh Điện Biên" },
+                { code: 4, name: "Tỉnh Cao Bằng" },
+                { code: 20, name: "Tỉnh Lạng Sơn" },
+                { code: 22, name: "Tỉnh Quảng Ninh" },
+                { code: 8, name: "Tỉnh Tuyên Quang (Sáp nhập Tuyên Quang - Hà Giang)" },
+                { code: 10, name: "Tỉnh Lào Cai (Sáp nhập Lào Cai - Yên Bái)" },
+                { code: 19, name: "Tỉnh Thái Nguyên (Sáp nhập Thái Nguyên - Bắc Kạn)" },
+                { code: 25, name: "Tỉnh Phú Thọ (Sáp nhập Phú Thọ - Vĩnh Phúc - Hòa Bình)" },
+                { code: 27, name: "Tỉnh Bắc Ninh (Sáp nhập Bắc Ninh - Bắc Giang)" },
+                { code: 33, name: "Tỉnh Hưng Yên (Sáp nhập Hưng Yên - Thái Bình)" },
+                { code: 37, name: "Tỉnh Ninh Bình (Sáp nhập Ninh Bình - Hà Nam - Nam Định)" },
+                { code: 45, name: "Tỉnh Quảng Trị (Sáp nhập Quảng Bình - Quảng Trị)" },
+                { code: 51, name: "Tỉnh Quảng Ngãi (Sáp nhập Quảng Ngãi - Kon Tum)" },
+                { code: 52, name: "Tỉnh Gia Lai (Sáp nhập Gia Lai - Bình Định)" },
+                { code: 56, name: "Tỉnh Khánh Hòa (Sáp nhập Khánh Hòa - Ninh Thuận)" },
+                { code: 66, name: "Tỉnh Đắk Lắk (Sáp nhập Đắk Lắk - Phú Yên)" },
+                { code: 68, name: "Tỉnh Lâm Đồng (Sáp nhập Lâm Đồng - Đắk Nông - Bình Thuận)" },
+                { code: 75, name: "Tỉnh Đồng Nai (Sáp nhập Đồng Nai - Bình Phước)" },
+                { code: 80, name: "Tỉnh Tây Ninh (Sáp nhập Tây Ninh - Long An)" },
+                { code: 82, name: "Tỉnh Đồng Tháp (Sáp nhập Đồng Tháp - Tiền Giang)" },
+                { code: 86, name: "Tỉnh Vĩnh Long (Sáp nhập Vĩnh Long - Bến Tre - Trà Vinh)" },
+                { code: 89, name: "Tỉnh An Giang (Sáp nhập An Giang - Kiên Giang)" },
+                { code: 96, name: "Tỉnh Cà Mau (Sáp nhập Cà Mau - Bạc Liêu)" }
+            ];
+
+            function composeFullAddress() {
+                const street = streetDetailInput?.value.trim() || '';
+                const wardText = wardSelect && wardSelect.selectedIndex > 0
+                    ? wardSelect.options[wardSelect.selectedIndex].text
+                    : '';
+                const provText = provinceSelect && provinceSelect.selectedIndex > 0
+                    ? provinceSelect.options[provinceSelect.selectedIndex].text
+                    : '';
+
+                const parts = [];
+                if (street) parts.push(street);
+                if (wardText) parts.push(wardText);
+                if (provText) parts.push(provText);
+
+                if (parts.length > 0 && fullAddressInput) {
+                    fullAddressInput.value = parts.join(', ');
+                }
+            }
+
+            function renderProvinces(provinces) {
+                if (!provinceSelect) return;
+                provinceSelect.innerHTML = '<option value="">-- Chọn Tỉnh / Thành phố (Sau sáp nhập) --</option>';
+                provinces.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.code;
+                    opt.textContent = p.name;
+                    provinceSelect.appendChild(opt);
+                });
+            }
+
+            function renderWards(wards) {
+                if (!wardSelect) return;
+                wardSelect.innerHTML = '<option value="">-- Chọn Phường / Xã / Đặc khu --</option>';
+                wards.forEach(w => {
+                    const opt = document.createElement('option');
+                    opt.value = w.code || w.name;
+                    opt.textContent = w.name;
+                    wardSelect.appendChild(opt);
+                });
+                wardSelect.disabled = false;
+            }
+
+            // 1. Tải danh sách Tỉnh/Thành phố sau sáp nhập từ API v2
+            async function loadProvinces() {
+                try {
+                    const res = await fetch(`${API_BASE_V2}/p/`);
+                    if (!res.ok) throw new Error('API Error ' + res.status);
+                    const data = await res.json();
+                    if (Array.isArray(data) && data.length > 0) {
+                        renderProvinces(data);
+                        return;
+                    }
+                    throw new Error('Empty data');
+                } catch (err) {
+                    console.warn('Sử dụng danh sách 34 Tỉnh/TP sau sáp nhập nội bộ:', err);
+                    if (apiStatusBadge) {
+                        apiStatusBadge.className = 'badge bg-primary-subtle text-primary border border-primary-subtle';
+                        apiStatusBadge.textContent = 'Dữ liệu Sáp nhập 34 Tỉnh/TP';
+                    }
+                    renderProvinces(FALLBACK_MERGED_PROVINCES);
+                }
+            }
+
+            // 2. Khi chọn Tỉnh/Thành -> Gọi API v2 lấy danh sách Phường/Xã trực thuộc (2 cấp, bỏ cấp Quận/Huyện)
+            provinceSelect?.addEventListener('change', async function () {
+                const provCode = this.value;
+                composeFullAddress();
+
+                if (!provCode) {
+                    if (wardSelect) {
+                        wardSelect.innerHTML = '<option value="">-- Chọn Tỉnh/Thành trước --</option>';
+                        wardSelect.disabled = true;
+                    }
+                    return;
+                }
+
+                if (wardSelect) {
+                    wardSelect.innerHTML = '<option value="">-- Đang tải Phường/Xã sau sáp nhập... --</option>';
+                    wardSelect.disabled = true;
+                }
+
+                try {
+                    const res = await fetch(`${API_BASE_V2}/p/${provCode}?depth=2`);
+                    if (!res.ok) throw new Error('API Ward Error ' + res.status);
+                    const data = await res.json();
+                    const wards = data.wards || [];
+                    if (wards.length > 0) {
+                        renderWards(wards);
+                        return;
+                    }
+                    throw new Error('No wards returned');
+                } catch (err) {
+                    console.warn('Sử dụng danh sách Phường/Xã dự phòng:', err);
+                    const provName = this.options[this.selectedIndex]?.text || '';
+                    renderWards([
+                        { name: 'Phường Trung Tâm (' + provName.split('(')[0].trim() + ')' },
+                        { name: 'Phường 1' },
+                        { name: 'Phường 2' },
+                        { name: 'Phường 3' },
+                        { name: 'Xã Tân Thành' },
+                        { name: 'Xã Hòa Bình' }
+                    ]);
+                }
+            });
+
+            wardSelect?.addEventListener('change', composeFullAddress);
+            streetDetailInput?.addEventListener('input', composeFullAddress);
+
+            loadProvinces();
+        })();
+    </script>
 }
