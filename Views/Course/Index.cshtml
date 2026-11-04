@@ -1,0 +1,591 @@
+@model tieudaobadminton.ViewModels.CourseRegistrationVM
+@{
+    ViewData["Title"] = "Đăng Ký Khóa Học Cầu Lông Cơ Bản & Nâng Cao";
+    bool isAdvancedSelected = string.Equals(Model?.PackageCode, "Advanced", StringComparison.OrdinalIgnoreCase);
+}
+
+<!-- 1. HERO BANNER -->
+<section class="py-5 text-white position-relative overflow-hidden" style="background: linear-gradient(135deg, #0b0f19 0%, #1e1b4b 55%, #31102f 100%);">
+    <div class="container py-4 position-relative" style="z-index: 2;">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-7">
+                <span class="badge bg-danger text-white px-3 py-2 rounded-pill fw-bold mb-3 shadow-sm d-inline-flex align-items-center gap-2">
+                    <i class="bi bi-mortarboard-fill"></i>
+                    <span>HỌC VIỆN CẦU LÔNG TIÊU ĐAO • CHUẨN GIÁO TRÌNH BWF</span>
+                </span>
+                <h1 class="display-5 fw-black text-white mb-3">
+                    Khóa Học Cầu Lông Thực Chiến <br />
+                    <span class="text-warning">Gói Cơ Bản &amp; Gói Nâng Cao</span>
+                </h1>
+                <p class="fs-6 text-light opacity-75 mb-4" style="line-height: 1.8; max-width: 620px;">
+                    Được trực tiếp huấn luyện bởi đội ngũ Kiện tướng &amp; Huấn luyện viên cấp Quốc gia. Chỉnh sửa tận gốc kỹ thuật cầm vợt, bộ pháp di chuyển 6 góc sân, phát lực Smash uy lực và tư duy chiến thuật đánh đôi chuyên nghiệp.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="#bang-goi-khoa-hoc" class="btn btn-warning btn-lg rounded-pill fw-bold px-4 text-dark shadow">
+                        <i class="bi bi-layers-fill me-1"></i> Xem 2 Gói Khóa Học
+                    </a>
+                    <a href="#form-dang-ky" class="btn btn-outline-light btn-lg rounded-pill fw-bold px-4">
+                        <i class="bi bi-pencil-square me-1"></i> Đăng Ký Học Ngay
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="p-4 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-10 shadow-lg">
+                    <h5 class="fw-bold text-white mb-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-patch-check-fill text-warning"></i> Đặc Quyền Học Viên Tiêu Đao
+                    </h5>
+                    <ul class="list-unstyled d-flex flex-column gap-3 mb-0">
+                        <li class="d-flex align-items-start gap-3">
+                            <span class="badge bg-warning text-dark rounded-circle p-2 mt-1"><i class="bi bi-check-lg"></i></span>
+                            <div>
+                                <strong class="text-white">Sĩ số giới hạn tối đa 6 - 8 học viên / lớp:</strong>
+                                <div class="small text-light opacity-75">Đảm bảo HLV theo sát chỉnh sửa từng động tác cổ tay và bước chân cho mỗi học viên.</div>
+                            </div>
+                        </li>
+                        <li class="d-flex align-items-start gap-3">
+                            <span class="badge bg-warning text-dark rounded-circle p-2 mt-1"><i class="bi bi-check-lg"></i></span>
+                            <div>
+                                <strong class="text-white">Miễn phí 100% vợt tập carbon &amp; cầu lông:</strong>
+                                <div class="small text-light opacity-75">Học viên mới chưa có vợt được mượn vợt Yonex/Victor chính hãng trong suốt khóa học.</div>
+                            </div>
+                        </li>
+                        <li class="d-flex align-items-start gap-3">
+                            <span class="badge bg-warning text-dark rounded-circle p-2 mt-1"><i class="bi bi-check-lg"></i></span>
+                            <div>
+                                <strong class="text-white">Sân thảm PVC tiêu chuẩn thi đấu quốc tế:</strong>
+                                <div class="small text-light opacity-75">Hệ thống chiếu sáng chống chói, thảm giảm chấn bảo vệ khớp gối và cổ chân.</div>
+                            </div>
+                        </li>
+                        <li class="d-flex align-items-start gap-3">
+                            <span class="badge bg-warning text-dark rounded-circle p-2 mt-1"><i class="bi bi-check-lg"></i></span>
+                            <div>
+                                <strong class="text-white">Linh hoạt học bù miễn phí:</strong>
+                                <div class="small text-light opacity-75">Hỗ trợ sắp xếp lịch học bù sang ca khác trong tuần nếu học viên bận công việc đột xuất.</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@if (TempData["CourseOk"] != null)
+{
+    <div class="container mt-4">
+        <div class="alert alert-success rounded-4 border-0 shadow-sm p-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="fs-1 text-success"><i class="bi bi-check-circle-fill"></i></div>
+                <div>
+                    <h5 class="fw-black text-dark mb-1">Gửi Đăng Ký Khóa Học Thành Công!</h5>
+                    <div class="text-dark">@TempData["CourseOk"]</div>
+                </div>
+            </div>
+            <a href="#form-dang-ky" class="btn btn-dark rounded-pill px-4 fw-bold">Xem lại biểu mẫu</a>
+        </div>
+    </div>
+}
+
+<!-- 2. HAI GÓI KHÓA HỌC: CƠ BẢN & NÂNG CAO -->
+<section id="bang-goi-khoa-hoc" class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-bold mb-2">
+                <i class="bi bi-diagram-3-fill me-1"></i> LỘ TRÌNH ĐÀO TẠO BÀI BẢN
+            </span>
+            <h2 class="fw-black display-6 text-dark mb-2">Chọn Gói Khóa Học Phù Hợp Với Bạn</h2>
+            <p class="text-muted mx-auto" style="max-width: 680px;">
+                Chương trình đào tạo được thiết kế chuyên biệt thành <strong>Gói Cơ Bản</strong> và <strong>Gói Nâng Cao</strong>, đáp ứng từ người mới cầm vợt lần đầu đến người chơi phong trào muốn bứt phá trình độ thi đấu.
+            </p>
+        </div>
+
+        <div class="row g-4 justify-content-center align-items-stretch">
+            <!-- GÓI 1: CƠ BẢN (BASIC) -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-4 h-100 bg-white overflow-hidden position-relative d-flex flex-column justify-content-between" style="border: 2px solid #e2e8f0 !important;">
+                    <div class="p-4 p-xl-5">
+                        <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+                            <div>
+                                <span class="badge bg-primary-subtle text-primary px-3 py-1 rounded-pill fw-bold small mb-2">
+                                    <i class="bi bi-shield-check me-1"></i> DÀNH CHO NGƯỜI MỚI &amp; NỀN TẢNG
+                                </span>
+                                <h3 class="fw-black text-dark m-0">Gói Cơ Bản (Basic)</h3>
+                                <div class="text-muted small mt-1">Chuẩn hóa kỹ thuật gốc • Tránh chấn thương cổ tay &amp; khớp vai</div>
+                            </div>
+                            <div class="rounded-4 bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center" style="width: 56px; height: 56px; font-size: 1.6rem;">
+                                <i class="bi bi-compass-fill"></i>
+                            </div>
+                        </div>
+
+                        <div class="p-3 rounded-4 bg-light border mb-4 d-flex align-items-baseline justify-content-between flex-wrap gap-2">
+                            <div>
+                                <span class="fs-2 fw-black text-primary">1.200.000đ</span>
+                                <span class="text-muted small">/ khóa 12 buổi (1 tháng)</span>
+                            </div>
+                            <span class="badge bg-white text-dark border px-3 py-2 rounded-pill fw-semibold">
+                                <i class="bi bi-clock-history me-1 text-primary"></i> 3 buổi / tuần (2 giờ/buổi)
+                            </span>
+                        </div>
+
+                        <h6 class="fw-bold text-uppercase text-muted small mb-3" style="letter-spacing: 0.05em;">
+                            <i class="bi bi-journal-check me-1 text-primary"></i> Nội dung chương trình học (12 buổi):
+                        </h6>
+                        <ul class="list-unstyled d-flex flex-column gap-3 mb-4">
+                            <li class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check-circle-fill text-primary mt-1"></i>
+                                <div>
+                                    <strong>Cầm vợt chuẩn quốc tế (Forehand &amp; Backhand Grip):</strong>
+                                    <div class="small text-muted">Cách xoay cán vợt linh hoạt, thả lỏng ngón tay và phát lực bộc phát không gây mỏi.</div>
+                                </div>
+                            </li>
+                            <li class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check-circle-fill text-primary mt-1"></i>
+                                <div>
+                                    <strong>Bộ pháp di chuyển 6 góc sân (Basic Footwork):</strong>
+                                    <div class="small text-muted">Bước đệm tách chân, di chuyển tiến lưới chữ V và lùi về 2 góc cuối sân nhịp nhàng.</div>
+                                </div>
+                            </li>
+                            <li class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check-circle-fill text-primary mt-1"></i>
+                                <div>
+                                    <strong>Kỹ thuật Phông cầu cao sâu &amp; Giao cầu chuẩn luật:</strong>
+                                    <div class="small text-muted">Tư thế mở vai, điểm tiếp xúc cầu trên cao giúp phông cầu từ cuối sân sang cuối sân nhẹ nhàng.</div>
+                                </div>
+                            </li>
+                            <li class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check-circle-fill text-primary mt-1"></i>
+                                <div>
+                                    <strong>Kỹ thuật Bỏ nhỏ trên lưới, Hất cầu &amp; Phòng thủ cơ bản:</strong>
+                                    <div class="small text-muted">Làm quen cảm giác mặt vợt, điều cầu qua lưới sát mép và luật thi đấu đơn/đôi.</div>
+                                </div>
+                            </li>
+                        </ul>
+
+                        <div class="p-3 rounded-3 bg-primary bg-opacity-10 border border-primary border-opacity-25 small text-dark">
+                            <div class="fw-bold text-primary mb-1"><i class="bi bi-gift-fill me-1"></i> Quà tặng kèm Gói Cơ Bản:</div>
+                            <div>Tặng 02 quấn cán chống trượt cao cấp + Miễn phí mượn vợt carbon và cầu tập suốt khóa.</div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 pt-0">
+                        <button type="button" onclick="selectCoursePackage('Basic')" class="btn btn-outline-primary btn-lg w-100 rounded-pill fw-bold py-3 shadow-sm">
+                            <i class="bi bi-check2-circle me-1"></i> Chọn Gói Cơ Bản (1.200.000đ)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GÓI 2: NÂNG CAO (ADVANCED) -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-lg rounded-4 h-100 bg-white overflow-hidden position-relative d-flex flex-column justify-content-between" style="border: 2px solid #dc2626 !important;">
+                    <div class="position-absolute top-0 end-0 bg-danger text-white px-3 py-1 fw-bold small" style="border-bottom-left-radius: 14px;">
+                        <i class="bi bi-fire me-1"></i> ĐƯỢC ĐĂNG KÝ NHIỀU NHẤT
+                    </div>
+
+                    <div class="p-4 p-xl-5">
+                        <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+                            <div>
+                                <span class="badge bg-danger-subtle text-danger px-3 py-1 rounded-pill fw-bold small mb-2">
+                                    <i class="bi bi-trophy-fill me-1"></i> BỨT PHÁ KỸ THUẬT &amp; CHIẾN THUẬT
+                                </span>
+                                <h3 class="fw-black text-dark m-0">Gói Nâng Cao (Advanced)</h3>
+                                <div class="text-muted small mt-1">Tối ưu lực đập Smash • Phản tạt tốc độ &amp; Chiến thuật đánh đôi</div>
+                            </div>
+                            <div class="rounded-4 bg-danger bg-opacity-10 text-danger d-flex align-items-center justify-content-center" style="width: 56px; height: 56px; font-size: 1.6rem;">
+                                <i class="bi bi-lightning-charge-fill"></i>
+                            </div>
+                        </div>
+
+                        <div class="p-3 rounded-4 bg-danger bg-opacity-10 border border-danger border-opacity-25 mb-4 d-flex align-items-baseline justify-content-between flex-wrap gap-2">
+                            <div>
+                                <span class="fs-2 fw-black text-danger">2.200.000đ</span>
+                                <span class="text-muted small">/ khóa 12 buổi (1 tháng)</span>
+                            </div>
+                            <span class="badge bg-white text-danger border border-danger-subtle px-3 py-2 rounded-pill fw-semibold">
+                                <i class="bi bi-clock-history me-1"></i> 3 buổi / tuần (2 giờ/buổi)
+                            </span>
+                        </div>
+
+                        <h6 class="fw-bold text-uppercase text-muted small mb-3" style="letter-spacing: 0.05em;">
+                            <i class="bi bi-journal-check me-1 text-danger"></i> Nội dung chương trình học chuyên sâu (12 buổi):
+                        </h6>
+                        <ul class="list-unstyled d-flex flex-column gap-3 mb-4">
+                            <li class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check-circle-fill text-danger mt-1"></i>
+                                <div>
+                                    <strong>Kỹ thuật Jump Smash (Bật nhảy đập cầu) &amp; Chém cầu xoáy:</strong>
+                                    <div class="small text-muted">Tối ưu chuỗi truyền lực từ chân - hông - vai - cổ tay giúp cú đập cắm gắt và nổ cầu đanh gọn.</div>
+                                </div>
+                            </li>
+                            <li class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check-circle-fill text-danger mt-1"></i>
+                                <div>
+                                    <strong>Phản tạt ngang lưới tốc độ cao (Fast Drive) &amp; Chụp lưới:</strong>
+                                    <div class="small text-muted">Rèn luyện phản xạ cổ tay ngắn với bài tập bắn đa cầu (Multi-shuttle feeding) cường độ cao.</div>
+                                </div>
+                            </li>
+                            <li class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check-circle-fill text-danger mt-1"></i>
+                                <div>
+                                    <strong>Trái tay cuối sân (Backhand Clear &amp; Backhand Smash):</strong>
+                                    <div class="small text-muted">Xử lý thoát hiểm các pha cầu bị ép sâu góc trái tay bằng kỹ thuật tì ngón cái chuẩn xác.</div>
+                                </div>
+                            </li>
+                            <li class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check-circle-fill text-danger mt-1"></i>
+                                <div>
+                                    <strong>Chiến thuật Đánh Đôi (Công - Thủ xoay vòng) &amp; Phân tích Video:</strong>
+                                    <div class="small text-muted">Cách di chuyển bọc lót đồng đội, bắt bài đường cầu đối phương và thực chiến giải đấu nội bộ.</div>
+                                </div>
+                            </li>
+                        </ul>
+
+                        <div class="p-3 rounded-3 bg-warning bg-opacity-10 border border-warning border-opacity-50 small text-dark">
+                            <div class="fw-bold text-danger mb-1"><i class="bi bi-stars me-1"></i> Đặc quyền Gói Nâng Cao:</div>
+                            <div>Tặng 01 lần <strong>căng cước máy điện tử 4 nút miễn phí</strong> + Quay video phân tích chuyển động Slow-motion 1:1 cùng HLV.</div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 pt-0">
+                        <button type="button" onclick="selectCoursePackage('Advanced')" class="btn btn-danger btn-lg w-100 rounded-pill fw-bold py-3 shadow">
+                            <i class="bi bi-lightning-charge-fill me-1"></i> Chọn Gói Nâng Cao (2.200.000đ)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 3. BẢNG SO SÁNH CHI TIẾT 2 GÓI HỌC -->
+<section class="py-5 bg-white">
+    <div class="container" style="max-width: 1020px;">
+        <div class="text-center mb-4">
+            <span class="text-primary fw-bold small text-uppercase" style="letter-spacing: 0.06em;">ĐỐI CHIẾU CHƯƠNG TRÌNH</span>
+            <h3 class="fw-black text-dark m-0">So Sánh Chi Tiết Gói Cơ Bản &amp; Gói Nâng Cao</h3>
+        </div>
+
+        <div class="table-responsive rounded-4 border shadow-sm overflow-hidden">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th class="py-3 px-4">Tiêu chí đào tạo</th>
+                        <th class="py-3 text-center">Gói Cơ Bản (1.200.000đ)</th>
+                        <th class="py-3 text-center text-warning">Gói Nâng Cao (2.200.000đ)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="px-4 fw-semibold text-dark"><i class="bi bi-person-badge me-2 text-primary"></i>Trình độ đầu vào phù hợp</td>
+                        <td class="text-center">Mới bắt đầu / Chơi tự do chưa qua trường lớp</td>
+                        <td class="text-center fw-semibold text-danger">Đã nắm cơ bản / Chơi từ 6 tháng trở lên</td>
+                    </tr>
+                    <tr>
+                        <td class="px-4 fw-semibold text-dark"><i class="bi bi-people me-2 text-primary"></i>Sĩ số học viên tối đa</td>
+                        <td class="text-center">6 - 8 học viên / sân</td>
+                        <td class="text-center fw-semibold">4 - 6 học viên / sân (Kèm sát chuyên sâu)</td>
+                    </tr>
+                    <tr>
+                        <td class="px-4 fw-semibold text-dark"><i class="bi bi-bullseye me-2 text-primary"></i>Bài tập bắn đa cầu (Multi-shuttle)</td>
+                        <td class="text-center">Tốc độ tiêu chuẩn (Làm quen nhịp độ)</td>
+                        <td class="text-center fw-semibold">Cường độ cao (Rèn thể lực &amp; phản xạ thực chiến)</td>
+                    </tr>
+                    <tr>
+                        <td class="px-4 fw-semibold text-dark"><i class="bi bi-camera-video me-2 text-primary"></i>Quay video phân tích kỹ thuật 1:1</td>
+                        <td class="text-center text-muted">Đánh giá cuối khóa</td>
+                        <td class="text-center text-success fw-bold"><i class="bi bi-check-circle-fill me-1"></i>Phân tích Slow-motion hàng tuần</td>
+                    </tr>
+                    <tr>
+                        <td class="px-4 fw-semibold text-dark"><i class="bi bi-tools me-2 text-primary"></i>Ưu đãi dịch vụ tại Shop</td>
+                        <td class="text-center">Tặng 02 quấn cán + Giảm 5% khi mua vợt</td>
+                        <td class="text-center fw-bold text-danger">Tặng 01 lần đan cước Yonex + Giảm 10% mua vợt</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- 4. BIỂU MẪU ĐĂNG KÝ KHÓA HỌC (GỬI VỀ EMAIL ADMIN) -->
+<section id="form-dang-ky" class="py-5" style="background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);">
+    <div class="container">
+        <div class="row g-4 align-items-start">
+            <!-- CỘT TRÁI: FORM ĐĂNG KÝ (7 COLS) -->
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="rounded-4 bg-primary text-white d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; font-size: 1.4rem;">
+                            <i class="bi bi-envelope-paper-fill"></i>
+                        </div>
+                        <div>
+                            <h3 class="fw-black text-dark m-0">Phiếu Đăng Ký Khóa Học</h3>
+                            <div class="text-muted small">Thông tin đăng ký sẽ được gửi trực tiếp về Email của Quản trị viên để xếp lớp</div>
+                        </div>
+                    </div>
+
+                    <form asp-controller="Course" asp-action="Index" method="post" class="mt-3">
+                        @Html.AntiForgeryToken()
+
+                        <!-- CHỌN GÓI KHÓA HỌC (RADIO CARDS) -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-dark small text-uppercase">
+                                1. Chọn gói khóa học đăng ký <span class="text-danger">*</span>
+                            </label>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="w-100 cursor-pointer" for="radioPackageBasic" onclick="updatePackageSummary('Basic')">
+                                        <input type="radio" asp-for="PackageCode" value="Basic" id="radioPackageBasic" class="d-none" checked="@(!isAdvancedSelected)" />
+                                        <div id="cardOptionBasic" class="p-3 rounded-4 border-2 border @( !isAdvancedSelected ? "border-primary bg-primary bg-opacity-10" : "border-secondary-subtle bg-light" ) transition-all">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <span class="fw-black text-dark"><i class="bi bi-compass-fill text-primary me-1"></i> Gói Cơ Bản</span>
+                                                <span class="badge bg-primary rounded-pill">1.200.000đ</span>
+                                            </div>
+                                            <div class="small text-muted">12 buổi • Nhập môn &amp; Kỹ thuật nền tảng</div>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="w-100 cursor-pointer" for="radioPackageAdvanced" onclick="updatePackageSummary('Advanced')">
+                                        <input type="radio" asp-for="PackageCode" value="Advanced" id="radioPackageAdvanced" class="d-none" checked="@(isAdvancedSelected)" />
+                                        <div id="cardOptionAdvanced" class="p-3 rounded-4 border-2 border @( isAdvancedSelected ? "border-danger bg-danger bg-opacity-10" : "border-secondary-subtle bg-light" ) transition-all">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <span class="fw-black text-dark"><i class="bi bi-lightning-charge-fill text-danger me-1"></i> Gói Nâng Cao</span>
+                                                <span class="badge bg-danger rounded-pill">2.200.000đ</span>
+                                            </div>
+                                            <div class="small text-muted">12 buổi • Chiến thuật &amp; Đập cầu thực chiến</div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            <span asp-validation-for="PackageCode" class="text-danger small mt-1 d-block"></span>
+                        </div>
+
+                        <!-- THÔNG TIN CÁ NHÂN HỌC VIÊN -->
+                        <div class="mb-3">
+                            <label asp-for="FullName" class="form-label fw-bold text-dark small text-uppercase">
+                                2. Họ và tên học viên <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-person-fill"></i></span>
+                                <input asp-for="FullName" class="form-control border-start-0 py-2" placeholder="Nhập họ và tên đầy đủ của học viên..." required />
+                            </div>
+                            <span asp-validation-for="FullName" class="text-danger small mt-1 d-block"></span>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Phone" class="form-label fw-bold text-dark small text-uppercase">
+                                    3. Số điện thoại liên hệ <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-telephone-fill"></i></span>
+                                    <input asp-for="Phone" class="form-control border-start-0 py-2" placeholder="09xx xxx xxx" required />
+                                </div>
+                                <span asp-validation-for="Phone" class="text-danger small mt-1 d-block"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="Email" class="form-label fw-bold text-dark small text-uppercase">
+                                    4. Địa chỉ Email <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-envelope-fill"></i></span>
+                                    <input asp-for="Email" type="email" class="form-control border-start-0 py-2" placeholder="hocvien@example.com" required />
+                                </div>
+                                <span asp-validation-for="Email" class="text-danger small mt-1 d-block"></span>
+                            </div>
+                        </div>
+
+                        <!-- ĐỘ TUỔI & LỊCH HỌC -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="AgeGroup" class="form-label fw-bold text-dark small text-uppercase">
+                                    5. Độ tuổi / Đối tượng học viên
+                                </label>
+                                <select asp-for="AgeGroup" class="form-select py-2">
+                                    <option value="Người đi làm / Phong trào (Trên 22 tuổi)">Người đi làm / Phong trào (Trên 22 tuổi)</option>
+                                    <option value="Học sinh - Sinh viên (15 - 22 tuổi)">Học sinh - Sinh viên (15 - 22 tuổi)</option>
+                                    <option value="Thiếu niên / Trẻ em (7 - 14 tuổi)">Thiếu niên / Trẻ em (7 - 14 tuổi)</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="Schedule" class="form-label fw-bold text-dark small text-uppercase">
+                                    6. Ca học mong muốn
+                                </label>
+                                <select asp-for="Schedule" class="form-select py-2">
+                                    <option value="T2 - T4 - T6 Tối (18:30 - 20:30)">T2 - T4 - T6 Tối (18:30 - 20:30)</option>
+                                    <option value="T3 - T5 - T7 Tối (18:30 - 20:30)">T3 - T5 - T7 Tối (18:30 - 20:30)</option>
+                                    <option value="Cuối tuần T7 - CN Sáng (08:00 - 10:00)">Cuối tuần T7 - CN Sáng (08:00 - 10:00)</option>
+                                    <option value="Cuối tuần T7 - CN Chiều (15:00 - 17:00)">Cuối tuần T7 - CN Chiều (15:00 - 17:00)</option>
+                                    <option value="Kèm riêng 1:1 (Linh hoạt theo giờ học viên)">Kèm riêng 1:1 (Linh hoạt theo giờ học viên)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- CƠ SỞ SÂN TẬP -->
+                        <div class="mb-3">
+                            <label asp-for="Facility" class="form-label fw-bold text-dark small text-uppercase">
+                                7. Cơ sở sân tập đăng ký
+                            </label>
+                            <select asp-for="Facility" class="form-select py-2">
+                                <option value="Cơ sở Quận 7 - Sân Tiêu Đao Arena (123 Đường Cầu Lông)">Cơ sở Quận 7 - Sân Tiêu Đao Arena (123 Đường Cầu Lông)</option>
+                                <option value="Cơ sở Quận 10 - Cụm sân Cầu Lông Phú Thọ">Cơ sở Quận 10 - Cụm sân Cầu Lông Phú Thọ</option>
+                                <option value="Cơ sở Bình Thạnh - Cụm sân Chu Văn An">Cơ sở Bình Thạnh - Cụm sân Chu Văn An</option>
+                            </select>
+                        </div>
+
+                        <!-- GHI CHÚ -->
+                        <div class="mb-4">
+                            <label asp-for="Note" class="form-label fw-bold text-dark small text-uppercase">
+                                8. Ghi chú trình độ hiện tại / Yêu cầu thêm
+                            </label>
+                            <textarea asp-for="Note" rows="3" class="form-control" placeholder="Ví dụ: Mình thuận tay trái, muốn tập trung cải thiện cú phông cầu và đập cầu không bị đau bả vai..."></textarea>
+                            <span asp-validation-for="Note" class="text-danger small mt-1 d-block"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-dark btn-lg w-100 rounded-pill fw-bold py-3 shadow-sm d-flex align-items-center justify-content-center gap-2">
+                            <i class="bi bi-send-check-fill"></i>
+                            <span>Hoàn Tất Đăng Ký &amp; Gửi Về Email Admin</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- CỘT PHẢI: TÓM TẮT GÓI ĐÃ CHỌN & QUY TRÌNH XẾP LỚP (5 COLS) -->
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
+                        <span class="fw-bold text-muted small text-uppercase">TÓM TẮT GÓI ĐANG CHỌN</span>
+                        <span id="summaryBadge" class="badge @(isAdvancedSelected ? "bg-danger" : "bg-primary") rounded-pill px-3 py-1">
+                            @(isAdvancedSelected ? "Gói Nâng Cao" : "Gói Cơ Bản")
+                        </span>
+                    </div>
+
+                    <h4 id="summaryTitle" class="fw-black text-dark mb-1">
+                        @(isAdvancedSelected ? "Khóa Cầu Lông Nâng Cao (Advanced)" : "Khóa Cầu Lông Cơ Bản (Basic)")
+                    </h4>
+                    <div id="summaryPrice" class="fs-3 fw-black @(isAdvancedSelected ? "text-danger" : "text-primary") mb-3">
+                        @(isAdvancedSelected ? "2.200.000đ / 12 buổi" : "1.200.000đ / 12 buổi")
+                    </div>
+
+                    <div class="p-3 rounded-3 bg-light border small text-dark mb-3">
+                        <div class="fw-bold mb-2"><i class="bi bi-award-fill text-warning me-1"></i> Quyền lợi học viên trong gói:</div>
+                        <ul id="summaryBenefits" class="ps-3 mb-0 d-flex flex-column gap-1">
+                            @if (isAdvancedSelected)
+                            {
+                                <li>12 buổi huấn luyện chiến thuật Đánh Đôi &amp; Jump Smash</li>
+                                <li>Tập phản xạ bắn đa cầu tốc độ cao cùng Kiện tướng</li>
+                                <li>Tặng 01 lần căng cước máy điện tử 4 nút miễn phí</li>
+                                <li>Quay video Slow-motion phân tích động tác 1:1</li>
+                            }
+                            else
+                            {
+                                <li>12 buổi chuẩn hóa cầm vợt &amp; bộ pháp di chuyển 6 góc</li>
+                                <li>Miễn phí 100% mượn vợt tập carbon &amp; cầu lông</li>
+                                <li>Tặng 02 quấn cán chống trượt cao cấp tại Showroom</li>
+                                <li>Cam kết đánh phông cầu, giao cầu và bỏ nhỏ chuẩn xác</li>
+                            }
+                        </ul>
+                    </div>
+
+                    <div class="small text-muted d-flex align-items-center gap-2">
+                        <i class="bi bi-envelope-check-fill text-success fs-5"></i>
+                        <span>Ngay sau khi nhấn đăng ký, hệ thống sẽ tự động gửi hồ sơ về <strong>Email của Admin</strong> và gửi thư xác nhận cho bạn.</span>
+                    </div>
+                </div>
+
+                <!-- QUY TRÌNH 3 BƯỚC TIẾP NHẬN -->
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-dark text-white">
+                    <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-lightning-charge-fill text-warning"></i> Quy Trình Tiếp Nhận Học Viên
+                    </h5>
+                    <div class="d-flex flex-column gap-3 small">
+                        <div class="d-flex align-items-start gap-3">
+                            <span class="badge bg-primary rounded-pill px-2 py-1">Bước 1</span>
+                            <div>
+                                <div class="fw-bold">Gửi biểu mẫu đăng ký trực tuyến</div>
+                                <div class="text-light opacity-75">Chọn gói Cơ Bản hoặc Nâng Cao cùng lịch học phù hợp.</div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-start gap-3">
+                            <span class="badge bg-warning text-dark rounded-pill px-2 py-1">Bước 2</span>
+                            <div>
+                                <div class="fw-bold">Admin &amp; HLV nhận thông báo qua Email</div>
+                                <div class="text-light opacity-75">Ban quản trị kiểm tra sĩ số lớp và liên hệ xác nhận qua SĐT trong 24h.</div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-start gap-3">
+                            <span class="badge bg-success rounded-pill px-2 py-1">Bước 3</span>
+                            <div>
+                                <div class="fw-bold">Nhận lớp &amp; Kiểm tra trình độ đầu vào</div>
+                                <div class="text-light opacity-75">Đến sân tập theo lịch hẹn, nhận quà tặng học viên và bắt đầu khóa học.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function updatePackageSummary(pkg) {
+            const isAdv = pkg === 'Advanced';
+            const radioBasic = document.getElementById('radioPackageBasic');
+            const radioAdv = document.getElementById('radioPackageAdvanced');
+            const cardBasic = document.getElementById('cardOptionBasic');
+            const cardAdv = document.getElementById('cardOptionAdvanced');
+
+            if (radioBasic && radioAdv) {
+                radioBasic.checked = !isAdv;
+                radioAdv.checked = isAdv;
+            }
+
+            if (cardBasic && cardAdv) {
+                cardBasic.className = 'p-3 rounded-4 border-2 border transition-all ' +
+                    (!isAdv ? 'border-primary bg-primary bg-opacity-10' : 'border-secondary-subtle bg-light');
+                cardAdv.className = 'p-3 rounded-4 border-2 border transition-all ' +
+                    (isAdv ? 'border-danger bg-danger bg-opacity-10' : 'border-secondary-subtle bg-light');
+            }
+
+            const badge = document.getElementById('summaryBadge');
+            const title = document.getElementById('summaryTitle');
+            const price = document.getElementById('summaryPrice');
+            const benefits = document.getElementById('summaryBenefits');
+
+            if (badge) {
+                badge.className = 'badge rounded-pill px-3 py-1 ' + (isAdv ? 'bg-danger' : 'bg-primary');
+                badge.textContent = isAdv ? 'Gói Nâng Cao' : 'Gói Cơ Bản';
+            }
+            if (title) {
+                title.textContent = isAdv ? 'Khóa Cầu Lông Nâng Cao (Advanced)' : 'Khóa Cầu Lông Cơ Bản (Basic)';
+            }
+            if (price) {
+                price.className = 'fs-3 fw-black mb-3 ' + (isAdv ? 'text-danger' : 'text-primary');
+                price.textContent = isAdv ? '2.200.000đ / 12 buổi' : '1.200.000đ / 12 buổi';
+            }
+            if (benefits) {
+                benefits.innerHTML = isAdv
+                    ? `<li>12 buổi huấn luyện chiến thuật Đánh Đôi &amp; Jump Smash</li>
+                       <li>Tập phản xạ bắn đa cầu tốc độ cao cùng Kiện tướng</li>
+                       <li>Tặng 01 lần căng cước máy điện tử 4 nút miễn phí</li>
+                       <li>Quay video Slow-motion phân tích động tác 1:1</li>`
+                    : `<li>12 buổi chuẩn hóa cầm vợt &amp; bộ pháp di chuyển 6 góc</li>
+                       <li>Miễn phí 100% mượn vợt tập carbon &amp; cầu lông</li>
+                       <li>Tặng 02 quấn cán chống trượt cao cấp tại Showroom</li>
+                       <li>Cam kết đánh phông cầu, giao cầu và bỏ nhỏ chuẩn xác</li>`;
+            }
+        }
+
+        function selectCoursePackage(pkg) {
+            updatePackageSummary(pkg);
+            const formSection = document.getElementById('form-dang-ky');
+            if (formSection) {
+                formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+    </script>
+}

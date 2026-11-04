@@ -15,18 +15,18 @@
 
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
             <div>
-                <h1 class="fw-black h3 mb-1">📦 Lịch Sử Đơn Hàng Của Tôi</h1>
+                <h1 class="fw-black h3 mb-1"><i class="bi bi-box-seam me-2"></i>Lịch Sử Đơn Hàng Của Tôi</h1>
                 <p class="text-muted mb-0">Quản lý và theo dõi tiến độ các đơn hàng bạn đã mua tại Tiêu Đao Badminton.</p>
             </div>
             <a asp-controller="Products" asp-action="Index" class="btn btn-outline-dark rounded-pill fw-bold">
-                🛍️ Tiếp tục mua sắm
+                <i class="bi bi-bag-check me-1"></i>Tiếp tục mua sắm
             </a>
         </div>
 
         @if (Model == null || Model.Count == 0)
         {
             <div class="card border-0 shadow-sm rounded-4 text-center py-5 px-3 bg-white">
-                <div class="display-3 mb-3">🛒</div>
+                <div class="display-3 mb-3 text-muted"><i class="bi bi-cart-x"></i></div>
                 <h4 class="fw-bold mb-2">Bạn chưa có đơn hàng nào</h4>
                 <p class="text-muted mb-4" style="max-width: 450px; margin: 0 auto;">
                     Khám phá ngay bộ sưu tập vợt cầu lông, giày thi đấu và phụ kiện chính hãng mới nhất tại Tiêu Đao Badminton!
@@ -54,10 +54,10 @@
 
                     var statusText = order.Status switch
                     {
-                        "Pending" => "⏳ Chờ xác nhận",
-                        "Shipping" => "🚚 Đang vận chuyển",
-                        "Done" => "✅ Giao hàng thành công",
-                        "Cancelled" => "❌ Đã hủy",
+                        "Pending" => "<i class=\"bi bi-hourglass-split me-1\"></i>Chờ xác nhận",
+                        "Shipping" => "<i class=\"bi bi-truck me-1\"></i>Đang vận chuyển",
+                        "Done" => "<i class=\"bi bi-check-circle-fill me-1\"></i>Giao hàng thành công",
+                        "Cancelled" => "<i class=\"bi bi-x-circle-fill me-1\"></i>Đã hủy",
                         _ => order.Status
                     };
 
@@ -70,9 +70,9 @@
                                 </div>
                             </div>
                             <div class="d-flex align-items-center gap-3">
-                                <span class="badge @statusClass rounded-pill px-3 py-2 fw-bold">@statusText</span>
+                                <span class="badge @statusClass rounded-pill px-3 py-2 fw-bold">@Html.Raw(statusText)</span>
                                 <a href="/Tra-Cuu-Don-Hang?keyword=@order.Id" class="btn btn-sm btn-outline-danger rounded-pill fw-bold px-3">
-                                    Theo dõi vận chuyển ➔
+                                    Theo dõi vận chuyển <i class="bi bi-arrow-right ms-1"></i>
                                 </a>
                             </div>
                         </div>
@@ -104,7 +104,7 @@
                             <!-- ORDER SUMMARY -->
                             <div class="d-flex flex-wrap justify-content-between align-items-center pt-2">
                                 <div class="text-muted small">
-                                    <span>📍 Giao tới: <strong>@order.FullName</strong> - @order.Phone, @order.Address</span>
+                                    <span><i class="bi bi-geo-alt-fill text-danger me-1"></i>Giao tới: <strong>@order.FullName</strong> - @order.Phone, @order.Address</span>
                                 </div>
                                 <div class="text-end mt-2 mt-md-0">
                                     <span class="text-muted me-2">Tổng giá trị đơn hàng:</span>

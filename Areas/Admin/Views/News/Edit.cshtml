@@ -12,7 +12,7 @@
                     <li class="breadcrumb-item active" aria-current="page">Chỉnh sửa</li>
                 </ol>
             </nav>
-            <h4 class="fw-bold m-0 text-dark">✏️ Cập nhật bài viết: @Model.Title</h4>
+            <h4 class="fw-bold m-0 text-dark"><i class="bi bi-pencil-square me-2"></i>Cập nhật bài viết: @Model.Title</h4>
         </div>
         <div class="d-flex gap-2">
             <a class="btn btn-outline-secondary btn-sm rounded-pill px-3" asp-area="" asp-controller="News" asp-action="Detail" asp-route-id="@Model.Id" target="_blank">
@@ -43,8 +43,8 @@
                     <div class="col-md-3">
                         <label class="form-label fw-bold small text-dark">Trạng thái</label>
                         <select asp-for="IsPublished" class="form-select form-select-lg rounded-3 fs-6">
-                            <option value="true">✅ Xuất bản</option>
-                            <option value="false">📁 Lưu bản nháp</option>
+                            <option value="true">Xuất bản</option>
+                            <option value="false">Lưu bản nháp</option>
                         </select>
                     </div>
 
@@ -76,7 +76,7 @@
                     <div class="col-md-12">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <label class="form-label fw-bold small text-dark m-0">
-                                📝 Nội dung chi tiết bài viết <span class="text-danger">*</span>
+                                <i class="bi bi-file-earmark-richtext me-1"></i> Nội dung chi tiết bài viết <span class="text-danger">*</span>
                             </label>
                             <span class="badge bg-primary bg-opacity-10 text-primary fw-semibold px-2 py-1">
                                 <i class="bi bi-magic me-1"></i> Soạn thảo trực quan với CKEditor 5
@@ -87,7 +87,7 @@
                         </div>
                         <span asp-validation-for="Content" class="text-danger small"></span>
                         <div class="form-text text-muted small mt-2">
-                            💡 <strong>Mẹo:</strong> Bạn có thể dán ảnh trực tiếp từ clipboard (Ctrl+V), kéo thả ảnh từ máy tính, chèn link video YouTube, tạo bảng so sánh thông số và định dạng tiêu đề H2, H3 để hệ thống tự tạo mục lục đọc bài.
+                            <i class="bi bi-lightbulb-fill text-warning me-1"></i> <strong>Mẹo:</strong> Bạn có thể dán ảnh trực tiếp từ clipboard (Ctrl+V), kéo thả ảnh từ máy tính, chèn link video YouTube, tạo bảng so sánh thông số và định dạng tiêu đề H2, H3 để hệ thống tự tạo mục lục đọc bài.
                         </div>
                     </div>
                 </div>

@@ -110,6 +110,22 @@
                 allImages.Add(img.Url);
         }
     }
+
+    // Bản đồ ánh xạ từng Màu sắc -> Ảnh preview tương ứng của sản phẩm (Quần áo, Giày, Vợt)
+    var colorImageMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+    foreach (var cName in availableColors)
+    {
+        var variantWithImg = variants.FirstOrDefault(v =>
+            v.Color != null &&
+            v.Color.Trim().Equals(cName, StringComparison.OrdinalIgnoreCase) &&
+            !string.IsNullOrWhiteSpace(v.ImageUrl));
+
+        var resolvedColorImg = !string.IsNullOrWhiteSpace(variantWithImg?.ImageUrl)
+            ? variantWithImg!.ImageUrl!
+            : tieudaobadminton.Data.DbSeeder.ResolveVariantColorImage(isRacket, isShoe, isApparel, Model.Name, cName, Model.Id);
+
+        colorImageMap[cName] = resolvedColorImg;
+    }
 }
 
 <style>
@@ -132,15 +148,77 @@
         justify-content: center;
         min-height: 420px;
         cursor: crosshair;
+        transition: background 0.35s ease;
     }
     .detail-main-img-box img {
         max-height: 400px;
         width: 100%;
         object-fit: contain;
-        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease, filter 0.3s ease;
+    }
+    .detail-main-img-box img.switching-color {
+        opacity: 0.35;
+        transform: scale(0.95);
     }
     .detail-main-img-box:hover img {
         transform: scale(1.06);
+    }
+    .active-color-preview-pill {
+        position: absolute;
+        bottom: 14px;
+        left: 14px;
+        z-index: 4;
+        background: rgba(15, 23, 42, 0.88);
+        backdrop-filter: blur(8px);
+        color: #ffffff;
+        border-radius: 999px;
+        padding: 6px 14px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        display: none;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .color-thumb-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        padding: 6px 8px;
+        border-radius: 14px;
+        border: 2px solid #e2e8f0;
+        background: #f8fafc;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        min-width: 82px;
+        user-select: none;
+    }
+    .color-thumb-card img {
+        width: 56px;
+        height: 56px;
+        object-fit: contain;
+        border-radius: 8px;
+        background: #ffffff;
+    }
+    .color-thumb-card.active, .color-thumb-card:hover {
+        border-color: #0f172a;
+        background: #ffffff;
+        box-shadow: 0 6px 14px rgba(15, 23, 42, 0.1);
+        transform: translateY(-2px);
+    }
+    .color-thumb-label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #0f172a;
+        max-width: 86px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: flex;
+        align-items: center;
+        gap: 4px;
     }
     .thumb-item-btn {
         width: 72px;
@@ -445,9 +523,10 @@
         <!-- LEFT COLUMN: IMAGE SHOWCASE & THUMBNAILS (6 COLS) -->
         <div class="col-lg-6">
             <div class="detail-gallery-card">
-                <div class="detail-main-img-box mb-3">
+                <div class="detail-main-img-box mb-3" id="mainProductImgBox">
                     <img id="mainProductImg"
                          src="@(Model.MainImageUrl ?? "/img/demo/placeholder.jpg")"
+                         data-default-src="@(Model.MainImageUrl ?? "/img/demo/placeholder.jpg")"
                          alt="@Model.Name" />
 
                     <!-- Badges on image -->
@@ -461,10 +540,47 @@
                             <span class="badge-sale-pro">-@discountPercent%</span>
                         }
                     </div>
+
+                    <!-- Huy hiệu hiển thị phiên bản màu đang preview -->
+                    <div class="active-color-preview-pill" id="activeColorPreviewBadge">
+                        <span id="previewBadgeSwatch" style="width: 14px; height: 14px; border-radius: 50%; border: 2px solid #fff; display: inline-block;"></span>
+                        <span>Mẫu màu: <strong id="previewBadgeColorName"></strong></span>
+                    </div>
                 </div>
 
-                <!-- THUMBNAILS CAROUSEL (IF ANY EXTRA IMAGES) -->
-                @if (allImages.Count > 1)
+                <!-- THUMBNAILS MÀU SẮC & GÓC XEM SẢN PHẨM -->
+                @if (hasColors)
+                {
+                    <div class="d-flex align-items-center gap-2 overflow-auto pb-2 justify-content-center flex-wrap" id="colorPreviewThumbStrip">
+                        <div class="color-thumb-card active"
+                             id="thumbCardDefault"
+                             onclick="resetToDefaultProductImage(this)"
+                             title="Ảnh mặc định của sản phẩm">
+                            <img src="@(Model.MainImageUrl ?? "/img/demo/placeholder.jpg")" alt="@Model.Name" />
+                            <div class="color-thumb-label">
+                                <span><i class="bi bi-camera-fill me-1"></i> Ảnh gốc</span>
+                            </div>
+                        </div>
+
+                        @for (int cIdx = 0; cIdx < availableColors.Count; cIdx++)
+                        {
+                            var cName = availableColors[cIdx];
+                            var cImgUrl = colorImageMap.ContainsKey(cName) ? colorImageMap[cName] : (Model.MainImageUrl ?? "/img/demo/placeholder.jpg");
+                            var cHex = GetColorHex(cName);
+                            <div class="color-thumb-card"
+                                 data-thumb-color="@cName"
+                                 onclick="selectColorFromThumb('@cName')"
+                                 title="Xem mẫu màu: @cName">
+                                <img src="@cImgUrl" alt="@Model.Name - Màu @cName" />
+                                <div class="color-thumb-label">
+                                    <span style="width: 9px; height: 9px; border-radius: 50%; background: @cHex; border: 1px solid rgba(0,0,0,0.2); flex-shrink: 0;"></span>
+                                    <span>@cName</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else if (allImages.Count > 1)
                 {
                     <div class="d-flex align-items-center gap-2 overflow-auto pb-2 justify-content-center">
                         @for (int i = 0; i < allImages.Count; i++)
@@ -482,28 +598,28 @@
                 <div class="row g-2 mt-3 text-center">
                     <div class="col-6 col-sm-3">
                         <div class="pro-trust-box h-100">
-                            <div class="fs-4 mb-1">🛡️</div>
+                            <div class="fs-4 mb-1 text-primary"><i class="bi bi-shield-check"></i></div>
                             <div class="fw-bold text-dark small" style="font-size: 0.78rem;">100% CHÍNH HÃNG</div>
                             <div class="text-muted" style="font-size: 0.7rem;">Quét mã cào bảo hành</div>
                         </div>
                     </div>
                     <div class="col-6 col-sm-3">
                         <div class="pro-trust-box h-100">
-                            <div class="fs-4 mb-1">⚡</div>
+                            <div class="fs-4 mb-1 text-warning"><i class="bi bi-lightning-charge-fill"></i></div>
                             <div class="fw-bold text-dark small" style="font-size: 0.78rem;">GIAO HỎA TỐC</div>
                             <div class="text-muted" style="font-size: 0.7rem;">Freeship từ 499k</div>
                         </div>
                     </div>
                     <div class="col-6 col-sm-3">
                         <div class="pro-trust-box h-100">
-                            <div class="fs-4 mb-1">🔄</div>
+                            <div class="fs-4 mb-1 text-info"><i class="bi bi-arrow-repeat"></i></div>
                             <div class="fw-bold text-dark small" style="font-size: 0.78rem;">ĐỔI MỚI 7 NGÀY</div>
                             <div class="text-muted" style="font-size: 0.7rem;">Lỗi nhà sản xuất 1-1</div>
                         </div>
                     </div>
                     <div class="col-6 col-sm-3">
                         <div class="pro-trust-box h-100">
-                            <div class="fs-4 mb-1">🎁</div>
+                            <div class="fs-4 mb-1 text-danger"><i class="bi bi-gift-fill"></i></div>
                             <div class="fw-bold text-dark small" style="font-size: 0.78rem;">QUÀ TẶNG KÈM</div>
                             <div class="text-muted" style="font-size: 0.7rem;">Tặng cước & bao nhung</div>
                         </div>
@@ -522,7 +638,7 @@
                     <span class="badge bg-light text-muted border px-2 py-1 rounded-pill">@(Model.Category?.Name ?? "Dụng cụ")</span>
                     @if (Model.IsActive)
                     {
-                        <span class="badge bg-success bg-opacity-10 text-success fw-bold px-2 py-1 rounded-pill">✓ Sẵn hàng tại kho</span>
+                        <span class="badge bg-success bg-opacity-10 text-success fw-bold px-2 py-1 rounded-pill"><i class="bi bi-check-lg me-1"></i> Sẵn hàng tại kho</span>
                     }
                 </div>
 
@@ -530,7 +646,7 @@
                         class="pro-wishlist-btn position-static @(isModelFav ? "active" : "")"
                         onclick="toggleWishlist(@Model.Id, this);"
                         title="@(isModelFav ? "Bỏ lưu yêu thích" : "Thêm vào yêu thích")">
-                    @(isModelFav ? "❤️" : "🤍")
+                    <i class="bi @(isModelFav ? "bi-heart-fill" : "bi-heart")"></i>
                 </button>
             </div>
 
@@ -545,11 +661,11 @@
                         {
                             if (i <= Math.Round(avgRating))
                             {
-                                <span>★</span>
+                                <i class="bi bi-star-fill"></i>
                             }
                             else
                             {
-                                <span class="star-gray">★</span>
+                                <i class="bi bi-star-fill star-gray"></i>
                             }
                         }
                     </div>
@@ -563,9 +679,9 @@
                 <span class="text-muted">Đã bán 350+</span>
                 <span class="text-muted">•</span>
                 <span class="badge @(totalStock > 5 ? "bg-success-subtle text-success border border-success-subtle" : (totalStock > 0 ? "bg-warning-subtle text-warning border border-warning-subtle" : "bg-danger-subtle text-danger border border-danger-subtle")) fw-bold px-2 py-1">
-                    📦 Kho hàng: @(totalStock > 0 ? $"Còn {totalStock} chiếc" : "Tạm hết hàng")
+                    <i class="bi bi-box-seam-fill me-1"></i> Kho hàng: @(totalStock > 0 ? $"Còn {totalStock} chiếc" : "Tạm hết hàng")
                 </span>
-                <span class="badge bg-success bg-opacity-10 text-success fw-semibold ms-auto">✓ Đã kiểm định chất lượng</span>
+                <span class="badge bg-success bg-opacity-10 text-success fw-semibold ms-auto"><i class="bi bi-patch-check-fill me-1"></i> Đã kiểm định chất lượng</span>
             </div>
 
             <!-- PRICE CARD -->
@@ -590,7 +706,7 @@
 
                 <!-- Flash Perk -->
                 <div class="d-flex align-items-center gap-2 mt-3 pt-3 border-top text-muted small">
-                    <span class="fs-5">⚡</span>
+                    <span class="fs-5 text-warning"><i class="bi bi-lightning-charge-fill"></i></span>
                     <span><strong>Đặc quyền khách hàng:</strong> Miễn phí công đan cước máy điện tử 4 nút chuẩn thi đấu quốc tế trị giá 60.000đ.</span>
                 </div>
             </div>
@@ -614,7 +730,7 @@
                             <div class="color-selection-block mb-3" id="colorSelectionBlock">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <label class="form-label fw-black text-dark mb-0 fs-6">
-                                        <span>🎨 1. CHỌN MÀU SẮC:</span>
+                                        <span><i class="bi bi-palette-fill text-primary me-1"></i> 1. CHỌN MÀU SẮC:</span>
                                     </label>
                                     <span class="small text-muted">
                                         Đang chọn: <span id="selectedColorDisplay" class="badge bg-light text-muted border px-2 py-1">Chưa chọn</span>
@@ -637,7 +753,7 @@
                                                onchange="onColorChanged(this.value)" />
 
                                         <label for="@radioColorId" class="modern-color-tile @(totalColorStock <= 0 ? "out-of-stock" : "")">
-                                            <div class="variant-check-badge">✓</div>
+                                            <div class="variant-check-badge"><i class="bi bi-check-lg"></i></div>
                                             <div class="color-swatch-circle" style="background: @hexCode;"></div>
                                             <div>
                                                 <div class="color-label">@colorName</div>
@@ -656,14 +772,14 @@
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <div>
                                         <label class="form-label fw-black text-dark mb-0 fs-6">
-                                            <span>📏 @(hasColors ? "2. CHỌN KÍCH CỠ / SIZE:" : "CHỌN KÍCH CỠ / SIZE:")</span>
+                                            <span><i class="bi bi-rulers text-success me-1"></i> @(hasColors ? "2. CHỌN KÍCH CỠ / SIZE:" : "CHỌN KÍCH CỠ / SIZE:")</span>
                                         </label>
                                         <span class="small text-muted ms-2">
                                             Đang chọn: <span id="selectedSizeDisplay" class="badge bg-light text-muted border px-2 py-1">@(hasColors ? "Chờ chọn màu" : "Chưa chọn")</span>
                                         </span>
                                     </div>
                                     <button type="button" class="btn btn-sm btn-outline-danger rounded-pill fw-bold px-3 shadow-xs" data-bs-toggle="modal" data-bs-target="#sizeGuideModal">
-                                        📏 Bảng quy đổi Size
+                                        <i class="bi bi-rulers me-1"></i> Bảng quy đổi Size
                                     </button>
                                 </div>
 
@@ -671,7 +787,7 @@
                                 {
                                     <!-- HƯỚNG DẪN KHI CHƯA CHỌN MÀU -->
                                     <div id="sizePromptNoColor" class="p-3 bg-light rounded-4 border text-center text-muted small my-2">
-                                        <span class="fs-6 me-1">🎨</span> Vui lòng <strong>chọn Màu sắc</strong> ở trên để xem các kích cỡ và số lượng có sẵn tại kho.
+                                        <i class="bi bi-palette-fill text-primary me-1"></i> Vui lòng <strong>chọn Màu sắc</strong> ở trên để xem các kích cỡ và số lượng có sẵn tại kho.
                                     </div>
                                 }
 
@@ -692,7 +808,7 @@
                                                onchange="onSizeChanged(this.value)" />
 
                                         <label for="@radioSizeId" class="modern-size-tile @(sizeStock <= 0 && !hasColors ? "out-of-stock" : "")">
-                                            <div class="variant-check-badge">✓</div>
+                                            <div class="variant-check-badge"><i class="bi bi-check-lg"></i></div>
                                             <div class="size-label">@sizeName</div>
                                             <div class="size-stock">@(hasColors ? "Chờ chọn màu" : (sizeStock > 0 ? $"Còn {sizeStock}" : "Hết hàng"))</div>
                                         </label>
@@ -703,7 +819,7 @@
 
                         <!-- BANNER PHẢN HỒI TỒN KHO TỨC THÌ THEO MÀU & SIZE -->
                         <div id="variantFeedbackBanner" class="variant-feedback-banner" style="background: #f8fafc; border-color: #e2e8f0;">
-                            <span class="fs-5" id="variantFeedbackIcon">💡</span>
+                            <span class="fs-5" id="variantFeedbackIcon"><i class="bi bi-lightbulb-fill text-warning"></i></span>
                             <span id="variantFeedbackText" class="fw-semibold text-muted">
                                 @(hasColors && hasSizes ? "Vui lòng chọn Màu sắc và Kích cỡ phù hợp với bạn." : (hasColors ? "Vui lòng chọn Màu sắc bạn yêu thích." : "Vui lòng chọn Kích cỡ phù hợp với bạn."))
                             </span>
@@ -715,7 +831,7 @@
                     <input type="hidden" name="variantId" value="@(variants.FirstOrDefault()?.Id)" />
                     <div class="mb-3 d-flex align-items-center gap-2">
                         <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-bold">
-                            ✓ Có sẵn @(variants.FirstOrDefault()?.Stock ?? 10) sản phẩm sẵn sàng giao
+                            <i class="bi bi-check-circle-fill me-1"></i> Có sẵn @(variants.FirstOrDefault()?.Stock ?? 10) sản phẩm sẵn sàng giao
                         </span>
                         <span class="text-muted small">Quy cách: Tiêu chuẩn chính hãng</span>
                     </div>
@@ -731,7 +847,7 @@
                                 <span class="badge bg-success-subtle text-success px-2 py-1 rounded-pill small ms-1">Miễn phí đan máy</span>
                             </label>
                             <a href="/Dich-Vu-Cang-Cuoc" target="_blank" class="text-primary small fw-semibold text-decoration-none">
-                                🛠️ Hướng dẫn số Kg & Cước ➔
+                                <i class="bi bi-tools me-1"></i> Hướng dẫn số Kg & Cước →
                             </a>
                         </div>
 
@@ -758,7 +874,7 @@
                         </div>
 
                         <div id="tensionDescBox" class="small text-muted p-2 rounded-3 bg-light border border-light d-flex align-items-center gap-2">
-                            <span>💡</span>
+                            <span><i class="bi bi-lightbulb-fill text-warning"></i></span>
                             <span id="tensionDescText">Trợ lực đàn hồi cao, đẩy phông nhẹ nhàng, bảo vệ cổ tay và khớp vai cho người mới.</span>
                         </div>
                     </div>
@@ -781,13 +897,13 @@
                 <div class="row g-2 mt-4">
                     <div class="col-12 col-sm-6">
                         <button type="submit" class="btn btn-outline-dark btn-lg w-100 rounded-pill py-3 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2">
-                            <span>🛒</span>
+                            <i class="bi bi-cart-plus-fill"></i>
                             <span>Thêm vào giỏ</span>
                         </button>
                     </div>
                     <div class="col-12 col-sm-6">
                         <button type="button" onclick="buyNowSubmit();" class="btn btn-dark btn-lg w-100 rounded-pill py-3 fw-bold shadow-lg d-flex align-items-center justify-content-center gap-2">
-                            <span>⚡</span>
+                            <i class="bi bi-lightning-charge-fill text-warning"></i>
                             <span>Mua ngay lập tức</span>
                         </button>
                     </div>
@@ -808,17 +924,17 @@
         <ul class="nav nav-pills mb-4 gap-2 border-bottom pb-3" id="productTab" role="tablist">
             <li class="nav-item">
                 <button class="btn btn-outline-dark rounded-pill active px-4 fw-bold" id="desc-tab" data-bs-toggle="pill" data-bs-target="#tab-desc" type="button">
-                    📖 Giới thiệu chi tiết
+                    <i class="bi bi-journal-text me-1"></i> Giới thiệu chi tiết
                 </button>
             </li>
             <li class="nav-item">
                 <button class="btn btn-outline-dark rounded-pill px-4 fw-bold" id="specs-tab" data-bs-toggle="pill" data-bs-target="#tab-specs" type="button">
-                    ⚙️ Thông số kỹ thuật
+                    <i class="bi bi-gear-fill me-1"></i> Thông số kỹ thuật
                 </button>
             </li>
             <li class="nav-item">
                 <button class="btn btn-outline-dark rounded-pill px-4 fw-bold" id="policy-tab" data-bs-toggle="pill" data-bs-target="#tab-policy" type="button">
-                    🛡️ Chính sách bảo hành
+                    <i class="bi bi-shield-check me-1"></i> Chính sách bảo hành
                 </button>
             </li>
         </ul>
@@ -834,19 +950,19 @@
                 <div class="row g-3 mt-3">
                     <div class="col-md-4">
                         <div class="p-3 bg-light rounded-4 border">
-                            <div class="fw-bold text-dark mb-1">🚀 Công nghệ trợ lực cao</div>
+                            <div class="fw-bold text-dark mb-1"><i class="bi bi-rocket-takeoff-fill text-danger me-1"></i> Công nghệ trợ lực cao</div>
                             <small class="text-muted">Gia tăng uy lực cho các pha đập cầu cắm sân và phông cầu cuối sân thanh thoát.</small>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="p-3 bg-light rounded-4 border">
-                            <div class="fw-bold text-dark mb-1">🛡️ Triệt tiêu rung chấn</div>
+                            <div class="fw-bold text-dark mb-1"><i class="bi bi-shield-fill-check text-primary me-1"></i> Triệt tiêu rung chấn</div>
                             <small class="text-muted">Bảo vệ cổ tay và khớp vai sau các pha cầu dồn dập ở cường độ cao.</small>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="p-3 bg-light rounded-4 border">
-                            <div class="fw-bold text-dark mb-1">💎 Độ bền chuẩn thi đấu</div>
+                            <div class="fw-bold text-dark mb-1"><i class="bi bi-gem text-info me-1"></i> Độ bền chuẩn thi đấu</div>
                             <small class="text-muted">Chịu lực va chạm cao, cam kết tem chống hàng giả và bảo hành chính hãng.</small>
                         </div>
                     </div>
@@ -915,7 +1031,14 @@
                             <tr>
                                 <th class="bg-light text-muted">Tồn kho khả dụng</th>
                                 <td class="fw-bold @(totalStock > 0 ? "text-success" : "text-danger")">
-                                    @(totalStock > 0 ? $"✓ Còn {totalStock} sản phẩm có sẵn tại kho (Giao ngay)" : "✕ Tạm hết hàng tại kho")
+                                    @if (totalStock > 0)
+                                    {
+                                        <span><i class="bi bi-check-circle-fill me-1"></i> Còn @totalStock sản phẩm có sẵn tại kho (Giao ngay)</span>
+                                    }
+                                    else
+                                    {
+                                        <span><i class="bi bi-x-circle-fill me-1"></i> Tạm hết hàng tại kho</span>
+                                    }
                                 </td>
                             </tr>
                             <tr>
@@ -949,7 +1072,7 @@
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
             <div>
                 <span class="badge bg-warning bg-opacity-10 text-dark fw-bold px-3 py-1 mb-2 rounded-pill">
-                    ⭐ ĐÁNH GIÁ TỪ NGƯỜI DÙNG THỰC TẾ
+                    <i class="bi bi-star-fill text-warning me-1"></i> ĐÁNH GIÁ TỪ NGƯỜI DÙNG THỰC TẾ
                 </span>
                 <h3 class="fw-black text-dark mb-0">Khách Hàng Đánh Giá Về Sản Phẩm</h3>
             </div>
@@ -981,17 +1104,17 @@
                     {
                         if (i <= Math.Round(avgRating))
                         {
-                            <span>★</span>
+                            <i class="bi bi-star-fill"></i>
                         }
                         else
                         {
-                            <span class="star-gray">★</span>
+                            <i class="bi bi-star-fill star-gray"></i>
                         }
                     }
                 </div>
                 <div class="text-muted small">Dựa trên <strong>@reviewCount</strong> lượt nhận xét thực tế</div>
                 <div class="badge bg-success bg-opacity-10 text-success fw-bold px-3 py-1 rounded-pill mt-2">
-                    ✓ 100% người mua hài lòng
+                    <i class="bi bi-check-circle-fill me-1"></i> 100% người mua hài lòng
                 </div>
             </div>
 
@@ -1003,7 +1126,7 @@
                     var pct = reviewCount > 0 ? (int)Math.Round((double)count / reviewCount * 100) : 0;
                     <div class="d-flex align-items-center gap-2 mb-2">
                         <span class="small fw-bold text-dark text-nowrap" style="width: 50px;">@star sao</span>
-                        <div class="star-gold small">★</div>
+                        <div class="star-gold small"><i class="bi bi-star-fill"></i></div>
                         <div class="flex-grow-1 review-progress-track">
                             <div class="review-progress-fill" style="width: @pct%;"></div>
                         </div>
@@ -1047,7 +1170,7 @@
             @if (reviews.Count == 0)
             {
                 <div class="text-center py-5 text-muted">
-                    <div class="fs-1">💬</div>
+                    <div class="fs-1"><i class="bi bi-chat-dots"></i></div>
                     <div class="mt-2 fw-semibold">Chưa có đánh giá nào cho sản phẩm này.</div>
                     <p class="small text-muted">Hãy là người đầu tiên trải nghiệm và chia sẻ cảm nhận với cộng đồng cầu lông!</p>
                     @if (User.Identity?.IsAuthenticated == true)
@@ -1091,7 +1214,7 @@
                                         @if (r.IsVerifiedPurchase)
                                         {
                                             <span class="badge bg-success-subtle text-success rounded-pill px-2 py-1 small fw-semibold">
-                                                ✓ Đã mua hàng tại shop
+                                                <i class="bi bi-patch-check-fill me-1"></i> Đã mua hàng tại shop
                                             </span>
                                         }
                                     </div>
@@ -1104,11 +1227,11 @@
                                     {
                                         if (i <= r.Rating)
                                         {
-                                            <span>★</span>
+                                            <i class="bi bi-star-fill"></i>
                                         }
                                         else
                                         {
-                                            <span class="star-gray">★</span>
+                                            <i class="bi bi-star-fill star-gray"></i>
                                         }
                                     }
                                 </div>
@@ -1126,7 +1249,7 @@
                                 <div class="d-flex align-items-center gap-3 pt-2 border-top border-light">
                                     <button type="button" class="btn btn-sm btn-light rounded-pill px-3 helpful-vote-btn text-muted fw-semibold"
                                             onclick="voteHelpful(@r.Id, this);">
-                                        👍 Hữu ích (<span class="helpful-counter">@r.HelpfulCount</span>)
+                                        <i class="bi bi-hand-thumbs-up-fill me-1"></i> Hữu ích (<span class="helpful-counter">@r.HelpfulCount</span>)
                                     </button>
                                     <span class="small text-muted">Đánh giá này có hữu ích với bạn không?</span>
                                 </div>
@@ -1179,7 +1302,7 @@
                                     var isPFav = wishlistIds.Contains(p.Id);
                                 }
                                 <button type="button" class="pro-wishlist-btn @(isPFav ? "active" : "")" onclick="toggleWishlist(@p.Id, this);" title="Yêu thích">
-                                    @(isPFav ? "❤️" : "🤍")
+                                    <i class="bi @(isPFav ? "bi-heart-fill" : "bi-heart")"></i>
                                 </button>
                             </div>
 
@@ -1223,7 +1346,7 @@
         </div>
         <button type="button" onclick="document.getElementById('addToCartForm').submit();"
                 class="btn btn-dark rounded-pill px-4 py-2 fw-bold">
-            🛒 Mua ngay
+            <i class="bi bi-cart-plus-fill me-1"></i> Mua ngay
         </button>
     </div>
 
@@ -1235,7 +1358,7 @@
         <div class="modal-content rounded-4 border-0 shadow-lg">
             <div class="modal-header border-bottom pb-3">
                 <div class="d-flex align-items-center gap-2">
-                    <span class="fs-4">📏</span>
+                    <span class="fs-4 text-primary"><i class="bi bi-rulers"></i></span>
                     <div>
                         <h5 class="modal-title fw-black text-dark m-0" id="sizeGuideModalLabel">Bảng Quy Đổi Size Tiêu Chuẩn Quốc Tế</h5>
                         <small class="text-muted">Hướng dẫn đo chân và chọn size giày / trang phục chuẩn thi đấu</small>
@@ -1249,17 +1372,17 @@
                     {
                         <li class="nav-item">
                             <button class="btn btn-outline-dark rounded-pill active px-4 fw-bold" data-bs-toggle="pill" data-bs-target="#tab-racketspec" type="button">
-                                🏸 Trọng Lượng & Cán Vợt (3U / 4U / 5U)
+                                <i class="bi bi-trophy-fill me-1"></i> Trọng Lượng & Cán Vợt (3U / 4U / 5U)
                             </button>
                         </li>
                         <li class="nav-item">
                             <button class="btn btn-outline-dark rounded-pill px-4 fw-bold" data-bs-toggle="pill" data-bs-target="#tab-shoesize" type="button">
-                                👟 Size Giày Cầu Lông (EU/CM)
+                                <i class="bi bi-lightning-charge-fill me-1"></i> Size Giày Cầu Lông (EU/CM)
                             </button>
                         </li>
                         <li class="nav-item">
                             <button class="btn btn-outline-dark rounded-pill px-4 fw-bold" data-bs-toggle="pill" data-bs-target="#tab-clothsize" type="button">
-                                👕 Size Quần Áo (S/M/L/XL/XXL)
+                                <i class="bi bi-handbag-fill me-1"></i> Size Quần Áo (S/M/L/XL/XXL)
                             </button>
                         </li>
                     }
@@ -1267,17 +1390,17 @@
                     {
                         <li class="nav-item">
                             <button class="btn btn-outline-dark rounded-pill active px-4 fw-bold" data-bs-toggle="pill" data-bs-target="#tab-shoesize" type="button">
-                                👟 Size Giày Cầu Lông (EU/CM)
+                                <i class="bi bi-lightning-charge-fill me-1"></i> Size Giày Cầu Lông (EU/CM)
                             </button>
                         </li>
                         <li class="nav-item">
                             <button class="btn btn-outline-dark rounded-pill px-4 fw-bold" data-bs-toggle="pill" data-bs-target="#tab-clothsize" type="button">
-                                👕 Size Quần Áo (S/M/L/XL/XXL)
+                                <i class="bi bi-handbag-fill me-1"></i> Size Quần Áo (S/M/L/XL/XXL)
                             </button>
                         </li>
                         <li class="nav-item">
                             <button class="btn btn-outline-dark rounded-pill px-4 fw-bold" data-bs-toggle="pill" data-bs-target="#tab-racketspec" type="button">
-                                🏸 Trọng Lượng & Cán Vợt (3U / 4U / 5U)
+                                <i class="bi bi-trophy-fill me-1"></i> Trọng Lượng & Cán Vợt (3U / 4U / 5U)
                             </button>
                         </li>
                     }
@@ -1285,17 +1408,17 @@
                     {
                         <li class="nav-item">
                             <button class="btn btn-outline-dark rounded-pill active px-4 fw-bold" data-bs-toggle="pill" data-bs-target="#tab-clothsize" type="button">
-                                👕 Size Quần Áo (S/M/L/XL/XXL)
+                                <i class="bi bi-handbag-fill me-1"></i> Size Quần Áo (S/M/L/XL/XXL)
                             </button>
                         </li>
                         <li class="nav-item">
                             <button class="btn btn-outline-dark rounded-pill px-4 fw-bold" data-bs-toggle="pill" data-bs-target="#tab-shoesize" type="button">
-                                👟 Size Giày Cầu Lông (EU/CM)
+                                <i class="bi bi-lightning-charge-fill me-1"></i> Size Giày Cầu Lông (EU/CM)
                             </button>
                         </li>
                         <li class="nav-item">
                             <button class="btn btn-outline-dark rounded-pill px-4 fw-bold" data-bs-toggle="pill" data-bs-target="#tab-racketspec" type="button">
-                                🏸 Trọng Lượng & Cán Vợt (3U / 4U / 5U)
+                                <i class="bi bi-trophy-fill me-1"></i> Trọng Lượng & Cán Vợt (3U / 4U / 5U)
                             </button>
                         </li>
                     }
@@ -1341,7 +1464,7 @@
                             </table>
                         </div>
                         <div class="alert alert-info border-0 rounded-3 small mt-2 mb-0">
-                            💡 <strong>Gợi ý chọn vợt:</strong> Nếu bạn đang phân vân, <strong>4U-G5 là sự lựa chọn an toàn và tối ưu nhất (chiếm 90% người chơi)</strong>. Chu vi cán <strong>G5 (81mm)</strong> là kích thước chuẩn tay người Việt, vừa vặn để dán thêm quấn cán mỏng chống trơn.
+                            <i class="bi bi-lightbulb-fill text-warning me-1"></i> <strong>Gợi ý chọn vợt:</strong> Nếu bạn đang phân vân, <strong>4U-G5 là sự lựa chọn an toàn và tối ưu nhất (chiếm 90% người chơi)</strong>. Chu vi cán <strong>G5 (81mm)</strong> là kích thước chuẩn tay người Việt, vừa vặn để dán thêm quấn cán mỏng chống trơn.
                         </div>
                     </div>
 
@@ -1370,7 +1493,7 @@
                             </table>
                         </div>
                         <div class="alert alert-info border-0 rounded-3 small mt-2 mb-0">
-                            💡 <strong>Mẹo chọn giày cầu lông:</strong> Bạn nên <strong>chọn tăng 0.5 đến 1 size</strong> so với giày đi bộ hàng ngày để khi di chuyển phanh dừng đột ngột trên sân cầu, các đầu ngón chân không bị cọ ép vào mũi giày gây đau hoặc chấn thương móng chân.
+                            <i class="bi bi-lightbulb-fill text-warning me-1"></i> <strong>Mẹo chọn giày cầu lông:</strong> Bạn nên <strong>chọn tăng 0.5 đến 1 size</strong> so với giày đi bộ hàng ngày để khi di chuyển phanh dừng đột ngột trên sân cầu, các đầu ngón chân không bị cọ ép vào mũi giày gây đau hoặc chấn thương móng chân.
                         </div>
                     </div>
 
@@ -1432,7 +1555,7 @@
                             </div>
                             <div>
                                 <div class="fw-bold text-dark">@User.Identity?.Name</div>
-                                <div class="text-success small fw-semibold">✓ Đã xác thực tài khoản thành viên</div>
+                                <div class="text-success small fw-semibold"><i class="bi bi-patch-check-fill me-1"></i> Đã xác thực tài khoản thành viên</div>
                             </div>
                         </div>
 
@@ -1440,11 +1563,11 @@
                         <div class="text-center mb-4 p-3 bg-light rounded-4 border">
                             <label class="form-label fw-bold small text-muted text-uppercase mb-1">Mức độ hài lòng của bạn</label>
                             <div class="d-flex justify-content-center gap-2 my-1" id="starPickerGroup">
-                                <span class="star-picker-item active" data-val="1">★</span>
-                                <span class="star-picker-item active" data-val="2">★</span>
-                                <span class="star-picker-item active" data-val="3">★</span>
-                                <span class="star-picker-item active" data-val="4">★</span>
-                                <span class="star-picker-item active" data-val="5">★</span>
+                                <span class="star-picker-item active" data-val="1"><i class="bi bi-star-fill"></i></span>
+                                <span class="star-picker-item active" data-val="2"><i class="bi bi-star-fill"></i></span>
+                                <span class="star-picker-item active" data-val="3"><i class="bi bi-star-fill"></i></span>
+                                <span class="star-picker-item active" data-val="4"><i class="bi bi-star-fill"></i></span>
+                                <span class="star-picker-item active" data-val="5"><i class="bi bi-star-fill"></i></span>
                             </div>
                             <div id="starPickerLabel" class="fw-bold text-dark small mt-1">Tuyệt vời (5 sao)</div>
                         </div>
@@ -1463,7 +1586,7 @@
                     <div class="modal-footer border-top pt-3">
                         <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Hủy bỏ</button>
                         <button type="submit" class="btn btn-dark rounded-pill px-4 fw-bold">
-                            ✓ Gửi đánh giá ngay
+                            <i class="bi bi-send-fill me-1"></i> Gửi đánh giá ngay
                         </button>
                     </div>
                 </form>
@@ -1502,8 +1625,16 @@
             id = v.Id,
             size = (v.Size ?? "").Trim(),
             color = (v.Color ?? "").Trim(),
+            imageUrl = (v.ImageUrl ?? "").Trim(),
             stock = v.Stock,
             sku = (v.Sku ?? "").Trim()
+        })));
+
+        // BẢN ĐỒ ẢNH PREVIEW THEO TỪNG MÀU SẮC (QUẦN ÁO, GIÀY, VỢT)
+        const colorPreviewList = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(availableColors.Select(c => new {
+            color = c,
+            imageUrl = colorImageMap.ContainsKey(c) ? colorImageMap[c] : (Model.MainImageUrl ?? "/img/demo/placeholder.jpg"),
+            hex = GetColorHex(c)
         })));
 
         const hasColorSelection = @(hasColors ? "true" : "false");
@@ -1516,6 +1647,71 @@
         // Chuẩn hóa chuỗi so sánh (loại bỏ khoảng trắng, đưa về chữ thường và Unicode NFC)
         function normStr(str) {
             return (str || '').toString().trim().normalize('NFC').toLowerCase();
+        }
+
+        // Cập nhật ảnh preview sản phẩm theo màu sắc được chọn
+        function updateProductPreviewForColor(colorName) {
+            const mainImg = document.getElementById('mainProductImg');
+            const badge = document.getElementById('activeColorPreviewBadge');
+            const badgeSwatch = document.getElementById('previewBadgeSwatch');
+            const badgeText = document.getElementById('previewBadgeColorName');
+
+            const cNorm = normStr(colorName);
+            const matchedColorInfo = colorPreviewList.find(item => normStr(item.color) === cNorm);
+
+            if (mainImg && matchedColorInfo && matchedColorInfo.imageUrl) {
+                if (mainImg.getAttribute('src') !== matchedColorInfo.imageUrl) {
+                    mainImg.classList.add('switching-color');
+                    setTimeout(() => {
+                        mainImg.src = matchedColorInfo.imageUrl;
+                        mainImg.classList.remove('switching-color');
+                    }, 120);
+                }
+            }
+
+            if (badge && matchedColorInfo) {
+                badge.style.display = 'inline-flex';
+                if (badgeSwatch) badgeSwatch.style.background = matchedColorInfo.hex || '#3b82f6';
+                if (badgeText) badgeText.textContent = colorName;
+            }
+
+            // Đồng bộ trạng thái active trên thanh Thumbnail màu bên dưới ảnh chính
+            document.querySelectorAll('.color-thumb-card').forEach(card => {
+                const thumbColor = card.getAttribute('data-thumb-color');
+                if (thumbColor && normStr(thumbColor) === cNorm) {
+                    card.classList.add('active');
+                } else {
+                    card.classList.remove('active');
+                }
+            });
+        }
+
+        // Khi người dùng bấm vào Thumbnail màu sắc dưới ảnh chính -> tự động chọn cả nút Màu bên phải
+        function selectColorFromThumb(colorName) {
+            const cNorm = normStr(colorName);
+            document.querySelectorAll('.color-chip-radio').forEach(radio => {
+                if (normStr(radio.value) === cNorm) {
+                    radio.checked = true;
+                }
+            });
+            onColorChanged(colorName);
+        }
+
+        // Khôi phục ảnh mặc định khi bấm vào thumbnail "Ảnh gốc"
+        function resetToDefaultProductImage(thumbEl) {
+            const mainImg = document.getElementById('mainProductImg');
+            const badge = document.getElementById('activeColorPreviewBadge');
+            if (mainImg) {
+                const defaultSrc = mainImg.getAttribute('data-default-src') || mainImg.src;
+                mainImg.classList.add('switching-color');
+                setTimeout(() => {
+                    mainImg.src = defaultSrc;
+                    mainImg.classList.remove('switching-color');
+                }, 120);
+            }
+            if (badge) badge.style.display = 'none';
+            document.querySelectorAll('.color-thumb-card').forEach(card => card.classList.remove('active'));
+            if (thumbEl) thumbEl.classList.add('active');
         }
 
         function findMatchingVariant(color, size) {
@@ -1542,7 +1738,7 @@
                 if (feedbackBanner && feedbackText) {
                     feedbackBanner.style.background = '#f8fafc';
                     feedbackBanner.style.borderColor = '#e2e8f0';
-                    if (feedbackIcon) feedbackIcon.textContent = '💡';
+                    if (feedbackIcon) feedbackIcon.innerHTML = '<i class="bi bi-lightbulb-fill text-warning"></i>';
                     feedbackText.className = 'fw-semibold text-muted';
                     feedbackText.innerHTML = hasSizeSelection
                         ? 'Vui lòng <strong>chọn Màu sắc</strong> và <strong>Kích cỡ</strong> phù hợp với bạn.'
@@ -1557,10 +1753,10 @@
                 if (feedbackBanner && feedbackText) {
                     feedbackBanner.style.background = '#eff6ff';
                     feedbackBanner.style.borderColor = '#bfdbfe';
-                    if (feedbackIcon) feedbackIcon.textContent = '👉';
+                    if (feedbackIcon) feedbackIcon.innerHTML = '<i class="bi bi-arrow-right-circle-fill text-primary"></i>';
                     feedbackText.className = 'fw-bold text-primary';
                     feedbackText.innerHTML = hasColorSelection
-                        ? `✓ Đã chọn màu: <strong>${selectedColor}</strong>. Vui lòng chọn tiếp <strong>Kích cỡ (Size)</strong> bên dưới.`
+                        ? `Đã chọn màu: <strong>${selectedColor}</strong>. Vui lòng chọn tiếp <strong>Kích cỡ (Size)</strong> bên dưới.`
                         : 'Vui lòng <strong>chọn Kích cỡ (Size)</strong> phù hợp với bạn.';
                 }
                 return;
@@ -1574,7 +1770,7 @@
                 if (feedbackBanner && feedbackText) {
                     feedbackBanner.style.background = '#fef2f2';
                     feedbackBanner.style.borderColor = '#fecaca';
-                    if (feedbackIcon) feedbackIcon.textContent = '⚠️';
+                    if (feedbackIcon) feedbackIcon.innerHTML = '<i class="bi bi-exclamation-triangle-fill text-danger"></i>';
                     feedbackText.className = 'fw-bold text-danger';
                     feedbackText.innerHTML = `Phân loại này hiện không khả dụng. Vui lòng chọn phối màu hoặc kích cỡ khác!`;
                 }
@@ -1602,20 +1798,20 @@
                 if (v.stock > 0) {
                     feedbackBanner.style.background = '#f0fdf4';
                     feedbackBanner.style.borderColor = '#bbf7d0';
-                    if (feedbackIcon) feedbackIcon.textContent = '🟢';
+                    if (feedbackIcon) feedbackIcon.innerHTML = '<i class="bi bi-check-circle-fill text-success"></i>';
                     feedbackText.className = 'fw-bold text-success';
-                    feedbackText.innerHTML = `✓ Đã chọn: ${desc} — Kho hàng còn sẵn <strong>${v.stock}</strong> chiếc (Mã SKU kho: <span class="font-monospace text-dark fw-bold">${v.sku || 'SP-' + v.id}</span>)`;
+                    feedbackText.innerHTML = `Đã chọn: ${desc} — Kho hàng còn sẵn <strong>${v.stock}</strong> chiếc (Mã SKU kho: <span class="font-monospace text-dark fw-bold">${v.sku || 'SP-' + v.id}</span>)`;
                 } else {
                     feedbackBanner.style.background = '#fef2f2';
                     feedbackBanner.style.borderColor = '#fecaca';
-                    if (feedbackIcon) feedbackIcon.textContent = '🔴';
+                    if (feedbackIcon) feedbackIcon.innerHTML = '<i class="bi bi-x-circle-fill text-danger"></i>';
                     feedbackText.className = 'fw-bold text-danger';
-                    feedbackText.innerHTML = `✕ Đã chọn: ${desc} — <strong>Tạm hết hàng trong kho</strong>, vui lòng chọn màu hoặc size khác!`;
+                    feedbackText.innerHTML = `Đã chọn: ${desc} — <strong>Tạm hết hàng trong kho</strong>, vui lòng chọn màu hoặc size khác!`;
                 }
             }
         }
 
-        // Khi người dùng chọn Màu sắc: MỞ KHÓA & HIỂN THỊ CÁC SIZE CÓ TRONG KHO THEO MÀU
+        // Khi người dùng chọn Màu sắc: CẬP NHẬT ẢNH PREVIEW THEO MÀU & HIỂN THỊ CÁC SIZE CÓ TRONG KHO
         function onColorChanged(colorName) {
             selectedColor = (colorName || '').trim();
             const colorDisplay = document.getElementById('selectedColorDisplay');
@@ -1623,6 +1819,9 @@
                 colorDisplay.className = 'badge bg-primary px-2 py-1 fw-bold text-white';
                 colorDisplay.textContent = selectedColor;
             }
+
+            // Đổi ảnh preview tương ứng với màu sắc đã chọn
+            updateProductPreviewForColor(selectedColor);
 
             // Cập nhật nhãn size: từ "Chờ chọn màu" sang "Chưa chọn size" khi vừa chọn màu
             const sizeDisplay = document.getElementById('selectedSizeDisplay');
@@ -1711,9 +1910,9 @@
                 if (feedbackBanner && feedbackText) {
                     feedbackBanner.style.background = '#fef2f2';
                     feedbackBanner.style.borderColor = '#fecaca';
-                    if (feedbackIcon) feedbackIcon.textContent = '⚠️';
+                    if (feedbackIcon) feedbackIcon.innerHTML = '<i class="bi bi-exclamation-triangle-fill text-danger"></i>';
                     feedbackText.className = 'fw-bold text-danger';
-                    feedbackText.innerHTML = '👉 Vui lòng chọn <strong>Màu sắc</strong> sản phẩm trước khi mua hàng!';
+                    feedbackText.innerHTML = 'Vui lòng chọn <strong>Màu sắc</strong> sản phẩm trước khi mua hàng!';
                 }
                 if (selectorCard) {
                     selectorCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1727,9 +1926,9 @@
                 if (feedbackBanner && feedbackText) {
                     feedbackBanner.style.background = '#fef2f2';
                     feedbackBanner.style.borderColor = '#fecaca';
-                    if (feedbackIcon) feedbackIcon.textContent = '⚠️';
+                    if (feedbackIcon) feedbackIcon.innerHTML = '<i class="bi bi-exclamation-triangle-fill text-danger"></i>';
                     feedbackText.className = 'fw-bold text-danger';
-                    feedbackText.innerHTML = '👉 Vui lòng chọn <strong>Kích cỡ (Size)</strong> sản phẩm trước khi mua hàng!';
+                    feedbackText.innerHTML = 'Vui lòng chọn <strong>Kích cỡ (Size)</strong> sản phẩm trước khi mua hàng!';
                 }
                 if (selectorCard) {
                     selectorCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1744,7 +1943,7 @@
                 if (feedbackBanner && feedbackText) {
                     feedbackBanner.style.background = '#fef2f2';
                     feedbackBanner.style.borderColor = '#fecaca';
-                    if (feedbackIcon) feedbackIcon.textContent = '🔴';
+                    if (feedbackIcon) feedbackIcon.innerHTML = '<i class="bi bi-x-circle-fill text-danger"></i>';
                     feedbackText.className = 'fw-bold text-danger';
                     feedbackText.innerHTML = 'Phân loại bạn chọn hiện <strong>đang hết hàng</strong>. Vui lòng chọn màu hoặc size khác!';
                 }

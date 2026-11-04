@@ -1,38 +1,70 @@
-﻿@model tieudaobadminton.ViewModels.AdminCreateUserVM
+@model tieudaobadminton.ViewModels.AdminCreateUserVM
 @{
-    ViewData["Title"] = "Tạo tài khoản";
+    ViewData["Title"] = "Tạo tài khoản mới";
     var roles = ViewBag.Roles as List<string> ?? new();
 }
 
-<h3 class="mb-3">Tạo tài khoản</h3>
-
-<form method="post" class="card p-4">
-    @Html.AntiForgeryToken()
-    <div class="text-danger">@Html.ValidationSummary()</div>
+<div class="container-fluid py-2" style="max-width: 720px;">
 
     <div class="mb-3">
-        <label class="form-label">Email</label>
-        <input asp-for="Email" class="form-control" />
+        <a asp-area="Admin" asp-controller="Accounts" asp-action="Index" class="text-decoration-none text-muted small fw-bold">
+            <i class="bi bi-arrow-left me-1"></i> Quay lại danh sách tài khoản
+        </a>
     </div>
 
-    <div class="mb-3">
-        <label class="form-label">Mật khẩu</label>
-        <input asp-for="Password" class="form-control" />
-        <div class="small text-muted">Gợi ý: dùng User@123 hoặc đổi tùy ý</div>
+    <div class="card border-0 p-4 p-md-5 bg-white">
+        <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+            <div class="admin-header-icon">
+                <i class="bi bi-person-plus-fill"></i>
+            </div>
+            <div>
+                <h4 class="fw-black text-dark m-0">Cấp Tài Khoản Mới</h4>
+                <small class="text-muted">Khởi tạo tài khoản cho quản trị viên, nhân viên hoặc khách hàng</small>
+            </div>
+        </div>
+
+        <form method="post">
+            @Html.AntiForgeryToken()
+            <div class="text-danger small mb-3">@Html.ValidationSummary()</div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold text-dark">Địa chỉ Email đăng nhập <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="bi bi-envelope"></i></span>
+                    <input asp-for="Email" class="form-control py-2" placeholder="Ví dụ: nhanvien@tieudaobadminton.com" required />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold text-dark">Mật khẩu khởi tạo <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="bi bi-key"></i></span>
+                    <input asp-for="Password" class="form-control py-2" placeholder="Nhập mật khẩu (tối thiểu 6 ký tự, có chữ hoa & ký tự đặc biệt)" required />
+                </div>
+                <div class="small text-muted mt-1">
+                    <i class="bi bi-info-circle me-1"></i>Gợi ý mật khẩu tiêu chuẩn: <code>User@123</code> hoặc <code>Staff@12345</code>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label fw-bold text-dark">Vai trò phân quyền (Role)</label>
+                <select asp-for="Role" class="form-select py-2">
+                    @foreach (var r in roles)
+                    {
+                        <option value="@r">@r</option>
+                    }
+                </select>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                <a class="btn btn-light border rounded-pill px-4 fw-bold" asp-area="Admin" asp-controller="Accounts" asp-action="Index">
+                    Hủy bỏ
+                </a>
+                <button type="submit" class="btn btn-dark rounded-pill px-4 fw-bold shadow-sm">
+                    <i class="bi bi-check-lg me-1"></i> Tạo tài khoản ngay
+                </button>
+            </div>
+        </form>
     </div>
 
-    <div class="mb-3">
-        <label class="form-label">Role</label>
-        <select asp-for="Role" class="form-select">
-            @foreach (var r in roles)
-            {
-                <option value="@r">@r</option>
-            }
-        </select>
-    </div>
-
-    <div class="d-flex gap-2">
-        <button class="btn btn-dark">Tạo</button>
-        <a class="btn btn-outline-dark" asp-area="Admin" asp-controller="Accounts" asp-action="Index">Quay lại</a>
-    </div>
-</form>
+</div>

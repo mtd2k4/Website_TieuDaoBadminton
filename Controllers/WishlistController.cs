@@ -68,7 +68,7 @@ namespace tieudaobadminton.Controllers
                 isAdded,
                 count = ids.Count,
                 message = isAdded
-                    ? $"Đã lưu \"{product.Name}\" vào danh sách yêu thích ❤️"
+                    ? $"Đã lưu \"{product.Name}\" vào danh sách yêu thích."
                     : $"Đã bỏ lưu \"{product.Name}\" khỏi danh sách yêu thích."
             });
         }

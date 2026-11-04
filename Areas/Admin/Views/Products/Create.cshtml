@@ -8,7 +8,7 @@
     <!-- BACK -->
     <div class="mb-3">
         <a asp-action="Index" class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold">
-            ← Quay lại danh sách sản phẩm
+            <i class="bi bi-arrow-left me-1"></i> Quay lại danh sách sản phẩm
         </a>
     </div>
 
@@ -17,7 +17,7 @@
 
         <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
             <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
-                <div class="fs-2 text-primary">🏸</div>
+                <div class="fs-2 text-primary"><i class="bi bi-trophy-fill"></i></div>
                 <div>
                     <h4 class="fw-black text-dark m-0">Thêm sản phẩm mới</h4>
                     <div class="text-muted small">Khai báo thông số kỹ thuật, giá bán và cấu hình tồn kho ban đầu</div>
@@ -99,7 +99,7 @@
         <!-- 7. QUẢN LÝ KHO HÀNG & PHÂN LOẠI BAN ĐẦU -->
         <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4 border-start border-4 border-primary">
             <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
-                <div class="fs-2 text-success">📦</div>
+                <div class="fs-2 text-success"><i class="bi bi-box-seam-fill"></i></div>
                 <div>
                     <h5 class="fw-black text-dark m-0">Khởi tạo Kho hàng & Số lượng ban đầu</h5>
                     <div class="text-muted small">Cài đặt số lượng hàng có sẵn trong kho để khách hàng có thể đặt mua ngay lập tức</div>
@@ -138,8 +138,22 @@
                     <label asp-for="InitialColors" class="form-label fw-semibold text-dark">
                         Phân loại màu sắc (Nếu có)
                     </label>
-                    <input asp-for="InitialColors" class="form-control rounded-3 py-2" placeholder="Ví dụ: Trắng / Đỏ, Đen / Vàng, Xanh Navy" />
+                    <input asp-for="InitialColors" id="initialColorsInput" class="form-control rounded-3 py-2" placeholder="Ví dụ: Trắng / Đỏ, Đen / Vàng, Xanh Navy" oninput="renderColorImageUploads()" />
                     <small class="text-muted">Phân cách các màu bằng dấu phẩy. Hỗ trợ phối 2 màu bằng dấu gạch chéo '/' (Ví dụ: Trắng / Đỏ).</small>
+                </div>
+
+                <!-- KHUNG UPLOAD ẢNH RIÊNG CHO TỪNG MÀU SẮC (TỰ ĐỘNG SINH THEO Ô MÀU SẮC) -->
+                <div class="col-12 mt-3" id="colorImagesUploadSection" style="display: none;">
+                    <div class="p-3 rounded-4 border bg-light">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="fw-bold text-dark"><i class="bi bi-palette-fill text-primary me-1"></i> Gắn ảnh Preview riêng cho từng Màu sắc:</span>
+                            <span class="badge bg-primary rounded-pill">Tự động đổi ảnh khi khách chọn màu</span>
+                        </div>
+                        <p class="small text-muted mb-3">
+                            Bạn có thể tải ảnh từ máy tính hoặc dán link URL ảnh cho từng màu bên dưới. Nếu bỏ trống, hệ thống sẽ tự động gán ảnh mặc định theo màu.
+                        </p>
+                        <div id="colorImagesUploadContainer" class="row g-2"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -148,7 +162,7 @@
         <div class="d-flex justify-content-end gap-2 mb-5">
             <a asp-action="Index" class="btn btn-light rounded-pill px-4 fw-bold">Hủy bỏ</a>
             <button type="submit" class="btn btn-dark rounded-pill px-5 fw-bold shadow-sm">
-                ✓ Lưu sản phẩm & Nhập kho
+                <i class="bi bi-check-lg me-1"></i> Lưu sản phẩm & Nhập kho
             </button>
         </div>
     </form>
@@ -157,4 +171,44 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        function renderColorImageUploads() {
+            const input = document.getElementById('initialColorsInput');
+            const section = document.getElementById('colorImagesUploadSection');
+            const container = document.getElementById('colorImagesUploadContainer');
+            if (!input || !section || !container) return;
+
+            const colors = input.value
+                .split(',')
+                .map(c => c.trim())
+                .filter(c => c.length > 0);
+
+            if (colors.length === 0) {
+                section.style.display = 'none';
+                container.innerHTML = '';
+                return;
+            }
+
+            section.style.display = 'block';
+            container.innerHTML = colors.map((colorName, idx) => `
+                <div class="col-12">
+                    <div class="p-3 bg-white rounded-3 border d-flex flex-wrap align-items-center gap-3">
+                        <div style="min-width: 150px;">
+                            <span class="badge bg-dark px-3 py-2 rounded-pill fs-6"><i class="bi bi-palette me-1"></i> ${colorName}</span>
+                        </div>
+                        <div class="flex-grow-1">
+                            <label class="form-label small fw-bold text-muted mb-1">Upload ảnh màu "${colorName}" từ máy tính:</label>
+                            <input type="file" name="colorFile_${idx}" class="form-control form-control-sm" accept=".jpg,.jpeg,.png,.webp,.jfif" />
+                        </div>
+                        <div class="flex-grow-1">
+                            <label class="form-label small fw-bold text-muted mb-1">Hoặc dán đường dẫn URL ảnh:</label>
+                            <input type="text" name="colorUrl_${idx}" class="form-control form-control-sm" placeholder="/img/products/..." />
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', renderColorImageUploads);
+    </script>
 }

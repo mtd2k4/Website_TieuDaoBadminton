@@ -23,7 +23,7 @@
     <div class="card border-0 shadow-sm p-4 p-md-5 rounded-4 mb-4 text-center text-white" 
          style="background: radial-gradient(circle at top, #1e293b 0%, #090d16 100%); border: 1px solid rgba(255,255,255,0.1) !important;">
         <span class="badge bg-primary bg-opacity-25 text-info fw-bold px-3 py-1 mb-2 rounded-pill border border-info border-opacity-25">
-            🎯 SMART RACKET FINDER
+            <i class="bi bi-bullseye me-1"></i>SMART RACKET FINDER
         </span>
         <h2 class="fw-bold fs-1 mb-2">Tư Vấn Chọn Vợt Thông Minh</h2>
         <p class="text-muted" style="max-width: 600px; margin: 0 auto; line-height: 1.7;">
@@ -46,7 +46,7 @@
                     <div class="col-md-4">
                         <label class="card h-100 p-3 border rounded-4 cursor-pointer text-center @(playStyle == "smash" || string.IsNullOrEmpty(playStyle) ? "border-primary bg-primary-subtle shadow-sm" : "")" style="cursor: pointer;">
                             <input type="radio" name="playStyle" value="smash" class="d-none" @(playStyle == "smash" || string.IsNullOrEmpty(playStyle) ? "checked" : "") />
-                            <div class="fs-1 mb-2">💥</div>
+                            <div class="fs-1 mb-2 text-danger"><i class="bi bi-fire"></i></div>
                             <div class="fw-bold text-dark fs-6">Tấn Công Uy Lực (Smash)</div>
                             <small class="text-muted mt-1">Thích đập cầu dồn dập ghi điểm từ cuối sân, cần vợt đầm đầu</small>
                         </label>
@@ -55,7 +55,7 @@
                     <div class="col-md-4">
                         <label class="card h-100 p-3 border rounded-4 cursor-pointer text-center @(playStyle == "speed" ? "border-primary bg-primary-subtle shadow-sm" : "")" style="cursor: pointer;">
                             <input type="radio" name="playStyle" value="speed" class="d-none" @(playStyle == "speed" ? "checked" : "") />
-                            <div class="fs-1 mb-2">⚡</div>
+                            <div class="fs-1 mb-2 text-warning"><i class="bi bi-lightning-charge-fill"></i></div>
                             <div class="fw-bold text-dark fs-6">Phản Tạt Tốc Độ (Speed)</div>
                             <small class="text-muted mt-1">Thích đánh lưới, phản xạ nhanh, gài cầu và thủ cầu linh hoạt</small>
                         </label>
@@ -64,7 +64,7 @@
                     <div class="col-md-4">
                         <label class="card h-100 p-3 border rounded-4 cursor-pointer text-center @(playStyle == "balanced" ? "border-primary bg-primary-subtle shadow-sm" : "")" style="cursor: pointer;">
                             <input type="radio" name="playStyle" value="balanced" class="d-none" @(playStyle == "balanced" ? "checked" : "") />
-                            <div class="fs-1 mb-2">⚖️</div>
+                            <div class="fs-1 mb-2 text-primary"><i class="bi bi-sliders"></i></div>
                             <div class="fw-bold text-dark fs-6">Công Thủ Toàn Diện</div>
                             <small class="text-muted mt-1">Điều phối trận đấu, chuyển trạng thái công - thủ nhịp nhàng</small>
                         </label>
@@ -83,7 +83,7 @@
                     <div class="col-md-4">
                         <label class="card h-100 p-3 border rounded-4 cursor-pointer text-center @(wristPower == "beginner" || string.IsNullOrEmpty(wristPower) ? "border-primary bg-primary-subtle shadow-sm" : "")" style="cursor: pointer;">
                             <input type="radio" name="wristPower" value="beginner" class="d-none" @(wristPower == "beginner" || string.IsNullOrEmpty(wristPower) ? "checked" : "") />
-                            <div class="fs-2 mb-2">🟢</div>
+                            <div class="fs-2 mb-2 text-success"><i class="bi bi-circle-fill"></i></div>
                             <div class="fw-bold text-dark">Mới chơi / Cổ tay trung bình</div>
                             <small class="text-muted">Cần vợt dễ thuần, thân mềm trợ lực tốt, đỡ mỏi tay</small>
                         </label>
@@ -92,7 +92,7 @@
                     <div class="col-md-4">
                         <label class="card h-100 p-3 border rounded-4 cursor-pointer text-center @(wristPower == "intermediate" ? "border-primary bg-primary-subtle shadow-sm" : "")" style="cursor: pointer;">
                             <input type="radio" name="wristPower" value="intermediate" class="d-none" @(wristPower == "intermediate" ? "checked" : "") />
-                            <div class="fs-2 mb-2">🟡</div>
+                            <div class="fs-2 mb-2 text-warning"><i class="bi bi-circle-fill"></i></div>
                             <div class="fw-bold text-dark">Phong trào (1 - 2 năm)</div>
                             <small class="text-muted">Lực tay khá, cảm giác cầu tốt, thích vợt đũa vừa phải</small>
                         </label>
@@ -101,7 +101,7 @@
                     <div class="col-md-4">
                         <label class="card h-100 p-3 border rounded-4 cursor-pointer text-center @(wristPower == "advanced" ? "border-primary bg-primary-subtle shadow-sm" : "")" style="cursor: pointer;">
                             <input type="radio" name="wristPower" value="advanced" class="d-none" @(wristPower == "advanced" ? "checked" : "") />
-                            <div class="fs-2 mb-2">🔴</div>
+                            <div class="fs-2 mb-2 text-danger"><i class="bi bi-circle-fill"></i></div>
                             <div class="fw-bold text-dark">Cổ tay khỏe / Bán chuyên</div>
                             <small class="text-muted">Thích đũa cứng kiểm soát đường cầu chính xác từng milimet</small>
                         </label>
@@ -120,7 +120,7 @@
                     <div class="col-md-4">
                         <label class="card h-100 p-3 border rounded-4 cursor-pointer text-center @(budget == "low" ? "border-primary bg-primary-subtle shadow-sm" : "")" style="cursor: pointer;">
                             <input type="radio" name="budget" value="low" class="d-none" @(budget == "low" ? "checked" : "") />
-                            <div class="fw-bold text-dark fs-6 mb-1">💵 Dưới 2.0 triệu</div>
+                            <div class="fw-bold text-dark fs-6 mb-1"><i class="bi bi-cash-coin text-success me-1"></i>Dưới 2.0 triệu</div>
                             <small class="text-muted">Ngon bổ rẻ, bền bỉ, dễ chơi</small>
                         </label>
                     </div>
@@ -128,7 +128,7 @@
                     <div class="col-md-4">
                         <label class="card h-100 p-3 border rounded-4 cursor-pointer text-center @(budget == "mid" || string.IsNullOrEmpty(budget) ? "border-primary bg-primary-subtle shadow-sm" : "")" style="cursor: pointer;">
                             <input type="radio" name="budget" value="mid" class="d-none" @(budget == "mid" || string.IsNullOrEmpty(budget) ? "checked" : "") />
-                            <div class="fw-bold text-dark fs-6 mb-1">💳 2.0 - 3.8 triệu</div>
+                            <div class="fw-bold text-dark fs-6 mb-1"><i class="bi bi-credit-card-fill text-primary me-1"></i>2.0 - 3.8 triệu</div>
                             <small class="text-muted">Phổ biến nhất, công nghệ đỉnh cao</small>
                         </label>
                     </div>
@@ -136,7 +136,7 @@
                     <div class="col-md-4">
                         <label class="card h-100 p-3 border rounded-4 cursor-pointer text-center @(budget == "pro" ? "border-primary bg-primary-subtle shadow-sm" : "")" style="cursor: pointer;">
                             <input type="radio" name="budget" value="pro" class="d-none" @(budget == "pro" ? "checked" : "") />
-                            <div class="fw-bold text-dark fs-6 mb-1">💎 Trên 3.8 triệu</div>
+                            <div class="fw-bold text-dark fs-6 mb-1"><i class="bi bi-gem text-info me-1"></i>Trên 3.8 triệu</div>
                             <small class="text-muted">Dòng vợt thi đấu cao cấp nhất</small>
                         </label>
                     </div>
@@ -146,7 +146,7 @@
             <!-- SUBMIT BUTTON -->
             <div class="text-center pt-3">
                 <button type="submit" class="btn btn-dark btn-lg rounded-pill px-5 py-3 fw-bold shadow-lg">
-                    🔍 Xem Kết Quả Gợi Ý Vợt →
+                    <i class="bi bi-search me-1"></i>Xem Kết Quả Gợi Ý Vợt →
                 </button>
             </div>
 
@@ -159,7 +159,7 @@
         <div class="mb-5">
             <!-- Expert Advice Alert -->
             <div class="alert alert-info p-4 rounded-4 border-0 mb-4 bg-opacity-10 d-flex gap-3 align-items-center">
-                <span class="fs-1">💡</span>
+                <span class="fs-1 text-warning"><i class="bi bi-lightbulb-fill"></i></span>
                 <div>
                     <h5 class="fw-bold text-dark mb-1">Lời khuyên chuyên gia Tiêu Đao Badminton:</h5>
                     <p class="text-muted mb-0" style="line-height: 1.7;">
@@ -169,8 +169,8 @@
             </div>
 
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h4 class="fw-bold mb-0">🏆 Top 4 Cây Vợt Phù Hợp Nhất Với Bạn</h4>
-                <span class="text-success fw-bold small">✓ Đã kiểm định độ tương thích</span>
+                <h4 class="fw-bold mb-0"><i class="bi bi-trophy-fill text-warning me-2"></i>Top 4 Cây Vợt Phù Hợp Nhất Với Bạn</h4>
+                <span class="text-success fw-bold small"><i class="bi bi-check-circle-fill me-1"></i>Đã kiểm định độ tương thích</span>
             </div>
 
             <div class="row g-3 g-md-4">
@@ -193,7 +193,14 @@
                                     var isFavAd = wishlistIds.Contains(p.Id);
                                 }
                                 <button type="button" class="pro-wishlist-btn @(isFavAd ? "active" : "")" onclick="toggleWishlist(@p.Id, this);" title="Yêu thích">
-                                    @(isFavAd ? "❤️" : "🤍")
+                                    @if (isFavAd)
+                                    {
+                                        <i class="bi bi-heart-fill"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-heart"></i>
+                                    }
                                 </button>
                             </div>
 

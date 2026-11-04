@@ -10,7 +10,7 @@
             <!-- LEFT PANEL: BRAND VISUAL & MEMBER PERKS -->
             <div class="col-lg-5 auth-visual-panel">
                 <a asp-controller="Home" asp-action="Index" class="auth-brand-logo">
-                    <div class="auth-logo-badge">🏸</div>
+                    <div class="auth-logo-badge"><i class="bi bi-trophy-fill"></i></div>
                     <div>
                         <div class="auth-brand-title">TIÊU ĐAO SPORT</div>
                         <div class="auth-brand-subtitle">Badminton Pro Center</div>
@@ -24,19 +24,19 @@
 
                     <ul class="auth-feature-list">
                         <li class="auth-feature-item">
-                            <div class="auth-feature-icon">🎁</div>
+                            <div class="auth-feature-icon"><i class="bi bi-gift-fill"></i></div>
                             <div class="auth-feature-text">
                                 <strong>Đặc Quyền Thành Viên:</strong> Tích lũy điểm thưởng trên mọi đơn hàng, đổi quà phụ kiện cuốn cán, tất thi đấu.
                             </div>
                         </li>
                         <li class="auth-feature-item">
-                            <div class="auth-feature-icon">🏸</div>
+                            <div class="auth-feature-icon"><i class="bi bi-trophy-fill"></i></div>
                             <div class="auth-feature-text">
                                 <strong>Lưu Hồ Sơ Lối Đánh:</strong> Lưu trữ lịch sử thông số căng cước và kết quả phân tích chọn vợt từ Trợ lý AI.
                             </div>
                         </li>
                         <li class="auth-feature-item">
-                            <div class="auth-feature-icon">🚚</div>
+                            <div class="auth-feature-icon"><i class="bi bi-truck"></i></div>
                             <div class="auth-feature-text">
                                 <strong>Quản Lý Đơn Hàng Dễ Dàng:</strong> Tra cứu hành trình giao hàng và bảo hành thiết bị chính hãng chỉ bằng 1 chạm.
                             </div>
@@ -46,9 +46,9 @@
 
                 <div class="auth-social-proof-card">
                     <div class="proof-avatar-stack">
-                        <div class="proof-avatar">🏸</div>
-                        <div class="proof-avatar" style="background:#0284c7;">👟</div>
-                        <div class="proof-avatar" style="background:#f97316;">🔥</div>
+                        <div class="proof-avatar"><i class="bi bi-trophy-fill"></i></div>
+                        <div class="proof-avatar" style="background:#0284c7;"><i class="bi bi-lightning-charge-fill"></i></div>
+                        <div class="proof-avatar" style="background:#f97316;"><i class="bi bi-fire"></i></div>
                     </div>
                     <div class="proof-text">
                         <div class="fw-bold text-white">Miễn phí công đan cước lần đầu</div>
@@ -60,7 +60,7 @@
             <!-- RIGHT PANEL: REGISTER FORM -->
             <div class="col-lg-7 auth-form-panel">
                 <div class="auth-form-header">
-                    <h3 class="auth-form-title">Tạo tài khoản mới 🏸</h3>
+                    <h3 class="auth-form-title">Tạo tài khoản mới <i class="bi bi-person-plus-fill text-primary"></i></h3>
                     <p class="auth-form-desc">
                         Chỉ mất 30 giây để hoàn tất và bắt đầu nhận các ưu đãi hấp dẫn.
                     </p>
@@ -135,7 +135,7 @@
                     <div class="auth-bottom-switch">
                         Đã có tài khoản thành viên?
                         <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Model.ReturnUrl">
-                            Đăng nhập ngay →
+                            Đăng nhập ngay <i class="bi bi-arrow-right"></i>
                         </a>
                     </div>
 
@@ -206,7 +206,7 @@
                 } else {
                     fill.style.width = '100%';
                     fill.style.backgroundColor = '#10b981';
-                    label.innerText = 'Mật khẩu rất mạnh! ✅';
+                    label.innerHTML = 'Mật khẩu rất mạnh! <i class="bi bi-check-circle-fill"></i>';
                     label.style.color = '#10b981';
                 }
             });

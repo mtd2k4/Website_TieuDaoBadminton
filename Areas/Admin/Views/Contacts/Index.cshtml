@@ -7,10 +7,15 @@
 <div class="container-fluid py-3">
 
     <!-- HEADER & BUTTONS -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
-        <div>
-            <h4 class="fw-black text-dark m-0">✉️ Hộp thư khách hàng</h4>
-            <div class="text-muted small">Tiếp nhận và phản hồi các yêu cầu tư vấn sản phẩm, hẹn lịch đan cước từ website</div>
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <div class="admin-header-icon bg-primary bg-opacity-10 text-primary">
+                <i class="bi bi-envelope-paper-fill"></i>
+            </div>
+            <div>
+                <h4 class="fw-black text-dark m-0">Hộp thư khách hàng</h4>
+                <div class="text-muted small">Tiếp nhận và phản hồi các yêu cầu tư vấn sản phẩm, hẹn lịch đan cước từ website</div>
+            </div>
         </div>
     </div>
 
@@ -26,21 +31,42 @@
     <!-- STATS SUMMARY -->
     <div class="row g-3 mb-4">
         <div class="col-sm-6 col-md-4">
-            <div class="card border-0 shadow-sm p-3 rounded-4 bg-white">
-                <div class="text-muted small fw-bold">TỔNG TIN NHẮN</div>
-                <div class="fs-3 fw-bold text-dark mt-1">@ViewBag.TotalCount</div>
+            <div class="card kpi-card border-0 shadow-sm p-3 rounded-4 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-bold">TỔNG TIN NHẮN</div>
+                        <div class="fs-3 fw-bold text-dark mt-1">@ViewBag.TotalCount <small class="fs-6 text-muted fw-normal">thư</small></div>
+                    </div>
+                    <div class="kpi-icon-badge bg-primary bg-opacity-10 text-primary fs-4">
+                        <i class="bi bi-inbox-fill"></i>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="col-sm-6 col-md-4">
-            <div class="card border-0 shadow-sm p-3 rounded-4 bg-white">
-                <div class="text-muted small fw-bold">CHƯA PHẢN HỒI</div>
-                <div class="fs-3 fw-bold text-warning mt-1">@ViewBag.UnrepliedCount</div>
+            <div class="card kpi-card border-0 shadow-sm p-3 rounded-4 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-bold">CHƯA PHẢN HỒI</div>
+                        <div class="fs-3 fw-bold text-warning mt-1">@ViewBag.UnrepliedCount <small class="fs-6 text-muted fw-normal">thư chờ</small></div>
+                    </div>
+                    <div class="kpi-icon-badge bg-warning bg-opacity-10 text-warning fs-4">
+                        <i class="bi bi-hourglass-split"></i>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="col-sm-6 col-md-4">
-            <div class="card border-0 shadow-sm p-3 rounded-4 bg-white">
-                <div class="text-muted small fw-bold">ĐÃ PHẢN HỒI</div>
-                <div class="fs-3 fw-bold text-success mt-1">@ViewBag.RepliedCount</div>
+            <div class="card kpi-card border-0 shadow-sm p-3 rounded-4 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-bold">ĐÃ PHẢN HỒI</div>
+                        <div class="fs-3 fw-bold text-success mt-1">@ViewBag.RepliedCount <small class="fs-6 text-muted fw-normal">hoàn tất</small></div>
+                    </div>
+                    <div class="kpi-icon-badge bg-success bg-opacity-10 text-success fs-4">
+                        <i class="bi bi-check2-circle"></i>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -68,7 +94,7 @@
         @if (Model.Count == 0)
         {
             <div class="text-center py-5 text-muted">
-                <div class="fs-1">📭</div>
+                <div class="fs-1"><i class="bi bi-inbox"></i></div>
                 <div class="mt-2">Không có tin nhắn nào trong mục này.</div>
             </div>
         }
@@ -92,8 +118,8 @@
                                 <td class="ps-4">
                                     <div class="fw-bold text-dark">@msg.FullName</div>
                                     <div class="small text-muted">
-                                        <a href="tel:@msg.Phone" class="text-decoration-none">📞 @msg.Phone</a> • 
-                                        <a href="mailto:@msg.Email" class="text-decoration-none">✉️ @msg.Email</a>
+                                        <a href="tel:@msg.Phone" class="text-decoration-none"><i class="bi bi-telephone me-1"></i>@msg.Phone</a> • 
+                                        <a href="mailto:@msg.Email" class="text-decoration-none"><i class="bi bi-envelope me-1"></i>@msg.Email</a>
                                     </div>
                                 </td>
                                 <td>
@@ -111,7 +137,7 @@
                                     @if (msg.IsReplied)
                                     {
                                         <span class="badge bg-success-subtle text-success fw-bold px-3 py-1 rounded-pill">
-                                            ✓ Đã phản hồi
+                                            <i class="bi bi-check-lg me-1"></i> Đã phản hồi
                                         </span>
                                     }
                                     else
@@ -123,7 +149,7 @@
                                 </td>
                                 <td class="text-end pe-4">
                                     <a asp-action="Detail" asp-route-id="@msg.Id" class="btn btn-sm btn-dark rounded-pill px-3 fw-semibold">
-                                        Xem & Phản hồi →
+                                        Xem & Phản hồi <i class="bi bi-arrow-right ms-1"></i>
                                     </a>
                                 </td>
                             </tr>

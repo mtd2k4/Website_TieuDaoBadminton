@@ -44,7 +44,7 @@ namespace tieudaobadminton.Controllers
                 return View(vm);
             }
 
-            // ✅ Redirect theo role: Admin vào Dashboard
+            // Redirect theo role: Admin vào Dashboard
             if (await _users.IsInRoleAsync(user, "Admin") || await _users.IsInRoleAsync(user, "Staff"))
                 return RedirectToAction("Index", "Home", new { area = "Admin" });
 
@@ -79,7 +79,7 @@ namespace tieudaobadminton.Controllers
                 return View(vm);
             }
 
-            // ✅ Mặc định khách hàng
+            // Mặc định khách hàng
             await _users.AddToRoleAsync(user, "Customer");
 
             await _signIn.SignInAsync(user, isPersistent: true);

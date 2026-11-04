@@ -28,11 +28,11 @@
     <!-- BREADCRUMB & BACK -->
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
         <a asp-action="Index" class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold">
-            ← Quay lại danh sách đơn
+            <i class="bi bi-arrow-left me-1"></i> Quay lại danh sách đơn
         </a>
         <div class="d-flex align-items-center gap-2">
             <a asp-action="Print" asp-route-id="@Model.Id" target="_blank" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold shadow-sm">
-                🖨️ In Phiếu Giao Hàng
+                <i class="bi bi-printer-fill me-1"></i> In Phiếu Giao Hàng
             </a>
             <span class="text-muted small">Mã đơn:</span>
             <span class="badge bg-dark fs-6 font-monospace">#@orderCode</span>
@@ -43,7 +43,7 @@
     @if (TempData["Ok"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-            ✓ @TempData["Ok"]
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Ok"]
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
@@ -52,7 +52,7 @@
         <!-- LEFT: ORDER ITEMS TABLE (8 COLS) -->
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
-                <h5 class="fw-bold text-dark mb-3">📦 Danh sách sản phẩm trong đơn</h5>
+                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-box-seam text-primary me-2"></i>Danh sách sản phẩm trong đơn</h5>
 
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover align-middle mb-0">
@@ -103,7 +103,7 @@
         <div class="col-lg-4">
             <!-- 1. CẬP NHẬT TRẠNG THÁI ĐƠN -->
             <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
-                <h5 class="fw-bold text-dark mb-3">⚙️ Cập nhật trạng thái</h5>
+                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-gear-fill text-secondary me-2"></i>Cập nhật trạng thái</h5>
 
                 <form method="post" asp-action="UpdateStatus">
                     @Html.AntiForgeryToken()
@@ -128,7 +128,7 @@
                 <div class="mt-3 pt-3 border-top d-flex flex-column gap-2">
                     <small class="text-muted fw-bold">THAO TÁC NHANH:</small>
                     <a asp-action="Print" asp-route-id="@Model.Id" target="_blank" class="btn btn-sm btn-outline-secondary w-100 rounded-pill fw-bold">
-                        🖨️ In Phiếu Giao Hàng (A4/A5)
+                        <i class="bi bi-printer me-1"></i> In Phiếu Giao Hàng (A4/A5)
                     </a>
                     @if (Model.Status == "Pending")
                     {
@@ -137,7 +137,7 @@
                             <input type="hidden" name="id" value="@Model.Id" />
                             <input type="hidden" name="newStatus" value="Shipping" />
                             <button class="btn btn-sm btn-outline-info w-100 rounded-pill fw-bold text-dark">
-                                🚚 Chuyển sang "Đang giao"
+                                <i class="bi bi-truck me-1"></i> Chuyển sang "Đang giao"
                             </button>
                         </form>
                     }
@@ -148,7 +148,7 @@
                             <input type="hidden" name="id" value="@Model.Id" />
                             <input type="hidden" name="newStatus" value="Done" />
                             <button class="btn btn-sm btn-success w-100 rounded-pill fw-bold">
-                                ✓ Xác nhận "Giao thành công"
+                                <i class="bi bi-check-lg me-1"></i> Xác nhận "Giao thành công"
                             </button>
                         </form>
                     }
@@ -157,7 +157,7 @@
 
             <!-- 2. THÔNG TIN GIAO HÀNG -->
             <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
-                <h5 class="fw-bold text-dark mb-3">👤 Thông tin khách nhận</h5>
+                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-person-lines-fill text-primary me-2"></i>Thông tin khách nhận</h5>
 
                 <div class="mb-3">
                     <div class="text-muted small">Họ và tên:</div>
@@ -167,7 +167,7 @@
                 <div class="mb-3">
                     <div class="text-muted small">Số điện thoại:</div>
                     <div class="fw-bold text-primary fs-6">
-                        <a href="tel:@Model.Phone" class="text-decoration-none">📞 @Model.Phone</a>
+                        <a href="tel:@Model.Phone" class="text-decoration-none"><i class="bi bi-telephone-fill me-1"></i>@Model.Phone</a>
                     </div>
                 </div>
 
@@ -189,7 +189,7 @@
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="id" value="@Model.Id" />
                             <button type="submit" class="btn btn-sm btn-outline-danger w-100 rounded-pill fw-bold">
-                                🗑️ Xóa đơn hàng đã hủy
+                                <i class="bi bi-trash me-1"></i> Xóa đơn hàng đã hủy
                             </button>
                         </form>
                     </div>

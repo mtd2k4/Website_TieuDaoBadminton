@@ -10,7 +10,7 @@
         <!-- PAGE HEADER -->
         <div class="text-center mb-5">
             <span class="badge bg-danger-subtle text-danger px-3 py-2 rounded-pill fw-bold mb-2">
-                📦 KIỂM TRA TIẾN ĐỘ GIAO HÀNG
+                <i class="bi bi-box-seam-fill me-1"></i>KIỂM TRA TIẾN ĐỘ GIAO HÀNG
             </span>
             <h1 class="fw-black display-6 mb-2">Tra Cứu Trực Tuyến Đơn Hàng</h1>
             <p class="text-muted">Nhập mã đơn hàng hoặc số điện thoại bạn đã dùng khi đặt hàng để xem lộ trình vận chuyển.</p>
@@ -22,7 +22,7 @@
                 <div class="row g-2 align-items-center">
                     <div class="col-12 col-md-9">
                         <div class="input-group input-group-lg">
-                            <span class="input-group-text bg-white border-end-0 text-muted">🔍</span>
+                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
                             <input type="text" name="keyword" value="@keyword" 
                                    class="form-control border-start-0 ps-0 fs-6" 
                                    placeholder="Nhập mã đơn hàng (VD: 1, 1024) hoặc số điện thoại (0901...)" required />
@@ -37,7 +37,7 @@
             </form>
 
             <div class="d-flex flex-wrap gap-3 mt-3 pt-3 border-top text-muted small">
-                <span>💡 <em>Mẹo: Bạn có thể nhập mã dạng <strong>#1024</strong>, <strong>DH1024</strong> hoặc số điện thoại người nhận.</em></span>
+                <span><i class="bi bi-lightbulb-fill text-warning me-1"></i><em>Mẹo: Bạn có thể nhập mã dạng <strong>#1024</strong>, <strong>DH1024</strong> hoặc số điện thoại người nhận.</em></span>
             </div>
         </div>
 
@@ -104,25 +104,25 @@
                                     <div class="order-timeline-wrapper mb-4 py-3">
                                         <div class="order-timeline">
                                             <div class="step-item @(currentStep >= 1 ? "active" : "")">
-                                                <div class="step-circle">📝</div>
+                                                <div class="step-circle"><i class="bi bi-file-earmark-text"></i></div>
                                                 <div class="step-title">Tiếp nhận</div>
                                                 <div class="step-sub">Đơn hàng mới</div>
                                             </div>
                                             <div class="step-line @(currentStep >= 2 ? "active" : "")"></div>
                                             <div class="step-item @(currentStep >= 2 ? "active" : "")">
-                                                <div class="step-circle">📦</div>
+                                                <div class="step-circle"><i class="bi bi-box-seam"></i></div>
                                                 <div class="step-title">Đóng gói</div>
                                                 <div class="step-sub">Chuẩn bị kiện hàng</div>
                                             </div>
                                             <div class="step-line @(currentStep >= 3 ? "active" : "")"></div>
                                             <div class="step-item @(currentStep >= 3 ? "active" : "")">
-                                                <div class="step-circle">🚚</div>
+                                                <div class="step-circle"><i class="bi bi-truck"></i></div>
                                                 <div class="step-title">Đang giao</div>
                                                 <div class="step-sub">Shipper chuyển phát</div>
                                             </div>
                                             <div class="step-line @(currentStep >= 4 ? "active" : "")"></div>
                                             <div class="step-item @(currentStep >= 4 ? "active" : "")">
-                                                <div class="step-circle">🎉</div>
+                                                <div class="step-circle"><i class="bi bi-check-circle-fill"></i></div>
                                                 <div class="step-title">Hoàn tất</div>
                                                 <div class="step-sub">Nhận hàng thành công</div>
                                             </div>
@@ -132,7 +132,7 @@
                                 else
                                 {
                                     <div class="alert alert-danger rounded-3 d-flex align-items-center gap-2 mb-4">
-                                        <span>⚠️</span>
+                                        <i class="bi bi-exclamation-triangle-fill fs-5"></i>
                                         <div>Đơn hàng này đã bị hủy. Nếu có bất kỳ thắc mắc nào, vui lòng liên hệ hotline <strong>0900 000 000</strong> để được giải quyết nhanh nhất.</div>
                                     </div>
                                 }
@@ -199,7 +199,7 @@
                             <div class="card-footer bg-white border-top p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
                                 <span class="text-muted small">Bạn cần trợ giúp về đơn hàng này? Gọi ngay <a href="tel:0900000000" class="text-danger fw-bold">0900 000 000</a></span>
                                 <a href="https://zalo.me" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3">
-                                    💬 Hỗ trợ qua Zalo
+                                    <i class="bi bi-chat-dots-fill me-1"></i>Hỗ trợ qua Zalo
                                 </a>
                             </div>
                         </div>
@@ -209,7 +209,7 @@
             else
             {
                 <div class="card border-0 shadow-sm rounded-4 text-center py-5 px-3 bg-white">
-                    <div class="display-3 mb-3">🔍</div>
+                    <div class="display-3 mb-3 text-muted"><i class="bi bi-search"></i></div>
                     <h4 class="fw-bold mb-2">Không tìm thấy đơn hàng nào!</h4>
                     <p class="text-muted mb-4" style="max-width: 480px; margin: 0 auto;">
                         Không có dữ liệu đơn hàng khớp với từ khóa "<strong>@keyword</strong>". 
@@ -227,21 +227,21 @@
             <div class="row g-4">
                 <div class="col-md-4">
                     <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
-                        <div class="fs-1 mb-3">⚡</div>
+                        <div class="fs-1 mb-3 text-danger"><i class="bi bi-lightning-charge-fill"></i></div>
                         <h5 class="fw-bold">Cập nhật theo thời gian thực</h5>
                         <p class="text-muted small mb-0">Hệ thống đồng bộ trực tiếp với bộ phận kho và đơn vị vận chuyển (GHTK, ViettelPost), giúp bạn nắm rõ từng chặng đường của gói hàng.</p>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
-                        <div class="fs-1 mb-3">🛡️</div>
+                        <div class="fs-1 mb-3 text-primary"><i class="bi bi-shield-check"></i></div>
                         <h5 class="fw-bold">Đồng kiểm khi nhận hàng</h5>
                         <p class="text-muted small mb-0">Tiêu Đao Badminton hỗ trợ khách hàng kiểm tra ngoại quan vợt, mã vạch chống hàng giả và quà tặng đi kèm trước khi thanh toán.</p>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
-                        <div class="fs-1 mb-3">💬</div>
+                        <div class="fs-1 mb-3 text-success"><i class="bi bi-chat-dots-fill"></i></div>
                         <h5 class="fw-bold">Đổi trả siêu tốc 7 ngày</h5>
                         <p class="text-muted small mb-0">Nếu phát sinh sai sót về mẫu mã, size giày hoặc lỗi kỹ thuật từ nhà sản xuất, chúng tôi hỗ trợ đổi mới miễn phí tận nhà.</p>
                     </div>

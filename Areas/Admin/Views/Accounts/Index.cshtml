@@ -1,81 +1,191 @@
-﻿@model List<Microsoft.AspNetCore.Identity.IdentityUser>
+@model List<Microsoft.AspNetCore.Identity.IdentityUser>
 @{
-    ViewData["Title"] = "Quản lý tài khoản";
+    ViewData["Title"] = "Quản lý tài khoản & Phân quyền";
     var q = (string?)ViewBag.Q;
+    int totalUsers = Model.Count;
+    int lockedCount = Model.Count(u => u.LockoutEnd.HasValue && u.LockoutEnd.Value > DateTimeOffset.Now);
+    int activeCount = totalUsers - lockedCount;
 }
 
-<div class="d-flex justify-content-between align-items-end mb-3">
-    <div>
-        <h3 class="mb-0">Quản lý tài khoản</h3>
-        <div class="text-muted small">Tạo nhân viên, quản lý khách hàng, khóa/mở khóa</div>
-    </div>
-    <a class="btn btn-dark" asp-area="Admin" asp-controller="Accounts" asp-action="Create">+ Tạo tài khoản</a>
-</div>
+<div class="container-fluid py-2">
 
-@if (TempData["Ok"] != null)
-{
-    <div class="alert alert-success">@TempData["Ok"]</div>
-}
-@if (TempData["Err"] != null)
-{
-    <div class="alert alert-danger">@TempData["Err"]</div>
-}
-
-<form class="row g-2 mb-3" method="get">
-    <div class="col-md-6">
-        <input class="form-control" name="q" value="@q" placeholder="Tìm theo email/username..." />
+    <!-- PAGE HEADER -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <div class="admin-header-icon">
+                <i class="bi bi-people-fill"></i>
+            </div>
+            <div>
+                <h4 class="fw-black text-dark m-0">Quản Lý Tài Khoản & Phân Quyền</h4>
+                <div class="text-muted small">Quản trị danh sách nhân viên (Staff), khách hàng thành viên (Customer) và trạng thái bảo mật</div>
+            </div>
+        </div>
+        <a class="btn btn-dark rounded-pill px-4 py-2 fw-bold shadow-sm d-inline-flex align-items-center gap-2"
+           asp-area="Admin" asp-controller="Accounts" asp-action="Create">
+            <i class="bi bi-person-plus-fill"></i>
+            <span>Tạo tài khoản mới</span>
+        </a>
     </div>
-    <div class="col-md-2">
-        <button class="btn btn-outline-dark w-100">Tìm</button>
-    </div>
-</form>
 
-<div class="card">
-    <div class="table-responsive">
-        <table class="table align-middle mb-0">
-            <thead class="table-light">
-                <tr>
-                    <th>Email</th>
-                    <th style="width:220px;">Trạng thái</th>
-                    <th style="width:180px;"></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var u in Model)
+    <!-- ALERTS -->
+    @if (TempData["Ok"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Ok"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Err"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Err"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- KPI SUMMARY CARDS -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-md-4">
+            <div class="card border-0 p-3 bg-white kpi-card h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-bold text-uppercase" style="font-size: 0.72rem;">Tổng tài khoản hệ thống</div>
+                        <div class="fs-3 fw-black text-dark mt-1">@totalUsers <small class="fs-6 text-muted fw-normal">user</small></div>
+                    </div>
+                    <div class="kpi-icon-badge bg-primary bg-opacity-10 text-primary">
+                        <i class="bi bi-people"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-4">
+            <div class="card border-0 p-3 bg-white kpi-card h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-bold text-uppercase" style="font-size: 0.72rem;">Đang hoạt động</div>
+                        <div class="fs-3 fw-black text-success mt-1">@activeCount <small class="fs-6 text-muted fw-normal">user</small></div>
+                    </div>
+                    <div class="kpi-icon-badge bg-success bg-opacity-10 text-success">
+                        <i class="bi bi-person-check-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-4">
+            <div class="card border-0 p-3 bg-white kpi-card h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-bold text-uppercase" style="font-size: 0.72rem;">Đang tạm khóa</div>
+                        <div class="fs-3 fw-black text-danger mt-1">@lockedCount <small class="fs-6 text-muted fw-normal">user</small></div>
+                    </div>
+                    <div class="kpi-icon-badge bg-danger bg-opacity-10 text-danger">
+                        <i class="bi bi-person-lock"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEARCH BAR -->
+    <div class="card border-0 p-3 mb-4 bg-white">
+        <form class="row g-2 align-items-center" method="get">
+            <div class="col-md-9">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input class="form-control border-start-0" name="q" value="@q" placeholder="Tìm kiếm tài khoản theo địa chỉ Email hoặc Username..." />
+                </div>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button class="btn btn-dark rounded-pill fw-bold flex-grow-1">
+                    <i class="bi bi-search me-1"></i> Tìm kiếm
+                </button>
+                @if (!string.IsNullOrWhiteSpace(q))
                 {
-                    var locked = u.LockoutEnd.HasValue && u.LockoutEnd.Value > DateTimeOffset.Now;
-                    <tr>
-                        <td>
-                            <div class="fw-semibold">@u.Email</div>
-                            <div class="text-muted small">@u.Id</div>
-                        </td>
-                        <td>
-                            @if (locked)
-                            {
-                                <span class="badge bg-danger">Đang khóa</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-success">Hoạt động</span>
-                            }
-                        </td>
-                        <td class="text-end">
-                            <a class="btn btn-outline-dark btn-sm"
-                               asp-area="Admin" asp-controller="Accounts" asp-action="Edit" asp-route-id="@u.Id">Sửa</a>
-
-                            <form class="d-inline" method="post"
-                                  asp-area="Admin" asp-controller="Accounts" asp-action="Delete">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="id" value="@u.Id" />
-                                <button class="btn btn-danger btn-sm"
-                                        onclick="return confirm('Xóa tài khoản này?')">
-                                    Xóa
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
+                    <a asp-action="Index" class="btn btn-light border rounded-pill px-3" title="Xóa tìm kiếm">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
                 }
-            </tbody>
-        </table>
+            </div>
+        </form>
     </div>
+
+    <!-- USERS TABLE -->
+    <div class="card border-0 overflow-hidden bg-white">
+        @if (Model.Count == 0)
+        {
+            <div class="text-center py-5 text-muted">
+                <div class="fs-1 mb-2"><i class="bi bi-person-x"></i></div>
+                <div class="fw-semibold">Không tìm thấy tài khoản nào khớp với từ khóa.</div>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-4">TÀI KHOẢN (EMAIL / USERNAME)</th>
+                            <th>MÃ ĐỊNH DANH (USER ID)</th>
+                            <th class="text-center">TRẠNG THÁI</th>
+                            <th class="text-end pe-4" style="width: 210px;">THAO TÁC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var u in Model)
+                        {
+                            var locked = u.LockoutEnd.HasValue && u.LockoutEnd.Value > DateTimeOffset.Now;
+                            var initial = !string.IsNullOrWhiteSpace(u.Email) ? u.Email.Trim().Substring(0, 1).ToUpper() : "U";
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="admin-table-avatar">@initial</div>
+                                        <div>
+                                            <div class="fw-bold text-dark">@u.Email</div>
+                                            <small class="text-muted"><i class="bi bi-person-badge me-1"></i>@(u.UserName ?? u.Email)</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-muted border font-monospace px-2 py-1">@u.Id</span>
+                                </td>
+                                <td class="text-center">
+                                    @if (locked)
+                                    {
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-1 fw-bold">
+                                            <i class="bi bi-lock-fill me-1"></i> Đang khóa
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1 fw-bold">
+                                            <i class="bi bi-check-circle-fill me-1"></i> Hoạt động
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="d-inline-flex gap-2 align-items-center">
+                                        <a class="btn btn-sm btn-outline-dark rounded-pill px-3 fw-semibold"
+                                           asp-area="Admin" asp-controller="Accounts" asp-action="Edit" asp-route-id="@u.Id">
+                                            <i class="bi bi-sliders me-1"></i> Phân quyền
+                                        </a>
+
+                                        <form class="d-inline" method="post"
+                                              asp-area="Admin" asp-controller="Accounts" asp-action="Delete"
+                                              onsubmit="return confirm('Bạn có chắc chắn muốn xóa tài khoản này?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@u.Id" />
+                                            <button class="btn btn-sm btn-outline-danger rounded-circle p-1" style="width: 32px; height: 32px;" title="Xóa tài khoản">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
 </div>

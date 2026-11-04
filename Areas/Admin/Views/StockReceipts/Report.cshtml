@@ -19,12 +19,12 @@
     <!-- HEADER & ACTION -->
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
         <div>
-            <h4 class="fw-black text-dark m-0">📊 Báo Cáo Đối Chiếu Bán & Nhập</h4>
+            <h4 class="fw-black text-dark m-0"><i class="bi bi-bar-chart-line-fill text-primary me-2"></i>Báo Cáo Đối Chiếu Bán & Nhập</h4>
             <div class="text-muted small">Phân tích tỷ suất lợi nhuận, biên độ lãi suất đối chiếu giữa giá bán và giá vốn nhập hàng</div>
         </div>
         <div class="d-flex gap-2">
             <a asp-action="Index" class="btn btn-outline-dark rounded-pill px-4 fw-bold shadow-sm">
-                ← Danh sách phiếu nhập
+                <i class="bi bi-arrow-left me-1"></i> Danh sách phiếu nhập
             </a>
             <a asp-action="Create" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm">
                 <i class="bi bi-plus-lg me-1"></i> Nhập hàng mới
@@ -41,7 +41,7 @@
                         <div class="text-muted small fw-bold text-uppercase">TỔNG DOANH THU ĐƠN BÁN</div>
                         <div class="fs-3 fw-bold text-primary mt-1">@Model.TotalRevenue.ToString("n0") <small class="fs-6 text-muted fw-normal">đ</small></div>
                     </div>
-                    <div class="kpi-icon-badge bg-primary bg-opacity-10 text-primary fs-3">💰</div>
+                    <div class="kpi-icon-badge bg-primary bg-opacity-10 text-primary fs-3"><i class="bi bi-cash-coin"></i></div>
                 </div>
                 <div class="small text-muted mt-2 pt-2 border-top">
                     Từ các đơn hàng thành công (Done)
@@ -56,7 +56,7 @@
                         <div class="text-muted small fw-bold text-uppercase">TỔNG GIÁ VỐN HÀNG ĐÃ BÁN</div>
                         <div class="fs-3 fw-bold text-danger mt-1">@Model.TotalCostOfGoodsSold.ToString("n0") <small class="fs-6 text-muted fw-normal">đ</small></div>
                     </div>
-                    <div class="kpi-icon-badge bg-danger bg-opacity-10 text-danger fs-3">📥</div>
+                    <div class="kpi-icon-badge bg-danger bg-opacity-10 text-danger fs-3"><i class="bi bi-box-arrow-in-down"></i></div>
                 </div>
                 <div class="small text-muted mt-2 pt-2 border-top">
                     Chi phí vốn nhập tương ứng
@@ -71,7 +71,7 @@
                         <div class="text-muted small fw-bold text-uppercase">LỢI NHUẬN GỘP THỰC THU</div>
                         <div class="fs-3 fw-bold text-success mt-1">@Model.TotalGrossProfit.ToString("n0") <small class="fs-6 text-muted fw-normal">đ</small></div>
                     </div>
-                    <div class="kpi-icon-badge bg-success bg-opacity-10 text-success fs-3">📈</div>
+                    <div class="kpi-icon-badge bg-success bg-opacity-10 text-success fs-3"><i class="bi bi-graph-up-arrow"></i></div>
                 </div>
                 <div class="small text-muted mt-2 pt-2 border-top">
                     Doanh thu trừ đi tiền vốn nhập
@@ -86,7 +86,7 @@
                         <div class="text-muted small fw-bold text-uppercase">TỶ SUẤT LÃI SUẤT TRUNG BÌNH</div>
                         <div class="fs-3 fw-bold text-warning-emphasis mt-1">@Model.AverageMarginPercent% <small class="fs-6 text-muted fw-normal">lãi</small></div>
                     </div>
-                    <div class="kpi-icon-badge bg-warning bg-opacity-10 text-warning fs-3">🎯</div>
+                    <div class="kpi-icon-badge bg-warning bg-opacity-10 text-warning fs-3"><i class="bi bi-bullseye"></i></div>
                 </div>
                 <div class="small text-muted mt-2 pt-2 border-top">
                     Markup trên vốn nhập: <strong>+@Model.AverageMarkupPercent%</strong>
@@ -98,7 +98,7 @@
     <!-- FORMULA EXPLANATION BANNER -->
     <div class="card border-0 shadow-sm p-3 rounded-4 bg-white mb-4 border-start border-4 border-info">
         <div class="d-flex align-items-center gap-3">
-            <div class="fs-3 text-info">ℹ️</div>
+            <div class="fs-3 text-info"><i class="bi bi-info-circle-fill"></i></div>
             <div class="small text-muted">
                 <strong>Quy tắc đối chiếu tài chính:</strong>
                 <strong>Lãi trên 1 món</strong> = Giá bán - Đơn giá nhập •
@@ -132,10 +132,10 @@
             <div class="col-lg-2 col-md-4">
                 <select name="marginFilter" class="form-select">
                     <option value="" selected="@(string.IsNullOrEmpty(Model.MarginFilter))">-- Tỷ suất lãi suất --</option>
-                    <option value="super" selected="@(Model.MarginFilter == "super")">🔥 Siêu lãi (≥ 45%)</option>
-                    <option value="good" selected="@(Model.MarginFilter == "good")">✓ Lãi tốt (30% - 44%)</option>
-                    <option value="normal" selected="@(Model.MarginFilter == "normal")">⚡ Bình thường (20% - 29%)</option>
-                    <option value="low" selected="@(Model.MarginFilter == "low")">⚠️ Lãi mỏng (&lt; 20%)</option>
+                    <option value="super" selected="@(Model.MarginFilter == "super")">Siêu lãi (≥ 45%)</option>
+                    <option value="good" selected="@(Model.MarginFilter == "good")">Lãi tốt (30% - 44%)</option>
+                    <option value="normal" selected="@(Model.MarginFilter == "normal")">Bình thường (20% - 29%)</option>
+                    <option value="low" selected="@(Model.MarginFilter == "low")">Lãi mỏng (&lt; 20%)</option>
                 </select>
             </div>
 
@@ -169,7 +169,7 @@
         @if (Model.ReportItems.Count == 0)
         {
             <div class="text-center py-5 text-muted">
-                <div class="fs-1">🔍</div>
+                <div class="fs-1"><i class="bi bi-search"></i></div>
                 <div class="mt-2 fw-semibold">Không tìm thấy sản phẩm nào phù hợp với bộ lọc đối chiếu lãi suất.</div>
                 <a asp-action="Report" class="btn btn-outline-dark rounded-pill px-4 mt-3">Xóa bộ lọc</a>
             </div>

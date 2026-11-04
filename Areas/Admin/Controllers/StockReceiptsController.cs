@@ -211,7 +211,7 @@ namespace tieudaobadminton.Areas.Admin.Controllers
             _db.StockReceipts.Add(receipt);
             await _db.SaveChangesAsync();
 
-            TempData["Ok"] = $"✓ Nhập kho thành công phiếu #{receipt.Id:D5}! Đã nhập +{vm.Quantity} chiếc từ {receipt.SupplierName}. Tổng chi phí nhập: {totalCost:n0} đ. Tồn kho mới: {newStock} chiếc.";
+            TempData["Ok"] = $"Nhập kho thành công phiếu #{receipt.Id:D5}! Đã nhập +{vm.Quantity} chiếc từ {receipt.SupplierName}. Tổng chi phí nhập: {totalCost:n0} đ. Tồn kho mới: {newStock} chiếc.";
             return RedirectToAction(nameof(Index));
         }
 

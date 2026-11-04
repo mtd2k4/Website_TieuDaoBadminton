@@ -10,11 +10,11 @@
     string GetTopicBadge(string title)
     {
         var t = title.ToLower();
-        if (t.Contains("vợt")) return "🏸 VỢT CẦU LÔNG";
-        if (t.Contains("cước") || t.Contains("căng") || t.Contains("đan")) return "🛠️ CĂNG CƯỚC";
-        if (t.Contains("giày") || t.Contains("size") || t.Contains("chân")) return "👟 GIÀY & SIZE";
-        if (t.Contains("kỹ thuật") || t.Contains("smash") || t.Contains("đập")) return "⚡ KỸ THUẬT & SMASH";
-        return "📰 CẨM NANG";
+        if (t.Contains("vợt")) return "<i class=\"bi bi-trophy-fill me-1\"></i>VỢT CẦU LÔNG";
+        if (t.Contains("cước") || t.Contains("căng") || t.Contains("đan")) return "<i class=\"bi bi-tools me-1\"></i>CĂNG CƯỚC";
+        if (t.Contains("giày") || t.Contains("size") || t.Contains("chân")) return "<i class=\"bi bi-lightning-fill me-1\"></i>GIÀY & SIZE";
+        if (t.Contains("kỹ thuật") || t.Contains("smash") || t.Contains("đập")) return "<i class=\"bi bi-lightning-charge-fill me-1\"></i>KỸ THUẬT & SMASH";
+        return "<i class=\"bi bi-newspaper me-1\"></i>CẨM NANG";
     }
 }
 
@@ -37,7 +37,7 @@
         <header class="article-detail-header mb-4">
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
                 <div class="d-flex align-items-center gap-2">
-                    <span class="badge-topic-lead">@GetTopicBadge(Model.Title)</span>
+                    <span class="badge-topic-lead">@Html.Raw(GetTopicBadge(Model.Title))</span>
                     <span class="badge bg-light text-secondary border px-2 py-1 rounded-pill small fw-semibold">
                         <i class="bi bi-shield-check text-success me-1"></i> Đã kiểm duyệt chuyên môn
                     </span>
@@ -47,7 +47,7 @@
                 {
                     <a class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold d-inline-flex align-items-center gap-1 shadow-sm"
                        asp-area="Admin" asp-controller="News" asp-action="Edit" asp-route-id="@Model.Id">
-                        <span>✏️</span>
+                        <i class="bi bi-pencil-square"></i>
                         <span>Chỉnh sửa bài này (Admin)</span>
                     </a>
                 }
@@ -64,7 +64,7 @@
 
             <div class="article-meta-bar d-flex flex-wrap align-items-center justify-content-between gap-3 pt-3 border-top border-bottom py-3">
                 <div class="d-flex align-items-center gap-3">
-                    <div class="author-avatar-badge">🏸</div>
+                    <div class="author-avatar-badge"><i class="bi bi-trophy-fill"></i></div>
                     <div>
                         <div class="fw-bold text-dark d-flex align-items-center gap-1">
                             <span>Tiêu Đao Editorial</span>
@@ -75,11 +75,11 @@
                 </div>
 
                 <div class="d-flex align-items-center gap-3 text-muted small">
-                    <span title="Ngày xuất bản">📅 @Model.PublishedAt.ToString("dd/MM/yyyy HH:mm")</span>
+                    <span title="Ngày xuất bản"><i class="bi bi-calendar3 me-1"></i>@Model.PublishedAt.ToString("dd/MM/yyyy HH:mm")</span>
                     <span>•</span>
-                    <span title="Thời gian đọc">⏱️ 5 phút đọc</span>
+                    <span title="Thời gian đọc"><i class="bi bi-clock me-1"></i>5 phút đọc</span>
                     <span>•</span>
-                    <span title="Lượt xem ước tính">👁️ 1.4k lượt xem</span>
+                    <span title="Lượt xem ước tính"><i class="bi bi-eye me-1"></i>1.4k lượt xem</span>
                 </div>
             </div>
         </header>
@@ -124,7 +124,7 @@
                 <!-- TABLE OF CONTENTS (MỤC LỤC NỘI DUNG) -->
                 <div class="article-toc-box" id="articleTocContainer">
                     <button class="toc-header-btn" type="button" data-bs-toggle="collapse" data-bs-target="#tocCollapse" aria-expanded="true" aria-controls="tocCollapse">
-                        <span>📑 Mục lục nội dung bài viết</span>
+                        <span><i class="bi bi-journal-text me-1"></i>Mục lục nội dung bài viết</span>
                         <i class="bi bi-chevron-down small text-muted" id="tocChevron"></i>
                     </button>
                     <div class="collapse show" id="tocCollapse">
@@ -148,7 +148,7 @@
                 <!-- EXPERT TIP CALLOUT BOX -->
                 <div class="expert-callout-box">
                     <div class="expert-callout-title">
-                        <span>🏸</span>
+                        <i class="bi bi-trophy-fill"></i>
                         <span>Lời khuyên từ Huấn Luyện Viên Tiêu Đao Sport</span>
                     </div>
                     <p class="expert-callout-text">
@@ -173,20 +173,20 @@
                     
                     <div class="reaction-btn-group">
                         <button class="reaction-pill-btn" data-reaction="helpful">
-                            <span>👍 Rất hữu ích</span>
+                            <span><i class="bi bi-hand-thumbs-up-fill me-1"></i>Rất hữu ích</span>
                             <span class="reaction-count" id="countHelpful">268</span>
                         </button>
                         <button class="reaction-pill-btn" data-reaction="love">
-                            <span>❤️ Lưu lại</span>
+                            <span><i class="bi bi-heart-fill text-danger me-1"></i>Lưu lại</span>
                             <span class="reaction-count" id="countLove">194</span>
                         </button>
                         <button class="reaction-pill-btn" data-reaction="actionable">
-                            <span>🏸 Sẽ áp dụng ngay</span>
+                            <span><i class="bi bi-trophy-fill me-1"></i>Sẽ áp dụng ngay</span>
                             <span class="reaction-count" id="countAction">112</span>
                         </button>
                     </div>
                     <div id="reactionToastMessage" class="small text-success fw-bold mt-2 d-none">
-                        🎉 Cảm ơn bạn đã gửi phản hồi cho Ban biên tập!
+                        <i class="bi bi-stars me-1"></i>Cảm ơn bạn đã gửi phản hồi cho Ban biên tập!
                     </div>
                 </div>
 
@@ -229,7 +229,7 @@
                 <div class="article-author-card p-4 rounded-4 mb-4">
                     <div class="row align-items-center g-3">
                         <div class="col-auto">
-                            <div class="author-large-avatar">🏸</div>
+                            <div class="author-large-avatar"><i class="bi bi-trophy-fill"></i></div>
                         </div>
                         <div class="col">
                             <div class="fw-bold text-dark fs-6 d-flex align-items-center gap-2">
@@ -248,7 +248,7 @@
                                 <i class="bi bi-facebook me-1"></i> Facebook
                             </button>
                             <button class="btn btn-outline-info btn-sm rounded-pill px-3 text-dark" onclick="shareOnZalo()">
-                                💬 Zalo
+                                <i class="bi bi-chat-dots-fill me-1"></i> Zalo
                             </button>
                             <button class="btn btn-outline-dark btn-sm rounded-pill px-3" id="btnCopyLinkBottom">
                                 <i class="bi bi-clipboard-check me-1"></i> Sao chép link
@@ -260,7 +260,7 @@
                 <!-- PROMO BANNER: SHOP PRODUCTS -->
                 <div class="article-promo-box p-4 rounded-4 text-center mb-4">
                     <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-1 rounded-pill fw-bold mb-2">
-                        🛍️ TRẢI NGHIỆM TRỰC TIẾP TẠI TIÊU ĐAO
+                        <i class="bi bi-bag-check-fill me-1"></i>TRẢI NGHIỆM TRỰC TIẾP TẠI TIÊU ĐAO
                     </span>
                     <h4 class="fw-bold text-dark mb-2">Tìm kiếm cây vợt và đôi giày chuẩn lối chơi của bạn?</h4>
                     <p class="text-muted small mb-4" style="max-width: 540px; margin: 0 auto;">
@@ -284,13 +284,13 @@
 
                     <!-- WIDGET 1: AI RACKET ADVISOR -->
                     <div class="news-widget-ai text-white">
-                        <span class="widget-ai-pill">✨ TRỢ LÝ THÔNG MINH</span>
+                        <span class="widget-ai-pill"><i class="bi bi-stars me-1"></i>TRỢ LÝ THÔNG MINH</span>
                         <h5 class="fw-bold text-white mb-2">Bạn chưa biết chọn vợt nào phù hợp?</h5>
                         <p class="text-white-50 small mb-3">
                             Chỉ mất 30 giây, công cụ AI của Tiêu Đao sẽ phân tích lực cổ tay, phong cách đánh và ngân sách để gợi ý mẫu vợt tối ưu nhất cho bạn!
                         </p>
                         <a href="/Tu-Van-Chon-Vot" class="btn btn-warning w-100 rounded-pill fw-bold text-dark shadow-sm">
-                            🏸 Khám phá cây vợt của bạn →
+                            <i class="bi bi-trophy-fill me-1"></i>Khám phá cây vợt của bạn →
                         </a>
                     </div>
 
@@ -299,7 +299,7 @@
                     {
                         <div class="news-widget-box">
                             <div class="widget-heading d-flex justify-content-between align-items-center">
-                                <span>🏸 Thiết bị chuyên gia gợi ý</span>
+                                <span><i class="bi bi-trophy-fill me-1"></i>Thiết bị chuyên gia gợi ý</span>
                                 <a href="/Danh-Muc" class="small text-primary text-decoration-none fw-bold">Xem thêm</a>
                             </div>
                             <div class="d-flex flex-column gap-2">
@@ -333,7 +333,7 @@
                     {
                         <div class="news-widget-box">
                             <div class="widget-heading">
-                                🔥 Cẩm nang đọc nhiều nhất
+                                <i class="bi bi-fire text-danger me-1"></i>Cẩm nang đọc nhiều nhất
                             </div>
                             <div class="widget-trending-list">
                                 @{
@@ -360,25 +360,25 @@
                     <!-- WIDGET 4: BADMINTON SERVICES -->
                     <div class="news-widget-box">
                         <div class="widget-heading">
-                            ⚡ Dịch vụ sân cầu Tiêu Đao
+                            <i class="bi bi-lightning-charge-fill text-warning me-1"></i>Dịch vụ sân cầu Tiêu Đao
                         </div>
                         <div class="d-flex flex-column gap-2">
                             <a href="tel:0987654321" class="widget-service-row">
-                                <div class="service-icon-badge">📞</div>
+                                <div class="service-icon-badge"><i class="bi bi-telephone-fill"></i></div>
                                 <div>
                                     <div class="service-row-title">Hotline tư vấn thiết bị</div>
                                     <small class="text-muted">0987.654.321 (Hỗ trợ 24/7)</small>
                                 </div>
                             </a>
                             <a href="/OrderTracking" class="widget-service-row">
-                                <div class="service-icon-badge">🚚</div>
+                                <div class="service-icon-badge"><i class="bi bi-truck"></i></div>
                                 <div>
                                     <div class="service-row-title">Tra cứu đơn hàng trực tuyến</div>
                                     <small class="text-muted">Kiểm tra lộ trình giao vợt</small>
                                 </div>
                             </a>
                             <div class="widget-service-row">
-                                <div class="service-icon-badge">⚡</div>
+                                <div class="service-icon-badge"><i class="bi bi-lightning-charge-fill"></i></div>
                                 <div>
                                     <div class="service-row-title">Đan cước máy điện tử 15 phút</div>
                                     <small class="text-muted">Chuẩn 4 nút Yonex không méo khung</small>
@@ -413,13 +413,13 @@
                             <div class="news-card-pro h-100">
                                 <div class="news-card-thumb-wrap">
                                     <img src="@(rel.ThumbnailUrl ?? "/img/banners/banner1.jfif")" alt="@rel.Title" class="news-card-thumb" loading="lazy" />
-                                    <span class="news-card-topic">@GetTopicBadge(rel.Title)</span>
+                                    <span class="news-card-topic">@Html.Raw(GetTopicBadge(rel.Title))</span>
                                 </div>
                                 <div class="news-card-content">
                                     <div class="news-card-meta">
-                                        <span>📅 @rel.PublishedAt.ToString("dd/MM/yyyy")</span>
+                                        <span><i class="bi bi-calendar3 me-1"></i>@rel.PublishedAt.ToString("dd/MM/yyyy")</span>
                                         <span>•</span>
-                                        <span>⏱️ 5 phút đọc</span>
+                                        <span><i class="bi bi-clock me-1"></i>5 phút đọc</span>
                                     </div>
                                     <h6 class="news-card-title">
                                         <a asp-controller="News" asp-action="Detail" asp-route-id="@rel.Id">
@@ -525,7 +525,7 @@
             // 4. COPY LINK BUTTONS
             function copyCurrentUrl() {
                 navigator.clipboard.writeText(window.location.href).then(() => {
-                    alert('✅ Đã sao chép liên kết bài viết vào bộ nhớ đệm!');
+                    alert('Đã sao chép liên kết bài viết vào bộ nhớ đệm!');
                 }).catch(() => {
                     alert('Liên kết bài viết: ' + window.location.href);
                 });

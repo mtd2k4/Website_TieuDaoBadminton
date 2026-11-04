@@ -43,7 +43,7 @@ namespace tieudaobadminton.Controllers
                 {
                     Slug = "vot",
                     Name = "Vợt cầu lông",
-                    Icon = "🏸",
+                    Icon = "<i class=\"bi bi-trophy-fill text-danger\"></i>",
                     SubCategories = new List<CatalogSubCategoryItem>
                     {
                         new CatalogSubCategoryItem { Slug = "tan-cong", Name = "Vợt Tấn Công (Smash)" },
@@ -56,7 +56,7 @@ namespace tieudaobadminton.Controllers
                 {
                     Slug = "giay",
                     Name = "Giày cầu lông",
-                    Icon = "👟",
+                    Icon = "<i class=\"bi bi-lightning-charge-fill text-warning\"></i>",
                     SubCategories = new List<CatalogSubCategoryItem>
                     {
                         new CatalogSubCategoryItem { Slug = "dem-em", Name = "Giày Đệm Êm (Cushion)" },
@@ -68,7 +68,7 @@ namespace tieudaobadminton.Controllers
                 {
                     Slug = "quan-ao",
                     Name = "Trang phục thể thao",
-                    Icon = "👕",
+                    Icon = "<i class=\"bi bi-handbag-fill text-primary\"></i>",
                     SubCategories = new List<CatalogSubCategoryItem>
                     {
                         new CatalogSubCategoryItem { Slug = "ao-nam", Name = "Áo Thi Đấu & Training Nam" },

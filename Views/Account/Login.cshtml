@@ -10,7 +10,7 @@
             <!-- LEFT PANEL: BRAND VISUAL & SOCIAL PROOF -->
             <div class="col-lg-5 auth-visual-panel">
                 <a asp-controller="Home" asp-action="Index" class="auth-brand-logo">
-                    <div class="auth-logo-badge">🏸</div>
+                    <div class="auth-logo-badge"><i class="bi bi-trophy-fill"></i></div>
                     <div>
                         <div class="auth-brand-title">TIÊU ĐAO SPORT</div>
                         <div class="auth-brand-subtitle">Badminton Pro Center</div>
@@ -24,19 +24,19 @@
 
                     <ul class="auth-feature-list">
                         <li class="auth-feature-item">
-                            <div class="auth-feature-icon">🛡️</div>
+                            <div class="auth-feature-icon"><i class="bi bi-shield-check"></i></div>
                             <div class="auth-feature-text">
                                 <strong>100% Chính Hãng:</strong> Phân phối Yonex, Victor, Li-Ning bồi hoàn 200% nếu phát hiện hàng giả.
                             </div>
                         </li>
                         <li class="auth-feature-item">
-                            <div class="auth-feature-icon">⚡</div>
+                            <div class="auth-feature-icon"><i class="bi bi-lightning-charge-fill"></i></div>
                             <div class="auth-feature-text">
                                 <strong>Căng Cước Điện Tử 4 Nút:</strong> Tiêu chuẩn thi đấu quốc tế, không méo khung, hoàn thành trong 15 phút.
                             </div>
                         </li>
                         <li class="auth-feature-item">
-                            <div class="auth-feature-icon">🤖</div>
+                            <div class="auth-feature-icon"><i class="bi bi-robot"></i></div>
                             <div class="auth-feature-text">
                                 <strong>Trợ Lý AI Chọn Vợt:</strong> Phân tích lực tay và phong cách để tìm kiếm cây vợt hoàn hảo nhất.
                             </div>
@@ -46,12 +46,12 @@
 
                 <div class="auth-social-proof-card">
                     <div class="proof-avatar-stack">
-                        <div class="proof-avatar">🏸</div>
-                        <div class="proof-avatar" style="background:#f97316;">⚡</div>
-                        <div class="proof-avatar" style="background:#10b981;">🥇</div>
+                        <div class="proof-avatar"><i class="bi bi-trophy-fill"></i></div>
+                        <div class="proof-avatar" style="background:#f97316;"><i class="bi bi-lightning-charge-fill"></i></div>
+                        <div class="proof-avatar" style="background:#10b981;"><i class="bi bi-award-fill"></i></div>
                     </div>
                     <div class="proof-text">
-                        <div class="fw-bold text-white">⭐ 4.9/5 Đánh giá hài lòng</div>
+                        <div class="fw-bold text-white"><i class="bi bi-star-fill text-warning me-1"></i>4.9/5 Đánh giá hài lòng</div>
                         <div class="text-white-50 small">Hơn 15.000+ tay vợt tin tưởng đồng hành</div>
                     </div>
                 </div>
@@ -60,7 +60,7 @@
             <!-- RIGHT PANEL: LOGIN FORM -->
             <div class="col-lg-7 auth-form-panel">
                 <div class="auth-form-header">
-                    <h3 class="auth-form-title">Chào mừng bạn trở lại! 👋</h3>
+                    <h3 class="auth-form-title">Chào mừng bạn trở lại! <i class="bi bi-hand-thumbs-up-fill text-primary"></i></h3>
                     <p class="auth-form-desc">
                         Đăng nhập để theo dõi đơn hàng, quản lý bài viết và hưởng ưu đãi thành viên.
                     </p>
@@ -69,14 +69,14 @@
                 <!-- ADMIN QUICK-FILL HELPER -->
                 <div class="admin-quickfill-box">
                     <div class="d-flex align-items-center gap-2">
-                        <span class="fs-4">🔑</span>
+                        <span class="fs-4 text-primary"><i class="bi bi-key-fill"></i></span>
                         <div>
                             <div class="admin-quickfill-text">Tài khoản Quản trị viên (Admin):</div>
                             <small class="text-muted"><code>admin@shop.com</code> • Mật khẩu: <code>Admin@12345</code></small>
                         </div>
                     </div>
                     <button type="button" class="btn-quickfill-action shadow-sm" id="btnFillAdmin">
-                        ⚡ Điền nhanh
+                        <i class="bi bi-lightning-charge-fill me-1"></i>Điền nhanh
                     </button>
                 </div>
 
@@ -137,7 +137,7 @@
                     <div class="auth-bottom-switch">
                         Chưa có tài khoản thành viên?
                         <a asp-controller="Account" asp-action="Register" asp-route-returnUrl="@Model.ReturnUrl">
-                            Đăng ký tài khoản mới →
+                            Đăng ký tài khoản mới <i class="bi bi-arrow-right"></i>
                         </a>
                     </div>
 
@@ -187,12 +187,12 @@
                     emailInput.dispatchEvent(new Event('input', { bubbles: true }));
                     passInput.dispatchEvent(new Event('input', { bubbles: true }));
 
-                    fillAdminBtn.innerHTML = '✅ Đã điền xong!';
+                    fillAdminBtn.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>Đã điền xong!';
                     fillAdminBtn.classList.remove('btn-quickfill-action');
                     fillAdminBtn.classList.add('btn', 'btn-success', 'btn-sm', 'rounded-pill');
 
                     setTimeout(() => {
-                        fillAdminBtn.innerHTML = '⚡ Điền nhanh';
+                        fillAdminBtn.innerHTML = '<i class="bi bi-lightning-charge-fill me-1"></i>Điền nhanh';
                         fillAdminBtn.className = 'btn-quickfill-action shadow-sm';
                     }, 2500);
                 }

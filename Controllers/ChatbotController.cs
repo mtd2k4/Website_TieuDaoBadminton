@@ -70,7 +70,7 @@ namespace tieudaobadminton.Controllers
 
             if (matchedProducts.Count > 0 && !q.Contains("căng cước") && !q.Contains("bảo hành") && !q.Contains("tra cứu"))
             {
-                var sb = new StringBuilder("🏸 <strong>Sản phẩm tại kho phù hợp với câu hỏi của bạn:</strong><br/>");
+                var sb = new StringBuilder("<i class='bi bi-trophy-fill text-danger me-1'></i> <strong>Sản phẩm tại kho phù hợp với câu hỏi của bạn:</strong><br/>");
                 foreach (var mp in matchedProducts)
                 {
                     var price = mp.SalePrice ?? mp.Price;
@@ -89,39 +89,39 @@ namespace tieudaobadminton.Controllers
                 var racketLinks = string.Join("", rackets.Select(r =>
                     $"<br/>• <strong>{r.Name}</strong> ({(r.SalePrice ?? r.Price):n0}đ) <a href='/Products/Detail/{r.Id}' class='chat-action-link'>Xem vợt →</a>"));
 
-                return $@"🏸 <strong>Tư vấn chọn vợt cầu lông chuẩn:</strong><br/>
+                return $@"<i class='bi bi-trophy-fill text-danger me-1'></i> <strong>Tư vấn chọn vợt cầu lông chuẩn:</strong><br/>
                 • <strong>Người mới / Phong trào:</strong> Nên chọn vợt <strong>4U (80-84g)</strong> cân bằng, dễ thuần.<br/>
                 • <strong>Chuyên công Smash:</strong> Chọn vợt nặng đầu (Head-Heavy).{racketLinks}<br/>
-                👉 <a href='/Tu-Van-Chon-Vot' class='chat-action-link'>Trắc nghiệm chọn vợt AI →</a>";
+                <a href='/Tu-Van-Chon-Vot' class='chat-action-link'><i class='bi bi-arrow-right-circle-fill me-1'></i> Trắc nghiệm chọn vợt AI →</a>";
             }
 
             if (q.Contains("cước") || q.Contains("căng") || q.Contains("đan") || q.Contains("kg"))
             {
-                return @"🛠️ <strong>Dịch vụ Căng Cước Điện Tử 4 Nút:</strong><br/>
+                return @"<i class='bi bi-tools text-primary me-1'></i> <strong>Dịch vụ Căng Cước Điện Tử 4 Nút:</strong><br/>
                 • <strong>Miễn phí công đan máy</strong> trị giá 60.000đ khi mua vợt tại shop!<br/>
                 • <strong>Mức cân gợi ý:</strong> Người mới (9.5 - 10.5kg) • Phong trào (10.5 - 11.5kg) • Bán chuyên (12kg+).<br/>
-                👉 <a href='/Dich-Vu-Cang-Cuoc' class='chat-action-link'>Xem bảng giá cước & quy trình đan 15p →</a>";
+                <a href='/Dich-Vu-Cang-Cuoc' class='chat-action-link'><i class='bi bi-arrow-right-circle-fill me-1'></i> Xem bảng giá cước & quy trình đan 15p →</a>";
             }
 
             if (q.Contains("giày") || q.Contains("size") || q.Contains("chân") || q.Contains("áo") || q.Contains("quần"))
             {
-                return @"👟 <strong>Hướng dẫn chọn Size Giày & Trang Phục:</strong><br/>
+                return @"<i class='bi bi-rulers text-success me-1'></i> <strong>Hướng dẫn chọn Size Giày & Trang Phục:</strong><br/>
                 • Đo chiều dài bàn chân (cm) và cộng thêm <strong>0.5cm</strong> (trừ hao tất dày thi đấu).<br/>
                 • Bàn chân bè ngang nên ưu tiên dòng <strong>Wide (3E/4E)</strong>.<br/>
-                👉 <a href='/Huong-Dan-Size' class='chat-action-link'>Mở bảng quy đổi Size chuẩn →</a>
-                <a href='/Danh-Muc?cat=giay' class='chat-action-link'>Xem các mẫu giày giảm chấn →</a>";
+                <a href='/Huong-Dan-Size' class='chat-action-link'><i class='bi bi-arrow-right-circle-fill me-1'></i> Mở bảng quy đổi Size chuẩn →</a>
+                <a href='/Danh-Muc?cat=giay' class='chat-action-link'><i class='bi bi-arrow-right-circle-fill me-1'></i> Xem các mẫu giày giảm chấn →</a>";
             }
 
             if (q.Contains("đơn") || q.Contains("tra cứu") || q.Contains("vận chuyển") || q.Contains("giao hàng"))
             {
-                return @"📦 <strong>Tra cứu đơn hàng & Vận chuyển:</strong><br/>
+                return @"<i class='bi bi-box-seam-fill text-warning me-1'></i> <strong>Tra cứu đơn hàng & Vận chuyển:</strong><br/>
                 • Giao siêu tốc nội thành <strong>2-4 giờ</strong>, toàn quốc 2-3 ngày.<br/>
-                👉 <a href='/Tra-Cuu-Don-Hang' class='chat-action-link'>Tra cứu tiến độ đơn hàng ngay →</a>";
+                <a href='/Tra-Cuu-Don-Hang' class='chat-action-link'><i class='bi bi-arrow-right-circle-fill me-1'></i> Tra cứu tiến độ đơn hàng ngay →</a>";
             }
 
             if (q.Contains("bảo hành") || q.Contains("freeship") || q.Contains("đổi trả") || q.Contains("chính sách") || q.Contains("ship"))
             {
-                return @"🛡️ <strong>Chính sách Ưu đãi & Bảo hành:</strong><br/>
+                return @"<i class='bi bi-shield-check text-success me-1'></i> <strong>Chính sách Ưu đãi & Bảo hành:</strong><br/>
                 • Cam kết <strong>100% Chính hãng</strong> (Yonex, Victor, Li-Ning, Mizuno, Kawasaki).<br/>
                 • <strong>Freeship toàn quốc</strong> cho đơn hàng từ 499.000đ.<br/>
                 • Đổi trả miễn phí trong <strong>7 ngày</strong> nếu có lỗi từ nhà sản xuất.";
@@ -129,15 +129,15 @@ namespace tieudaobadminton.Controllers
 
             if (q.Contains("liên hệ") || q.Contains("hotline") || q.Contains("nhân viên") || q.Contains("địa chỉ") || q.Contains("gọi") || q.Contains("sđt"))
             {
-                return @"📞 <strong>Thông tin Liên hệ Tiêu Đao Badminton:</strong><br/>
+                return @"<i class='bi bi-telephone-fill text-danger me-1'></i> <strong>Thông tin Liên hệ Tiêu Đao Badminton:</strong><br/>
                 • <strong>Hotline Tư vấn 24/7:</strong> <a href='tel:0900000000' class='fw-bold text-danger'>0900 000 000</a><br/>
                 • <strong>Địa chỉ:</strong> 123 Đường Cầu Lông, TP. Hồ Chí Minh (8:00 - 21:30)<br/>
-                👉 <a href='tel:0900000000' class='chat-action-link'>📞 Gọi ngay cho kỹ thuật viên →</a>";
+                <a href='tel:0900000000' class='chat-action-link'><i class='bi bi-telephone-outbound-fill me-1'></i> Gọi ngay cho kỹ thuật viên →</a>";
             }
 
-            return $@"🏸 Xin chào! Với yêu cầu <strong>""{input}""</strong>, bạn có thể tham khảo:<br/>
-            • <a href='/Tu-Van-Chon-Vot' class='chat-action-link'>⚡ Trợ lý Tư vấn Vợt AI</a>
-            • <a href='/Danh-Muc' class='chat-action-link'>📂 Xem toàn bộ sản phẩm</a><br/>
+            return $@"<i class='bi bi-chat-dots-fill text-primary me-1'></i> Xin chào! Với yêu cầu <strong>""{input}""</strong>, bạn có thể tham khảo:<br/>
+            • <a href='/Tu-Van-Chon-Vot' class='chat-action-link'><i class='bi bi-cpu-fill me-1'></i> Trợ lý Tư vấn Vợt AI</a>
+            • <a href='/Danh-Muc' class='chat-action-link'><i class='bi bi-grid-fill me-1'></i> Xem toàn bộ sản phẩm</a><br/>
             • Hoặc gọi trực tiếp Hotline <a href='tel:0900000000' class='fw-bold text-danger'>0900 000 000</a> để kỹ thuật viên tư vấn 1-1 ngay nhé!";
         }
     }

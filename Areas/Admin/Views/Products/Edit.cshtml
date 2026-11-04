@@ -11,7 +11,7 @@
     <!-- BACK & HEADER -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <a asp-action="Index" class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold">
-            ← Quay lại danh sách sản phẩm
+            <i class="bi bi-arrow-left me-1"></i> Quay lại danh sách sản phẩm
         </a>
         <div class="d-flex align-items-center gap-2">
             <span class="text-muted small">Tổng tồn kho:</span>
@@ -53,7 +53,7 @@
 
         <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
             <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
-                <div class="fs-2 text-primary">✏️</div>
+                <div class="fs-2 text-primary"><i class="bi bi-pencil-square"></i></div>
                 <div>
                     <h4 class="fw-black text-dark m-0">Chỉnh sửa thông tin sản phẩm #@Model.Id</h4>
                     <div class="text-muted small">Cập nhật thông tin chi tiết, hình ảnh và giá niêm yết</div>
@@ -132,7 +132,7 @@
 
             <!-- BẢNG PHÂN LOẠI & MÃ SKU (TỒN KHO LÀ CHỈ ĐỌC, KHÔNG THỂ SỬA TRỰC TIẾP) -->
             <div class="mt-4 pt-3 border-top">
-                <h6 class="fw-bold text-dark mb-3">🏷️ Cấu hình mã SKU các phân loại (Tồn kho hiển thị thực tế)</h6>
+                <h6 class="fw-bold text-dark mb-3"><i class="bi bi-tags-fill text-primary me-2"></i>Cấu hình mã SKU các phân loại (Tồn kho hiển thị thực tế)</h6>
 
                 @if (Model.ExistingVariants == null || Model.ExistingVariants.Count == 0)
                 {
@@ -146,18 +146,20 @@
                         <table class="table table-bordered align-middle mb-0">
                             <thead class="table-light small">
                                 <tr>
-                                    <th style="width: 120px;">SIZE / CỠ</th>
+                                    <th style="width: 100px;">SIZE / CỠ</th>
                                     <th style="width: 120px;">MÀU SẮC</th>
+                                    <th style="width: 220px;">ẢNH PREVIEW THEO MÀU</th>
                                     <th>MÃ SKU KHO</th>
-                                    <th style="width: 180px;" class="text-center">SỐ LƯỢNG HIỆN CÓ</th>
-                                    <th style="width: 120px;" class="text-center">TÌNH TRẠNG</th>
-                                    <th style="width: 70px;" class="text-center">XÓA</th>
+                                    <th style="width: 140px;" class="text-center">SỐ LƯỢNG</th>
+                                    <th style="width: 110px;" class="text-center">TÌNH TRẠNG</th>
+                                    <th style="width: 60px;" class="text-center">XÓA</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @for (int i = 0; i < Model.ExistingVariants.Count; i++)
                                 {
                                     var v = Model.ExistingVariants[i];
+                                    var previewImg = !string.IsNullOrWhiteSpace(v.ImageUrl) ? v.ImageUrl : (Model.MainImageUrl ?? "/img/demo/placeholder.jpg");
                                     <tr>
                                         <td>
                                             <input type="hidden" name="variantIds" value="@v.Id" />
@@ -169,6 +171,15 @@
                                             <span class="text-dark fw-medium">
                                                 @(string.IsNullOrWhiteSpace(v.Color) ? "-" : v.Color)
                                             </span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <img src="@previewImg"
+                                                     style="width: 38px; height: 38px; object-fit: cover; border-radius: 6px; border: 1px solid #e2e8f0;"
+                                                     alt="@v.Color"
+                                                     onerror="this.src='/img/demo/placeholder.jpg';" />
+                                                <input type="text" name="variantImageUrls" value="@v.ImageUrl" class="form-control form-control-sm" placeholder="URL ảnh màu..." />
+                                            </div>
                                         </td>
                                         <td>
                                             <input type="text" name="variantSkus" value="@v.Sku" class="form-control form-control-sm font-monospace" placeholder="Mã SKU..." />
@@ -213,7 +224,7 @@
                 }
 
                 <div class="alert alert-light border small text-muted mt-3 mb-0">
-                    🔒 <strong>Quy định bảo toàn kho:</strong> Số lượng tồn kho <strong>không thể chỉnh sửa trực tiếp</strong> tại đây nhằm tránh sai lệch số liệu. Để tăng số lượng, vui lòng sử dụng biểu mẫu <strong>Phiếu Nhập Hàng</strong> bên dưới.
+                    <i class="bi bi-shield-lock-fill text-secondary me-1"></i> <strong>Quy định bảo toàn kho:</strong> Số lượng tồn kho <strong>không thể chỉnh sửa trực tiếp</strong> tại đây nhằm tránh sai lệch số liệu. Để tăng số lượng, vui lòng sử dụng biểu mẫu <strong>Phiếu Nhập Hàng</strong> bên dưới.
                 </div>
             </div>
 
@@ -221,16 +232,85 @@
             <div class="d-flex justify-content-end gap-2 pt-3 mt-3 border-top">
                 <a asp-action="Index" class="btn btn-light rounded-pill px-4 fw-bold">Hủy bỏ</a>
                 <button type="submit" class="btn btn-dark rounded-pill px-4 fw-bold">
-                    ✓ Lưu thông tin sản phẩm
+                    <i class="bi bi-check-lg me-1"></i> Lưu thông tin sản phẩm
                 </button>
             </div>
         </div>
     </form>
 
+    <!-- 1B. UPLOAD & GẮN ẢNH PREVIEW CHO TỪNG MÀU SẮC (ÁP DỤNG ĐỒNG LOẠT CHO MỌI SIZE CỦA MÀU ĐÓ) -->
+    @{
+        var distinctColorGroups = (Model.ExistingVariants ?? new List<tieudaobadminton.ViewModels.ProductVariantItemVM>())
+            .Where(v => !string.IsNullOrWhiteSpace(v.Color) && v.Color.Trim() != "-")
+            .GroupBy(v => v.Color!.Trim(), StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+    @if (distinctColorGroups.Count > 0)
+    {
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4 border-start border-4 border-primary">
+            <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
+                <div class="fs-2 text-primary"><i class="bi bi-palette-fill"></i></div>
+                <div>
+                    <h5 class="fw-black text-dark m-0">Quản lý Ảnh Preview theo từng Màu sắc</h5>
+                    <div class="text-muted small">Tải ảnh từ máy tính hoặc nhập URL cho từng màu — hệ thống tự động áp dụng cho tất cả các Size của màu đó</div>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                @foreach (var colorGrp in distinctColorGroups)
+                {
+                    var colorName = colorGrp.Key;
+                    var currentImg = colorGrp.Select(x => x.ImageUrl).FirstOrDefault(u => !string.IsNullOrWhiteSpace(u))
+                                     ?? Model.MainImageUrl
+                                     ?? "/img/demo/placeholder.jpg";
+                    var sizeCount = colorGrp.Count();
+
+                    <div class="col-12">
+                        <form method="post" asp-action="UpdateColorImage" enctype="multipart/form-data" class="p-3 rounded-4 border bg-light">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="productId" value="@Model.Id" />
+                            <input type="hidden" name="colorName" value="@colorName" />
+
+                            <div class="row g-3 align-items-center">
+                                <div class="col-md-3 d-flex align-items-center gap-3">
+                                    <img src="@currentImg"
+                                         style="width: 64px; height: 64px; object-fit: contain; border-radius: 12px; background: #fff; border: 1px solid #cbd5e1; padding: 4px;"
+                                         alt="@colorName"
+                                         onerror="this.src='/img/demo/placeholder.jpg';" />
+                                    <div>
+                                        <div class="fw-bold text-dark fs-6">@colorName</div>
+                                        <span class="badge bg-white text-muted border">@sizeCount size đang dùng màu này</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-bold text-dark mb-1">1. Chọn file ảnh từ máy tính:</label>
+                                    <input type="file" name="colorImageFile" class="form-control form-control-sm rounded-3" accept=".jpg,.jpeg,.png,.webp,.jfif" />
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-bold text-muted mb-1">2. Hoặc đường dẫn URL ảnh:</label>
+                                    <input type="text" name="colorImageUrl" value="@currentImg" class="form-control form-control-sm rounded-3" placeholder="/img/products/..." />
+                                </div>
+
+                                <div class="col-md-2 d-grid">
+                                    <label class="form-label small d-none d-md-block">&nbsp;</label>
+                                    <button type="submit" class="btn btn-primary btn-sm rounded-pill fw-bold py-2 shadow-xs">
+                                        <i class="bi bi-floppy-fill me-1"></i> Lưu ảnh màu
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
     <!-- 2. PHIẾU NHẬP HÀNG BỔ SUNG (RESTOCK - TĂNG DẦN SỐ LƯỢNG) -->
     <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4 border-start border-4 border-success">
         <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
-            <div class="fs-2 text-success">📥</div>
+            <div class="fs-2 text-success"><i class="bi bi-box-arrow-in-down"></i></div>
             <div>
                 <h5 class="fw-black text-dark m-0">Phiếu Nhập Hàng Bổ Sung Vào Kho</h5>
                 <div class="text-muted small">Cộng dồn số lượng sản phẩm nhập về từ nhà phân phối / xưởng sản xuất</div>
@@ -287,7 +367,7 @@
                 <!-- NÚT XÁC NHẬN -->
                 <div class="col-md-2 d-grid">
                     <button type="submit" class="btn btn-success rounded-pill fw-bold py-2 shadow-sm">
-                        📥 Xác nhận nhập
+                        <i class="bi bi-box-arrow-in-down me-1"></i> Xác nhận nhập
                     </button>
                 </div>
             </div>
@@ -296,31 +376,31 @@
 
     <!-- 3. THÊM PHÂN LOẠI SIZE/MÀU MỚI (NẾU CÓ SIZE MỚI) -->
     <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
-        <h6 class="fw-bold text-dark mb-3">➕ Khai báo thêm phân loại Size / Màu mới</h6>
-        <form method="post" asp-action="AddVariant">
+        <h6 class="fw-bold text-dark mb-3"><i class="bi bi-plus-circle-fill text-primary me-2"></i>Khai báo thêm phân loại Size / Màu mới</h6>
+        <form method="post" asp-action="AddVariant" enctype="multipart/form-data">
             @Html.AntiForgeryToken()
             <input type="hidden" name="productId" value="@Model.Id" />
 
             <div class="row g-2 align-items-end">
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label class="form-label small fw-bold text-muted">KÍCH THƯỚC (SIZE)</label>
-                    <input type="text" name="size" class="form-control rounded-3" placeholder="Ví dụ: 4U-G5, 42 hoặc XL" />
+                    <input type="text" name="size" class="form-control rounded-3" placeholder="VD: 4U-G5, 42, XL" />
                 </div>
                 <div class="col-md-3">
                     <label class="form-label small fw-bold text-muted">MÀU SẮC</label>
-                    <input type="text" name="color" class="form-control rounded-3" placeholder="Ví dụ: Trắng / Đỏ, Đen / Vàng" />
+                    <input type="text" name="color" class="form-control rounded-3" placeholder="VD: Trắng / Đỏ, Đen" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-muted">ẢNH MÀU SẮC (TÙY CHỌN)</label>
+                    <input type="file" name="variantImageFile" class="form-control rounded-3" accept=".jpg,.jpeg,.png,.webp,.jfif" />
                 </div>
                 <div class="col-md-2">
                     <label class="form-label small fw-bold text-muted">SL NHẬP BAN ĐẦU</label>
                     <input type="number" min="0" name="stock" value="10" class="form-control rounded-3 fw-bold text-primary" required />
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label small fw-bold text-muted">MÃ SKU</label>
-                    <input type="text" name="sku" class="form-control rounded-3 font-monospace" placeholder="Tự sinh nếu trống" />
-                </div>
                 <div class="col-md-2 d-grid">
                     <button type="submit" class="btn btn-outline-dark rounded-pill fw-bold py-2">
-                        + Tạo phân loại
+                        <i class="bi bi-plus-lg me-1"></i> Tạo phân loại
                     </button>
                 </div>
             </div>
@@ -331,7 +411,7 @@
     @if (recentReceipts.Count > 0)
     {
         <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-5">
-            <h6 class="fw-bold text-dark mb-3">📜 Nhật ký các lần nhập hàng gần đây của sản phẩm</h6>
+            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-clock-history text-secondary me-2"></i>Nhật ký các lần nhập hàng gần đây của sản phẩm</h6>
             <div class="table-responsive">
                 <table class="table table-sm table-hover align-middle mb-0 small">
                     <thead class="table-light">
@@ -339,7 +419,7 @@
                             <th>THỜI GIAN</th>
                             <th>PHÂN LOẠI</th>
                             <th class="text-center">SỐ LƯỢNG NHẬP</th>
-                            <th class="text-center">TỒN TRƯỚC → SAU</th>
+                            <th class="text-center">TỒN TRƯỚC <i class="bi bi-arrow-right mx-1"></i> SAU</th>
                             <th>GHI CHÚ</th>
                             <th>NGƯỜI THỰC HIỆN</th>
                         </tr>
@@ -355,7 +435,7 @@
                                     </span>
                                 </td>
                                 <td class="text-center fw-bold text-success">+@r.QuantityAdded chiếc</td>
-                                <td class="text-center font-monospace">@r.PreviousStock → <strong>@r.NewStock</strong></td>
+                                <td class="text-center font-monospace">@r.PreviousStock <i class="bi bi-arrow-right mx-1"></i> <strong>@r.NewStock</strong></td>
                                 <td class="text-muted">@r.Note</td>
                                 <td><span class="badge bg-dark rounded-pill">@r.CreatedBy</span></td>
                             </tr>

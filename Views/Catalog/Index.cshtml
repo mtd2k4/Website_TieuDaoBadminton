@@ -101,7 +101,7 @@
                     <!-- HEADER DANH MỤC CẤP 1 & 2 -->
                     <div class="catalog-sidebar-header">
                         <h5 class="fw-bold mb-0 text-dark d-flex align-items-center gap-2">
-                            <span class="fs-5">📂</span> Danh Mục
+                            <span class="fs-5"><i class="bi bi-folder2-open"></i></span> Danh Mục
                         </h5>
                         @if (hasActiveFilter)
                         {
@@ -115,7 +115,7 @@
                         <!-- Mục: Tất cả sản phẩm -->
                         <a href="/Danh-Muc" class="catalog-level1-link catalog-filter-link @(string.IsNullOrEmpty(Model.ActiveCat) ? "active" : "")">
                             <span class="d-flex align-items-center gap-2">
-                                <span class="cat-lead-icon">⚡</span> Tất cả sản phẩm
+                                <span class="cat-lead-icon"><i class="bi bi-lightning-charge-fill"></i></span> Tất cả sản phẩm
                             </span>
                             <span class="badge-count">@Model.Categories.Sum(c => c.Count)</span>
                         </a>
@@ -133,7 +133,7 @@
                                     <div class="catalog-level1-row @(cat.IsActive ? "is-parent-active" : "")">
                                         <a href="@BuildFilterUrl(newCat: cat.Slug, newSub: "")" 
                                            class="catalog-level1-title catalog-filter-link @(cat.IsActive && string.IsNullOrEmpty(Model.ActiveSub) ? "active-text" : "")">
-                                            <span class="cat-lead-icon">@cat.Icon</span>
+                                            <span class="cat-lead-icon">@Html.Raw(cat.Icon)</span>
                                             <span class="cat-name-text">@cat.Name</span>
                                         </a>
                                         
@@ -180,7 +180,7 @@
                     <!-- BỘ LỌC THEO THƯƠNG HIỆU -->
                     <div class="catalog-filter-group mb-4">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h6 class="catalog-filter-title mb-0">🏷️ Thương Hiệu</h6>
+                            <h6 class="catalog-filter-title mb-0"><i class="bi bi-tags-fill me-1"></i>Thương Hiệu</h6>
                             @if (Model.ActiveBrandId.HasValue)
                             {
                                 <a href="@BuildFilterUrl(newBrandId: 0)" class="filter-mini-clear catalog-filter-link">Bỏ chọn</a>
@@ -208,7 +208,7 @@
                     <!-- BỘ LỌC THEO KHOẢNG GIÁ (THANH TRƯỢT RANGE SLIDER) -->
                     <div class="catalog-filter-group mb-4">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h6 class="catalog-filter-title mb-0">💰 Khoảng Giá</h6>
+                            <h6 class="catalog-filter-title mb-0"><i class="bi bi-cash-stack me-1"></i>Khoảng Giá</h6>
                             @if ((Model.MinPrice.HasValue && Model.MinPrice.Value > 0) || (Model.MaxPrice.HasValue && Model.MaxPrice.Value < 5000000))
                             {
                                 <a href="@BuildFilterUrl(newMinPrice: 0, newMaxPrice: 5000000, newPrice: "")" class="filter-mini-clear catalog-filter-link">Bỏ chọn</a>
@@ -304,11 +304,11 @@
                             <label for="sortSelect" class="text-muted small fw-semibold text-nowrap">Sắp xếp:</label>
                             <select id="sortSelect" class="form-select form-select-sm catalog-sort-select"
                                     data-base-url="@BuildFilterUrl(newSort: "PLACEHOLDER")">
-                                <option value="newest" selected="@(Model.ActiveSort == "newest" || string.IsNullOrEmpty(Model.ActiveSort))">✨ Mới nhất</option>
-                                <option value="price-asc" selected="@(Model.ActiveSort == "price-asc")">💵 Giá: Thấp đến Cao</option>
-                                <option value="price-desc" selected="@(Model.ActiveSort == "price-desc")">💎 Giá: Cao đến Thấp</option>
-                                <option value="sale" selected="@(Model.ActiveSort == "sale")">🔥 Ưu đãi giảm nhiều</option>
-                                <option value="name-asc" selected="@(Model.ActiveSort == "name-asc")">🔤 Tên: A - Z</option>
+                                <option value="newest" selected="@(Model.ActiveSort == "newest" || string.IsNullOrEmpty(Model.ActiveSort))">Mới nhất</option>
+                                <option value="price-asc" selected="@(Model.ActiveSort == "price-asc")">Giá: Thấp đến Cao</option>
+                                <option value="price-desc" selected="@(Model.ActiveSort == "price-desc")">Giá: Cao đến Thấp</option>
+                                <option value="sale" selected="@(Model.ActiveSort == "sale")">Ưu đãi giảm nhiều</option>
+                                <option value="name-asc" selected="@(Model.ActiveSort == "name-asc")">Tên: A - Z</option>
                             </select>
                         </div>
                     </div>
@@ -323,7 +323,7 @@
                             {
                                 <span class="active-chip">
                                     <span>Danh mục: @Model.CurrentParentName</span>
-                                    <a href="@BuildFilterUrl(newCat: "")" class="catalog-filter-link" title="Bỏ lọc danh mục">✕</a>
+                                    <a href="@BuildFilterUrl(newCat: "")" class="catalog-filter-link" title="Bỏ lọc danh mục"><i class="bi bi-x-lg"></i></a>
                                 </span>
                             }
 
@@ -331,7 +331,7 @@
                             {
                                 <span class="active-chip">
                                     <span>Phân loại: @Model.CurrentSubName</span>
-                                    <a href="@BuildFilterUrl(newSub: "")" class="catalog-filter-link" title="Bỏ lọc danh mục con">✕</a>
+                                    <a href="@BuildFilterUrl(newSub: "")" class="catalog-filter-link" title="Bỏ lọc danh mục con"><i class="bi bi-x-lg"></i></a>
                                 </span>
                             }
 
@@ -340,7 +340,7 @@
                                 var brandName = Model.Brands.FirstOrDefault(b => b.Id == Model.ActiveBrandId)?.Name ?? "Hãng";
                                 <span class="active-chip">
                                     <span>Hãng: @brandName</span>
-                                    <a href="@BuildFilterUrl(newBrandId: 0)" class="catalog-filter-link" title="Bỏ lọc hãng">✕</a>
+                                    <a href="@BuildFilterUrl(newBrandId: 0)" class="catalog-filter-link" title="Bỏ lọc hãng"><i class="bi bi-x-lg"></i></a>
                                 </span>
                             }
 
@@ -350,7 +350,7 @@
                                 var maxStr = (Model.MaxPrice.HasValue && Model.MaxPrice.Value < 5000000) ? Model.MaxPrice.Value.ToString("n0") + " đ" : "Tối đa";
                                 <span class="active-chip">
                                     <span>Giá: @minStr — @maxStr</span>
-                                    <a href="@BuildFilterUrl(newMinPrice: 0, newMaxPrice: 5000000, newPrice: "")" class="catalog-filter-link" title="Bỏ lọc giá">✕</a>
+                                    <a href="@BuildFilterUrl(newMinPrice: 0, newMaxPrice: 5000000, newPrice: "")" class="catalog-filter-link" title="Bỏ lọc giá"><i class="bi bi-x-lg"></i></a>
                                 </span>
                             }
 
@@ -358,7 +358,7 @@
                             {
                                 <span class="active-chip">
                                     <span>Từ khóa: "@Model.SearchKeyword"</span>
-                                    <a href="@BuildFilterUrl(newQ: "")" class="catalog-filter-link" title="Bỏ từ khóa">✕</a>
+                                    <a href="@BuildFilterUrl(newQ: "")" class="catalog-filter-link" title="Bỏ từ khóa"><i class="bi bi-x-lg"></i></a>
                                 </span>
                             }
 
@@ -371,13 +371,13 @@
                 @if (Model.TotalCount == 0)
                 {
                     <div class="catalog-empty-box text-center py-5">
-                        <div class="display-3 mb-3">🔍</div>
+                        <div class="display-3 mb-3 text-muted"><i class="bi bi-search"></i></div>
                         <h4 class="fw-bold">Không tìm thấy sản phẩm phù hợp</h4>
                         <p class="text-muted mb-4" style="max-width: 440px; margin: 0 auto;">
                             Không có sản phẩm nào khớp với tiêu chí bạn chọn trong menu cấp 2 hoặc khoảng giá đã chọn. Vui lòng thử nới rộng thanh trượt giá hoặc xem tất cả danh mục.
                         </p>
                         <a class="btn btn-dark rounded-pill px-4 py-2 fw-bold catalog-filter-link" href="/Danh-Muc">
-                            Xem tất cả danh mục sản phẩm →
+                            Xem tất cả danh mục sản phẩm <i class="bi bi-arrow-right ms-1"></i>
                         </a>
                     </div>
                 }
@@ -419,7 +419,14 @@
                                                 class="pro-wishlist-btn @(isFavorited ? "active" : "")" 
                                                 onclick="toggleWishlist(@p.Id, this);" 
                                                 title="@(isFavorited ? "Bỏ lưu yêu thích" : "Lưu vào yêu thích")">
-                                            @(isFavorited ? "❤️" : "🤍")
+                                            @if (isFavorited)
+                                            {
+                                                <i class="bi bi-heart-fill"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="bi bi-heart"></i>
+                                            }
                                         </button>
 
                                         <div class="pro-quick-sizes">
@@ -430,7 +437,7 @@
                                     <!-- Card Body -->
                                     <div class="pro-card-body">
                                         <div class="pro-rating-row">
-                                            <span>★★★★★</span>
+                                            <span class="text-warning"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></span>
                                             <span class="pro-rating-score">4.9</span>
                                             <span class="pro-rating-count">(98)</span>
                                         </div>
@@ -451,7 +458,7 @@
 
                                         <a class="btn-pro-action" asp-controller="Products" asp-action="Detail" asp-route-id="@p.Id">
                                             <span>Chi tiết</span>
-                                            <span>→</span>
+                                            <i class="bi bi-arrow-right"></i>
                                         </a>
                                     </div>
                                 </div>
@@ -470,13 +477,13 @@
 <!-- ============================================== -->
 <div class="offcanvas offcanvas-start" tabindex="-1" id="catalogFilterOffcanvas" aria-labelledby="catalogFilterLabel">
     <div class="offcanvas-header border-bottom">
-        <h5 class="offcanvas-title fw-bold" id="catalogFilterLabel">📂 Bộ Lọc & Danh Mục</h5>
+        <h5 class="offcanvas-title fw-bold" id="catalogFilterLabel"><i class="bi bi-folder2-open me-2"></i>Bộ Lọc & Danh Mục</h5>
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body" id="catalogOffcanvasArea">
         <!-- ALL CATEGORIES LINK -->
         <a href="/Danh-Muc" class="catalog-level1-link catalog-filter-link @(string.IsNullOrEmpty(Model.ActiveCat) ? "active" : "") mb-3">
-            <span>⚡ Tất cả sản phẩm</span>
+            <span><i class="bi bi-lightning-charge-fill me-1"></i>Tất cả sản phẩm</span>
             <span class="badge-count">@Model.Categories.Sum(c => c.Count)</span>
         </a>
 
@@ -491,7 +498,7 @@
                     <div class="catalog-level1-row @(cat.IsActive ? "is-parent-active" : "")">
                         <a href="@BuildFilterUrl(newCat: cat.Slug, newSub: "")" 
                            class="catalog-level1-title catalog-filter-link @(cat.IsActive && string.IsNullOrEmpty(Model.ActiveSub) ? "active-text" : "")">
-                            <span>@cat.Icon</span>
+                            <span>@Html.Raw(cat.Icon)</span>
                             <span>@cat.Name</span>
                         </a>
                         <div class="d-flex align-items-center gap-2">
@@ -531,7 +538,7 @@
 
         <!-- BRANDS -->
         <div class="catalog-filter-group mb-4">
-            <h6 class="catalog-filter-title">🏷️ Thương Hiệu</h6>
+            <h6 class="catalog-filter-title"><i class="bi bi-tags-fill me-1"></i>Thương Hiệu</h6>
             <div class="catalog-brand-list">
                 <a href="@BuildFilterUrl(newBrandId: 0)" class="brand-filter-chip catalog-filter-link @(!Model.ActiveBrandId.HasValue ? "active" : "")">Tất cả</a>
                 @foreach (var b in Model.Brands)
@@ -549,7 +556,7 @@
         <!-- PRICE SLIDER (MOBILE) -->
         <div class="catalog-filter-group mb-4">
             <div class="d-flex justify-content-between align-items-center mb-2">
-                <h6 class="catalog-filter-title mb-0">💰 Khoảng Giá</h6>
+                <h6 class="catalog-filter-title mb-0"><i class="bi bi-cash-stack me-1"></i>Khoảng Giá</h6>
                 @if ((Model.MinPrice.HasValue && Model.MinPrice.Value > 0) || (Model.MaxPrice.HasValue && Model.MaxPrice.Value < 5000000))
                 {
                     <a href="@BuildFilterUrl(newMinPrice: 0, newMaxPrice: 5000000, newPrice: "")" class="filter-mini-clear catalog-filter-link">Bỏ chọn</a>
@@ -598,7 +605,7 @@
         @if (hasActiveFilter)
         {
             <a href="/Danh-Muc" class="btn btn-outline-danger w-100 rounded-pill py-2 fw-bold catalog-filter-link">
-                🔄 Xóa tất cả bộ lọc
+                <i class="bi bi-arrow-counterclockwise me-1"></i>Xóa tất cả bộ lọc
             </a>
         }
     </div>

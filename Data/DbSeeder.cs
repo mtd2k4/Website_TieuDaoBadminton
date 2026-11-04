@@ -10,7 +10,7 @@ namespace tieudaobadminton.Data
             using var scope = sp.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-            // Đảm bảo bảng ContactMessages & StockReceipts tồn tại nếu chưa chạy migration
+            // Đảm bảo bảng ContactMessages, StockReceipts, ProductReviews & cột ImageUrl tồn tại
             try
             {
                 await db.Database.ExecuteSqlRawAsync(@"
@@ -83,6 +83,12 @@ BEGIN
         CONSTRAINT [FK_ProductReviews_Products_ProductId] FOREIGN KEY ([ProductId]) REFERENCES [Products] ([Id]) ON DELETE CASCADE
     );
 END
+
+IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'ProductVariants')
+BEGIN
+    IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'ProductVariants' AND COLUMN_NAME = 'ImageUrl')
+        ALTER TABLE [ProductVariants] ADD [ImageUrl] nvarchar(max) NULL;
+END
 ");
             }
             catch { /* Không chặn luồng khởi động */ }
@@ -128,7 +134,7 @@ END
             }
             catch { /* Không chặn luồng khởi động */ }
 
-            // Tự động kiểm tra và chuẩn hóa toàn bộ dữ liệu Size & Màu sắc cho database hiện có
+            // Tự động kiểm tra và chuẩn hóa toàn bộ dữ liệu Size, Màu sắc & Ảnh theo màu cho database hiện có
             try
             {
                 await NormalizeProductVariantsAsync(db);
@@ -168,7 +174,7 @@ END
                     IsActive = true
                 };
 
-            // ===== 1) VỢT (20 sản phẩm, mỗi sản phẩm 1 variant stock) =====
+            // ===== 1) VỢT (20 sản phẩm) =====
             var rackets = new List<(string name, Brand brand, decimal price, decimal? sale)>
             {
                 ("Astrox 99 Pro", yonex, 4500000, 3990000),
@@ -200,7 +206,6 @@ END
 
             string Pick(string[] arr) => arr[rnd.Next(arr.Length)];
 
-
             foreach (var (name, brand, price, sale) in rackets)
             {
                 var p = NewProduct($"{brand.Name} {name}", catVot, brand, price, sale, Pick(racketImgs));
@@ -213,11 +218,13 @@ END
                 {
                     for (int cIdx = 0; cIdx < racketColors.Length; cIdx++)
                     {
+                        var colorImg = ResolveVariantColorImage(true, false, false, p.Name, racketColors[cIdx], p.Id);
                         db.ProductVariants.Add(new ProductVariant
                         {
                             ProductId = p.Id,
                             Size = racketSizes[sIdx],
                             Color = racketColors[cIdx],
+                            ImageUrl = colorImg,
                             Stock = rnd.Next(6, 22),
                             Sku = $"RKT-{p.Id:D4}-{racketSizes[sIdx][..2]}-C{cIdx + 1}"
                         });
@@ -264,6 +271,7 @@ END
                 for (int cIdx = 0; cIdx < shoeColors.Length; cIdx++)
                 {
                     var color = shoeColors[cIdx];
+                    var colorImg = ResolveVariantColorImage(false, true, false, p.Name, color, p.Id);
                     foreach (var size in shoeSizes)
                     {
                         db.ProductVariants.Add(new ProductVariant
@@ -271,6 +279,7 @@ END
                             ProductId = p.Id,
                             Size = size,
                             Color = color,
+                            ImageUrl = colorImg,
                             Stock = rnd.Next(5, 18),
                             Sku = $"SHO-{p.Id:D4}-{size}-C{cIdx + 1}"
                         });
@@ -321,20 +330,25 @@ END
                 await db.SaveChangesAsync();
 
                 foreach (var size in clothSizes)
+                {
                     foreach (var color in clothColors)
                     {
+                        var colorImg = ResolveVariantColorImage(false, false, true, p.Name, color, p.Id);
                         db.ProductVariants.Add(new ProductVariant
                         {
                             ProductId = p.Id,
                             Size = size,
                             Color = color,
+                            ImageUrl = colorImg,
                             Stock = rnd.Next(5, 20),
                             Sku = $"CLT-{p.Id:D4}-{size}-{color[..1].ToUpper()}"
                         });
                     }
+                }
             }
 
             await db.SaveChangesAsync();
+
             // ===== SEED BÁN CHẠY: 15 SP (5 vợt + 5 giày + 5 quần áo) =====
             var rackets15 = await db.Products.Include(p => p.Category)
                 .Where(p => p.Category.Slug == "vot")
@@ -353,7 +367,6 @@ END
 
             var top15 = rackets15.Concat(shoes15).Concat(clothes15).ToList();
 
-            // 1 đơn "Done" chứa đủ 15 SP => đảm bảo home hiển thị đủ 15
             var order = new Order
             {
                 UserId = "seed",
@@ -368,13 +381,13 @@ END
             decimal total = 0;
             foreach (var p in top15)
             {
-                var qty = rnd.Next(2, 10); // mua nhiều để nổi lên
+                var qty = rnd.Next(2, 10);
                 var unit = p.SalePrice ?? p.Price;
 
                 db.OrderItems.Add(new OrderItem
                 {
                     OrderId = order.Id,
-                    ProductName = p.Name,      // Home đang group theo ProductName
+                    ProductName = p.Name,
                     Quantity = qty,
                     UnitPrice = unit
                 });
@@ -453,6 +466,123 @@ END
             return new[] { "Trắng / Đỏ", "Đen / Vàng" };
         }
 
+        /// <summary>
+        /// Ánh xạ thông minh từ Màu sắc sản phẩm (Quần áo, Giày, Vợt) sang ảnh preview đúng màu sắc thực tế trong kho ảnh
+        /// </summary>
+        public static string ResolveVariantColorImage(bool isRacket, bool isShoe, bool isApparel, string productName, string? colorName, int productId)
+        {
+            var c = (colorName ?? "").Trim().ToLowerInvariant();
+            var primaryPart = c.Contains('/') ? c.Split('/')[0].Trim() : c;
+
+            // 1. QUẦN ÁO (Clothes): c1..c12.jfif
+            if (isApparel)
+            {
+                // Nhóm ảnh áo màu Đen thực tế: c7, c9, c11, c12
+                var blackClothes = new[] { "/img/products/clothes/c7.jfif", "/img/products/clothes/c9.jfif", "/img/products/clothes/c11.jfif", "/img/products/clothes/c12.jfif" };
+                // Nhóm ảnh áo màu Trắng thực tế: c1, c2, c4, c6, c8, c10
+                var whiteClothes = new[] { "/img/products/clothes/c1.jfif", "/img/products/clothes/c2.jfif", "/img/products/clothes/c4.jfif", "/img/products/clothes/c6.jfif", "/img/products/clothes/c8.jfif", "/img/products/clothes/c10.jfif" };
+                // Nhóm ảnh áo màu Xanh Navy / Xanh Dương thực tế: c5, c3
+                var navyClothes = new[] { "/img/products/clothes/c5.jfif", "/img/products/clothes/c3.jfif" };
+
+                if (primaryPart.Contains("đen") || primaryPart.Contains("black"))
+                    return blackClothes[Math.Abs(productId) % blackClothes.Length];
+                if (primaryPart.Contains("trắng") || primaryPart.Contains("white"))
+                    return whiteClothes[Math.Abs(productId) % whiteClothes.Length];
+                if (primaryPart.Contains("xanh") || primaryPart.Contains("navy") || primaryPart.Contains("blue"))
+                    return navyClothes[Math.Abs(productId) % navyClothes.Length];
+
+                return whiteClothes[Math.Abs(productId) % whiteClothes.Length];
+            }
+
+            // 2. GIÀY CẦU LÔNG (Shoes): s1..s12.jfif
+            if (isShoe)
+            {
+                if (primaryPart.Contains("trắng") || primaryPart.Contains("white"))
+                {
+                    if (c.Contains("đỏ") || c.Contains("cam") || c.Contains("tím") || c.Contains("hồng"))
+                        return "/img/products/shoes/s7.jfif"; // Giày Trắng phối Đỏ/Hồng
+                    if (c.Contains("vàng") || c.Contains("ngọc"))
+                        return (productId % 2 == 0) ? "/img/products/shoes/s12.jfif" : "/img/products/shoes/s5.jfif"; // Giày Trắng phối Vàng Gold / Kem Ngọc
+                    if (c.Contains("đen"))
+                        return "/img/products/shoes/s8.jfif"; // Giày Trắng phối Đen
+                    // Trắng phối Xanh
+                    return (productId % 2 == 0) ? "/img/products/shoes/s2.jfif" : "/img/products/shoes/s6.jfif";
+                }
+
+                if (primaryPart.Contains("đen") || primaryPart.Contains("black"))
+                {
+                    return (productId % 2 == 0) ? "/img/products/shoes/s11.jfif" : "/img/products/shoes/s9.jfif"; // Giày Đen chủ đạo
+                }
+
+                if (primaryPart.Contains("đỏ") || primaryPart.Contains("red"))
+                {
+                    var redShoes = new[] { "/img/products/shoes/s3.jfif", "/img/products/shoes/s10.jfif", "/img/products/shoes/s1.jfif" };
+                    return redShoes[Math.Abs(productId) % redShoes.Length]; // Giày Đỏ chủ đạo
+                }
+
+                if (primaryPart.Contains("xanh") || primaryPart.Contains("navy") || primaryPart.Contains("cyan"))
+                {
+                    return (c.Contains("cyan") || c.Contains("trắng"))
+                        ? "/img/products/shoes/s2.jfif"
+                        : "/img/products/shoes/s4.jfif"; // Giày Xanh chủ đạo
+                }
+
+                if (primaryPart.Contains("xám") || primaryPart.Contains("bạc"))
+                {
+                    return "/img/products/shoes/s6.jfif";
+                }
+
+                return "/img/products/shoes/s2.jfif";
+            }
+
+            // 3. VỢT CẦU LÔNG (Rackets): r1..r12.jfif
+            if (isRacket)
+            {
+                if (primaryPart.Contains("trắng") || primaryPart.Contains("bạch"))
+                {
+                    if (c.Contains("xanh")) return "/img/products/rackets/r11.jfif";
+                    if (c.Contains("tím") || c.Contains("hồng")) return "/img/products/rackets/r6.jfif";
+                    return (productId % 2 == 0) ? "/img/products/rackets/r4.jfif" : "/img/products/rackets/r1.jfif";
+                }
+
+                if (primaryPart.Contains("vàng") || c.Contains("vàng lightning") || c.Contains("vàng rồng") || c.Contains("tia chớp"))
+                {
+                    return c.Contains("đen") ? "/img/products/rackets/r8.jfif" : "/img/products/rackets/r3.jfif";
+                }
+
+                if (primaryPart.Contains("đỏ") || c.Contains("đỏ cherry") || c.Contains("đỏ ruby") || c.Contains("hổ phách") || c.Contains("sunburst") || c.Contains("bão táp") || c.Contains("đỏ shiny"))
+                {
+                    if (productName.Contains("Astrox 99", StringComparison.OrdinalIgnoreCase))
+                        return "/img/products/rackets/r1.jfif";
+                    return (productId % 2 == 0) ? "/img/products/rackets/r12.jfif" : "/img/products/rackets/r9.jfif";
+                }
+
+                if (primaryPart.Contains("hồng") || primaryPart.Contains("tím"))
+                {
+                    return "/img/products/rackets/r6.jfif";
+                }
+
+                if (primaryPart.Contains("xanh"))
+                {
+                    if (c.Contains("chuối") || c.Contains("neon") || c.Contains("lục") || c.Contains("rêu"))
+                        return "/img/products/rackets/r7.jfif";
+                    return (productId % 2 == 0) ? "/img/products/rackets/r5.jfif" : "/img/products/rackets/r2.jfif";
+                }
+
+                if (primaryPart.Contains("đen") || primaryPart.Contains("xám") || primaryPart.Contains("bạc"))
+                {
+                    if (c.Contains("đỏ")) return "/img/products/rackets/r10.jfif";
+                    if (c.Contains("xanh")) return "/img/products/rackets/r7.jfif";
+                    if (c.Contains("vàng") || c.Contains("cam")) return "/img/products/rackets/r8.jfif";
+                    return (productId % 2 == 0) ? "/img/products/rackets/r10.jfif" : "/img/products/rackets/r2.jfif";
+                }
+
+                return "/img/products/rackets/r1.jfif";
+            }
+
+            return "/img/demo/placeholder.jpg";
+        }
+
         private static async Task NormalizeProductVariantsAsync(ApplicationDbContext db)
         {
             if (!await db.Products.AnyAsync()) return;
@@ -460,6 +590,7 @@ END
             var products = await db.Products
                 .Include(p => p.Category)
                 .Include(p => p.Variants)
+                .Include(p => p.Images)
                 .ToListAsync();
 
             var rnd = new Random(2026);
@@ -479,7 +610,6 @@ END
                     var racketColors = GetRacketColorsForProduct(p.Name);
                     var racketSizes = new[] { "4U-G5", "3U-G5" };
 
-                    // Kiểm tra xem vợt này có bị thiếu size hoặc màu không (ví dụ Size null hoặc Color null)
                     bool needsFix = p.Variants.Count == 0 ||
                                     p.Variants.Any(v => string.IsNullOrWhiteSpace(v.Size) || v.Size == "-" || string.IsNullOrWhiteSpace(v.Color) || v.Color == "-") ||
                                     p.Variants.Count < 4;
@@ -494,12 +624,14 @@ END
                             for (int cIdx = 0; cIdx < racketColors.Length; cIdx++)
                             {
                                 var color = racketColors[cIdx];
+                                var colorImg = ResolveVariantColorImage(true, false, false, p.Name, color, p.Id);
                                 var existing = variantIndex < existingVariants.Count ? existingVariants[variantIndex] : null;
 
                                 if (existing != null)
                                 {
                                     existing.Size = size;
                                     existing.Color = color;
+                                    existing.ImageUrl = colorImg;
                                     if (existing.Stock <= 0) existing.Stock = rnd.Next(6, 20);
                                     existing.Sku = $"RKT-{p.Id:D4}-{size[..2]}-C{cIdx + 1}";
                                 }
@@ -510,6 +642,7 @@ END
                                         ProductId = p.Id,
                                         Size = size,
                                         Color = color,
+                                        ImageUrl = colorImg,
                                         Stock = rnd.Next(6, 20),
                                         Sku = $"RKT-{p.Id:D4}-{size[..2]}-C{cIdx + 1}"
                                     });
@@ -525,7 +658,6 @@ END
                     var targetColors = GetShoeColorsForProduct(p.Name);
                     var targetSizes = new[] { "38", "39", "40", "41", "42", "43", "44" };
 
-                    // Cập nhật các màu cũ như 'Trắng', 'Đen' đơn điệu sang phối màu sắc nét chuẩn
                     foreach (var v in p.Variants)
                     {
                         if (v.Color == "Trắng" || v.Color == "white")
@@ -540,9 +672,9 @@ END
                         }
                     }
 
-                    // Bổ sung các size còn thiếu (như 38, 44) cho từng màu
                     foreach (var color in targetColors)
                     {
+                        var colorImg = ResolveVariantColorImage(false, true, false, p.Name, color, p.Id);
                         foreach (var size in targetSizes)
                         {
                             var exists = p.Variants.Any(v =>
@@ -556,6 +688,7 @@ END
                                     ProductId = p.Id,
                                     Size = size,
                                     Color = color,
+                                    ImageUrl = colorImg,
                                     Stock = rnd.Next(5, 18),
                                     Sku = $"SHO-{p.Id:D4}-{size}-{(color == targetColors[0] ? "C1" : "C2")}"
                                 });
@@ -575,9 +708,9 @@ END
                     if (distinctColors.Count == 0)
                         distinctColors = new List<string> { "Đen", "Trắng", "Xanh Navy" };
 
-                    // Đảm bảo có size XXL
                     foreach (var color in distinctColors)
                     {
+                        var colorImg = ResolveVariantColorImage(false, false, true, p.Name, color, p.Id);
                         var hasXXL = p.Variants.Any(v =>
                             string.Equals(v.Size?.Trim(), "XXL", StringComparison.OrdinalIgnoreCase) &&
                             string.Equals(v.Color?.Trim(), color, StringComparison.OrdinalIgnoreCase));
@@ -589,11 +722,22 @@ END
                                 ProductId = p.Id,
                                 Size = "XXL",
                                 Color = color,
+                                ImageUrl = colorImg,
                                 Stock = rnd.Next(6, 18),
                                 Sku = $"CLT-{p.Id:D4}-XXL-{color[..1].ToUpper()}"
                             });
                             hasChanges = true;
                         }
+                    }
+                }
+
+                // Đồng bộ ImageUrl theo màu cho tất cả các biến thể hiện có nếu chưa có ImageUrl
+                foreach (var v in p.Variants)
+                {
+                    if (string.IsNullOrWhiteSpace(v.ImageUrl) && !string.IsNullOrWhiteSpace(v.Color))
+                    {
+                        v.ImageUrl = ResolveVariantColorImage(isRacket, isShoe, isApparel, p.Name, v.Color, p.Id);
+                        hasChanges = true;
                     }
                 }
             }

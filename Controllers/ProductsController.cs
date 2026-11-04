@@ -31,6 +31,8 @@ namespace tieudaobadminton.Controllers
         }
 
 
+        [HttpGet("Products/Detail/{id:int}")]
+        [HttpGet("San-Pham/{id:int}")]
         public async Task<IActionResult> Detail(int id)
         {
             var p = await _db.Products

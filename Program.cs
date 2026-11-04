@@ -34,7 +34,7 @@ builder.Services
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<tieudaobadminton.Helpers.OrderNotificationEmailService>();
 builder.Services.AddControllersWithViews();
-builder.Services.AddRazorPages(); // ⚠ BẮT BUỘC cho Identity UI
+builder.Services.AddRazorPages(); // BẮT BUỘC cho Identity UI
 
 var app = builder.Build();
 if (!app.Environment.IsDevelopment())
@@ -49,7 +49,7 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseSession();
 
-// 🔐 BẮT BUỘC CÓ 2 DÒNG NÀY
+// BẮT BUỘC CÓ 2 DÒNG NÀY
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllerRoute(

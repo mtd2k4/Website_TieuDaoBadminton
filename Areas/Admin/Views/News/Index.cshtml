@@ -1,78 +1,186 @@
-﻿@model List<tieudaobadminton.Models.NewsPost>
+@model List<tieudaobadminton.Models.NewsPost>
 @{
-    ViewData["Title"] = "Quản lý tin tức";
+    ViewData["Title"] = "Quản lý tạp chí cẩm nang";
     var search = (string)(ViewBag.Search ?? "");
     var status = (string)(ViewBag.Status ?? "");
+    int publishedCount = Model.Count(n => n.IsPublished);
+    int draftCount = Model.Count(n => !n.IsPublished);
 }
 
-<div class="card-soft p-3">
-    <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
-        <div class="fw-semibold">Quản lý tin tức</div>
-        <a class="btn btn-success btn-sm" asp-area="Admin" asp-controller="News" asp-action="Create">+ Thêm bài viết</a>
+<div class="container-fluid py-2">
+
+    <!-- PAGE HEADER -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <div class="admin-header-icon">
+                <i class="bi bi-journal-richtext"></i>
+            </div>
+            <div>
+                <h4 class="fw-black text-dark m-0">Quản Lý Tạp Chí Cẩm Nang</h4>
+                <div class="text-muted small">Biên tập bài viết kỹ thuật cầu lông, đánh giá vợt, hướng dẫn chọn giày & căng cước</div>
+            </div>
+        </div>
+        <a class="btn btn-dark rounded-pill px-4 py-2 fw-bold shadow-sm d-inline-flex align-items-center gap-2"
+           asp-area="Admin" asp-controller="News" asp-action="Create">
+            <i class="bi bi-plus-lg"></i>
+            <span>Viết bài cẩm nang mới</span>
+        </a>
     </div>
 
-    <form class="row g-2 mt-2" method="get">
-        <div class="col-md-6">
-            <input name="search" value="@search" class="form-control" placeholder="Tìm theo tiêu đề..." />
+    <!-- KPI SUMMARY CARDS -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-md-4">
+            <div class="card border-0 p-3 bg-white kpi-card h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-bold text-uppercase" style="font-size: 0.72rem;">Tổng số bài viết</div>
+                        <div class="fs-3 fw-black text-dark mt-1">@Model.Count <small class="fs-6 text-muted fw-normal">bài</small></div>
+                    </div>
+                    <div class="kpi-icon-badge bg-primary bg-opacity-10 text-primary">
+                        <i class="bi bi-journals"></i>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="col-md-4">
-            <select name="status" class="form-select">
-                <option value="" selected="@(string.IsNullOrEmpty(status))">Tất cả</option>
-                <option value="published" selected="@(status == "published")">Đã đăng</option>
-                <option value="draft" selected="@(status == "draft")">Bản nháp</option>
-            </select>
+        <div class="col-sm-6 col-md-4">
+            <div class="card border-0 p-3 bg-white kpi-card h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-bold text-uppercase" style="font-size: 0.72rem;">Đang xuất bản công khai</div>
+                        <div class="fs-3 fw-black text-success mt-1">@publishedCount <small class="fs-6 text-muted fw-normal">bài</small></div>
+                    </div>
+                    <div class="kpi-icon-badge bg-success bg-opacity-10 text-success">
+                        <i class="bi bi-globe2"></i>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="col-md-2 d-grid">
-            <button class="btn btn-dark">Lọc</button>
+        <div class="col-sm-6 col-md-4">
+            <div class="card border-0 p-3 bg-white kpi-card h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-bold text-uppercase" style="font-size: 0.72rem;">Đang lưu bản nháp</div>
+                        <div class="fs-3 fw-black text-secondary mt-1">@draftCount <small class="fs-6 text-muted fw-normal">bài</small></div>
+                    </div>
+                    <div class="kpi-icon-badge bg-secondary bg-opacity-10 text-secondary">
+                        <i class="bi bi-file-earmark-lock2"></i>
+                    </div>
+                </div>
+            </div>
         </div>
-    </form>
-
-    <div class="table-responsive mt-3">
-        <table class="table align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th style="width:60px;">#</th>
-                    <th style="width:90px;">Ảnh</th>
-                    <th>Tiêu đề</th>
-                    <th>Ngày</th>
-                    <th>Trạng thái</th>
-                    <th style="width:190px;">Thao tác</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var n in Model)
-                {
-                    <tr>
-                        <td>@n.Id</td>
-                        <td>
-                            <img src="@(n.ThumbnailUrl ?? "/img/demo/placeholder.jpg")"
-                                 style="width:64px;height:64px;object-fit:cover;border-radius:12px;border:1px solid rgba(0,0,0,.08);" />
-                        </td>
-                        <td class="fw-semibold">@n.Title</td>
-                        <td class="small text-muted">@n.PublishedAt.ToLocalTime().ToString("dd/MM/yyyy")</td>
-                        <td>
-                            @if (n.IsPublished)
-                            {
-                                <span class="badge text-bg-success">Đã đăng</span>
-                            }
-                            else
-                            {
-
-                                <span class="badge text-bg-secondary">Bản nháp</span>
-                            }
-                        </td>
-                        <td class="d-flex gap-2">
-                            <a class="btn btn-primary btn-sm" asp-area="Admin" asp-controller="News" asp-action="Edit" asp-route-id="@n.Id">Sửa</a>
-
-                            <form method="post" asp-area="Admin" asp-controller="News" asp-action="Delete" asp-route-id="@n.Id"
-                                  onsubmit="return confirm('Xóa bài viết này?');">
-                                @Html.AntiForgeryToken()
-                                <button class="btn btn-danger btn-sm">Xóa</button>
-                            </form>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
     </div>
+
+    <!-- FILTER & SEARCH BAR -->
+    <div class="card border-0 p-3 mb-4 bg-white">
+        <form class="row g-2 align-items-center" method="get">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input name="search" value="@search" class="form-control border-start-0" placeholder="Tìm theo tiêu đề bài viết, từ khóa..." />
+                </div>
+            </div>
+            <div class="col-md-4">
+                <select name="status" class="form-select">
+                    <option value="" selected="@(string.IsNullOrEmpty(status))">-- Tất cả trạng thái xuất bản --</option>
+                    <option value="published" selected="@(status == "published")">Đã xuất bản công khai</option>
+                    <option value="draft" selected="@(status == "draft")">Bản nháp nội bộ</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-grid">
+                <button class="btn btn-dark rounded-pill fw-bold">
+                    <i class="bi bi-funnel me-1"></i> Lọc bài viết
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- ARTICLES TABLE -->
+    <div class="card border-0 overflow-hidden bg-white">
+        @if (Model.Count == 0)
+        {
+            <div class="text-center py-5 text-muted">
+                <div class="fs-1 mb-2"><i class="bi bi-journal-x"></i></div>
+                <div class="fw-semibold">Chưa có bài viết nào phù hợp điều kiện tìm kiếm.</div>
+                <a asp-action="Create" class="btn btn-sm btn-dark rounded-pill px-4 mt-3">
+                    <i class="bi bi-plus-lg me-1"></i> Viết bài đầu tiên
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-4" style="width: 70px;">ID</th>
+                            <th style="width: 90px;">ẢNH BÌA</th>
+                            <th>TIÊU ĐỀ & TÓM TẮT</th>
+                            <th>NGÀY ĐĂNG</th>
+                            <th class="text-center">TRẠNG THÁI</th>
+                            <th class="text-end pe-4" style="width: 220px;">THAO TÁC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var n in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 fw-bold text-muted font-monospace">#@n.Id</td>
+                                <td>
+                                    <img src="@(n.ThumbnailUrl ?? "/img/demo/placeholder.jpg")"
+                                         alt="@n.Title"
+                                         style="width: 68px; height: 50px; object-fit: cover; border-radius: 10px; border: 1px solid rgba(0,0,0,.08);"
+                                         onerror="this.src='/img/demo/placeholder.jpg';" />
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-dark fs-6">@n.Title</div>
+                                    @if (!string.IsNullOrWhiteSpace(n.Summary))
+                                    {
+                                        <div class="small text-muted text-truncate mt-1" style="max-width: 480px;">@n.Summary</div>
+                                    }
+                                </td>
+                                <td class="small text-muted">
+                                    <i class="bi bi-calendar3 me-1"></i>@n.PublishedAt.ToLocalTime().ToString("dd/MM/yyyy")
+                                </td>
+                                <td class="text-center">
+                                    @if (n.IsPublished)
+                                    {
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1 fw-bold">
+                                            <i class="bi bi-check-circle-fill me-1"></i> Đã đăng
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-3 py-1 fw-bold">
+                                            <i class="bi bi-pencil-fill me-1"></i> Bản nháp
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="d-inline-flex gap-2 align-items-center">
+                                        <a class="btn btn-sm btn-light border rounded-pill px-2"
+                                           asp-area="" asp-controller="News" asp-action="Detail" asp-route-id="@n.Id" target="_blank" title="Xem bài viết ngoài trang chủ">
+                                            <i class="bi bi-box-arrow-up-right"></i>
+                                        </a>
+                                        <a class="btn btn-sm btn-outline-dark rounded-pill px-3 fw-semibold"
+                                           asp-area="Admin" asp-controller="News" asp-action="Edit" asp-route-id="@n.Id">
+                                            <i class="bi bi-pencil me-1"></i> Sửa
+                                        </a>
+                                        <form method="post" class="d-inline"
+                                              asp-area="Admin" asp-controller="News" asp-action="Delete" asp-route-id="@n.Id"
+                                              onsubmit="return confirm('Bạn có chắc chắn muốn xóa bài viết này?');">
+                                            @Html.AntiForgeryToken()
+                                            <button class="btn btn-sm btn-outline-danger rounded-circle p-1" style="width: 32px; height: 32px;" title="Xóa bài viết">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
 </div>

@@ -14,7 +14,7 @@
         </ol>
     </nav>
 
-    <h2 class="fw-bold mb-4">💳 Thông tin đặt hàng & Thanh toán</h2>
+    <h2 class="fw-bold mb-4"><i class="bi bi-credit-card-2-front me-2"></i>Thông tin đặt hàng & Thanh toán</h2>
 
     <form method="post" asp-action="Index">
         @Html.AntiForgeryToken()
@@ -25,7 +25,7 @@
                 <!-- 1. THÔNG TIN GIAO HÀNG -->
                 <div class="cart-surface p-4 mb-4">
                     <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
-                        <span>📍</span>
+                        <i class="bi bi-geo-alt-fill text-danger"></i>
                         <span>Thông tin nhận hàng</span>
                     </h5>
 
@@ -48,11 +48,11 @@
                         </div>
                     </div>
 
-                    <!-- CHỌN ĐỊA CHỈ HÀNH CHÍNH 2 CẤP SAU SÁP NHẬP (TỈNH/THÀNH ➔ PHƯỜNG/XÃ) -->
+                    <!-- CHỌN ĐỊA CHỈ HÀNH CHÍNH 2 CẤP SAU SÁP NHẬP (TỈNH/THÀNH - PHƯỜNG/XÃ) -->
                     <div class="p-3 rounded-4 border mb-3" style="background: #f8fafc;">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="small fw-bold text-primary">
-                                <i class="bi bi-geo-alt-fill me-1"></i> Đơn vị hành chính mới (Sau sáp nhập 2 cấp: Tỉnh/TP ➔ Phường/Xã)
+                                <i class="bi bi-geo-alt-fill me-1"></i> Đơn vị hành chính mới (Sau sáp nhập 2 cấp: Tỉnh/TP <i class="bi bi-arrow-right mx-1"></i> Phường/Xã)
                             </span>
                             <span id="apiAddressStatus" class="badge bg-success-subtle text-success border border-success-subtle" style="font-size: 0.7rem;">
                                 API v2 Trực tuyến
@@ -105,7 +105,7 @@
                 <!-- 2. PHƯƠNG THỨC THANH TOÁN -->
                 <div class="cart-surface p-4">
                     <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
-                        <span>💰</span>
+                        <i class="bi bi-wallet2 text-success"></i>
                         <span>Phương thức thanh toán</span>
                     </h5>
 
@@ -120,7 +120,7 @@
                                     <small class="text-muted">Nhận hàng, kiểm tra vợt/giày rồi thanh toán tiền mặt cho shipper</small>
                                 </div>
                             </div>
-                            <span class="fs-4">💵</span>
+                            <span class="fs-4 text-success"><i class="bi bi-cash-coin"></i></span>
                         </label>
 
                         <!-- Option 2: Bank Transfer (VietQR) -->
@@ -133,7 +133,7 @@
                                     <small class="text-muted">Mã QR tự động điền số tiền và mã đơn, xử lý nhanh chóng</small>
                                 </div>
                             </div>
-                            <span class="fs-4">📲</span>
+                            <span class="fs-4 text-primary"><i class="bi bi-qr-code-scan"></i></span>
                         </label>
                     </div>
                 </div>
@@ -159,11 +159,11 @@
                                         <div class="d-flex flex-wrap gap-1 my-1">
                                             @if (!string.IsNullOrWhiteSpace(item.Color) && item.Color != "-")
                                             {
-                                                <span class="badge bg-light text-dark border" style="font-size: 0.72rem;">🎨 Màu: @item.Color</span>
+                                                <span class="badge bg-light text-dark border" style="font-size: 0.72rem;"><i class="bi bi-palette me-1"></i>Màu: @item.Color</span>
                                             }
                                             @if (!string.IsNullOrWhiteSpace(item.Size) && item.Size != "-")
                                             {
-                                                <span class="badge bg-light text-dark border" style="font-size: 0.72rem;">📏 Size: @item.Size</span>
+                                                <span class="badge bg-light text-dark border" style="font-size: 0.72rem;"><i class="bi bi-rulers me-1"></i>Size: @item.Size</span>
                                             }
                                         </div>
                                     }
@@ -203,11 +203,11 @@
 
                     <!-- Submit Button -->
                     <button type="submit" class="btn btn-dark btn-lg w-100 rounded-pill py-3 fw-bold mb-3 shadow-lg">
-                        Xác nhận đặt hàng →
+                        Xác nhận đặt hàng <i class="bi bi-arrow-right ms-1"></i>
                     </button>
 
                     <div class="text-center text-muted small">
-                        🛡️ Đổi trả miễn phí trong 7 ngày nếu lỗi từ NSX
+                        <i class="bi bi-shield-check me-1"></i>Đổi trả miễn phí trong 7 ngày nếu lỗi từ NSX
                     </div>
                 </div>
             </div>

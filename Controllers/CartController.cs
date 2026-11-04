@@ -49,6 +49,7 @@ namespace tieudaobadminton.Controllers
             // key theo ProductId + VariantId + Size (để phân biệt các mức căng cước khác nhau)
             var item = cart.FirstOrDefault(x => x.ProductId == productId && x.VariantId == variantId && x.Size == itemSize);
             var price = product.SalePrice ?? product.Price;
+            var itemImage = !string.IsNullOrWhiteSpace(variant?.ImageUrl) ? variant.ImageUrl : product.MainImageUrl;
 
             if (item == null)
             {
@@ -57,7 +58,7 @@ namespace tieudaobadminton.Controllers
                     ProductId = productId,
                     VariantId = variantId,
                     ProductName = product.Name,
-                    ImageUrl = product.MainImageUrl,
+                    ImageUrl = itemImage,
                     Size = itemSize,
                     Color = variant?.Color,
                     UnitPrice = price,

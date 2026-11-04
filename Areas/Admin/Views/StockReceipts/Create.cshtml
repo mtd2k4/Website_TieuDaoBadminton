@@ -8,7 +8,7 @@
     <!-- BACK -->
     <div class="mb-3">
         <a asp-action="Index" class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold">
-            ← Quay lại danh sách phiếu nhập
+            <i class="bi bi-arrow-left me-1"></i> Quay lại danh sách phiếu nhập
         </a>
     </div>
 
@@ -18,7 +18,7 @@
         <!-- 1. THÔNG TIN SẢN PHẨM & SỐ LƯỢNG NHẬP -->
         <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
             <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
-                <div class="fs-2 text-success">📥</div>
+                <div class="fs-2 text-success"><i class="bi bi-box-arrow-in-down"></i></div>
                 <div>
                     <h4 class="fw-black text-dark m-0">Tạo Phiếu Nhập Hàng Vào Kho</h4>
                     <div class="text-muted small">Khai báo lô hàng nhập mới, nguồn gốc xuất xứ và chi phí vốn nhập kho</div>
@@ -80,7 +80,7 @@
         <!-- 2. NGUỒN GỐC & NHÀ CUNG CẤP -->
         <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4 border-start border-4 border-primary">
             <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
-                <div class="fs-2 text-primary">🏷️</div>
+                <div class="fs-2 text-primary"><i class="bi bi-tags-fill"></i></div>
                 <div>
                     <h5 class="fw-black text-dark m-0">Nguồn Gốc & Thông Tin Nhà Cung Cấp</h5>
                     <div class="text-muted small">Lưu trữ minh bạch nguồn gốc sản phẩm phục vụ bảo hành chính hãng và đối chiếu chứng từ</div>
@@ -133,7 +133,7 @@
         <div class="d-flex justify-content-end gap-2 mb-5">
             <a asp-action="Index" class="btn btn-light rounded-pill px-4 fw-bold">Hủy bỏ</a>
             <button type="submit" class="btn btn-success rounded-pill px-5 fw-bold shadow-sm">
-                ✓ Hoàn tất nhập kho & Tăng tồn kho
+                <i class="bi bi-check-lg me-1"></i> Hoàn tất nhập kho & Tăng tồn kho
             </button>
         </div>
     </form>

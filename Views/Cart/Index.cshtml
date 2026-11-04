@@ -16,19 +16,19 @@
         </ol>
     </nav>
 
-    <h2 class="fw-bold mb-4">🛒 Giỏ hàng của bạn</h2>
+    <h2 class="fw-bold mb-4"><i class="bi bi-cart3 me-2"></i>Giỏ hàng của bạn</h2>
 
     @if (Model.Count == 0)
     {
         <!-- EMPTY CART STATE -->
         <div class="text-center py-5 cart-surface">
-            <div class="display-1 mb-3">🛍️</div>
+            <div class="display-1 mb-3 text-muted"><i class="bi bi-bag-x"></i></div>
             <h4 class="fw-bold">Giỏ hàng của bạn đang trống</h4>
             <p class="text-muted mb-4" style="max-width: 420px; margin: 0 auto;">
                 Chưa có sản phẩm nào trong giỏ. Hãy dạo một vòng để chọn cho mình những cây vợt hoặc đôi giày ưng ý nhất nhé!
             </p>
             <a class="btn btn-dark btn-lg rounded-pill px-5 fw-bold" asp-controller="Products" asp-action="Index">
-                Tiếp tục mua sắm →
+                Tiếp tục mua sắm <i class="bi bi-arrow-right ms-1"></i>
             </a>
         </div>
     }
@@ -67,11 +67,11 @@
                                             <div class="d-flex flex-wrap gap-1 mt-1">
                                                 @if (!string.IsNullOrWhiteSpace(item.Color) && item.Color != "-")
                                                 {
-                                                    <span class="badge bg-light text-dark border small">🎨 Màu: @item.Color</span>
+                                                    <span class="badge bg-light text-dark border small"><i class="bi bi-palette me-1"></i>Màu: @item.Color</span>
                                                 }
                                                 @if (!string.IsNullOrWhiteSpace(item.Size) && item.Size != "-")
                                                 {
-                                                    <span class="badge bg-light text-dark border small">📏 Size: @item.Size</span>
+                                                    <span class="badge bg-light text-dark border small"><i class="bi bi-rulers me-1"></i>Size: @item.Size</span>
                                                 }
                                             </div>
                                         }
@@ -97,7 +97,7 @@
                                                style="max-width: 60px; border-radius: 8px;"
                                                type="number" name="quantity" value="@item.Quantity" min="0" />
                                         <button class="btn btn-outline-dark btn-sm rounded-circle p-1" style="width: 28px; height: 28px;" title="Lưu số lượng">
-                                            ✓
+                                            <i class="bi bi-check-lg"></i>
                                         </button>
                                     </form>
                                 </div>
@@ -113,7 +113,7 @@
                                         <input type="hidden" name="productId" value="@item.ProductId" />
                                         <input type="hidden" name="variantId" value="@item.VariantId" />
                                         <button class="btn btn-light text-danger btn-sm rounded-circle p-1" style="width: 30px; height: 30px;" title="Xóa">
-                                            ✕
+                                            <i class="bi bi-x-lg"></i>
                                         </button>
                                     </form>
                                 </div>
@@ -124,7 +124,7 @@
                     <!-- Bottom actions of items list -->
                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pt-4">
                         <a class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-semibold" asp-controller="Products" asp-action="Index">
-                            ← Tiếp tục mua sắm
+                            <i class="bi bi-arrow-left me-1"></i>Tiếp tục mua sắm
                         </a>
 
                         <form method="post" asp-controller="Cart" asp-action="Clear" onsubmit="return confirm('Bạn có chắc muốn xóa toàn bộ giỏ hàng?');">
@@ -162,7 +162,7 @@
                     @if (total < 499000)
                     {
                         <div class="alert alert-info py-2 px-3 small rounded-3 mb-3 border-0 bg-opacity-10">
-                            💡 Mua thêm <strong>@((499000 - total).ToString("n0")) đ</strong> để được <strong>FREESHIP</strong> toàn quốc!
+                            <i class="bi bi-lightbulb-fill text-warning me-1"></i>Mua thêm <strong>@((499000 - total).ToString("n0")) đ</strong> để được <strong>FREESHIP</strong> toàn quốc!
                         </div>
                     }
 
@@ -174,11 +174,11 @@
                     </div>
 
                     <a asp-controller="Checkout" asp-action="Index" class="btn btn-dark btn-lg w-100 rounded-pill py-3 fw-bold mb-3 shadow-sm d-block text-center text-decoration-none">
-                        Tiến hành Đặt hàng & Thanh toán →
+                        Tiến hành Đặt hàng & Thanh toán <i class="bi bi-arrow-right ms-1"></i>
                     </a>
 
                     <div class="text-center text-muted small">
-                        🔒 Bảo mật thông tin thanh toán 100%
+                        <i class="bi bi-shield-lock-fill me-1"></i>Bảo mật thông tin thanh toán 100%
                     </div>
                 </div>
             </div>

@@ -2,12 +2,16 @@
 @inject tieudaobadminton.Data.ApplicationDbContext DbContext
 @{
     var currentCtrl = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var currentAct = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+
     var pendingOrders = DbContext.Orders
         .Where(o => o.Status == "Pending")
         .OrderByDescending(o => o.CreatedAt)
         .Take(8)
         .ToList();
     var totalPendingCount = DbContext.Orders.Count(o => o.Status == "Pending");
+    var unrepliedContactsCount = DbContext.ContactMessages.Count(c => !c.IsReplied);
+    var lowStockCount = DbContext.Products.Count(p => p.Variants.Sum(v => v.Stock) <= 5);
 }
 <!DOCTYPE html>
 <html lang="vi">
@@ -27,110 +31,125 @@
     <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
 </head>
 <body class="admin-body">
+    <!-- Mobile Sidebar Overlay -->
+    <div class="admin-sidebar-backdrop" id="adminSidebarBackdrop" onclick="toggleAdminSidebar()"></div>
+
     <div class="admin-wrap">
 
         <!-- 1. LEFT SIDEBAR -->
-        <aside class="admin-sidebar">
-            <div class="admin-brand-header">
-                <a asp-area="Admin" asp-controller="Home" asp-action="Index" class="admin-brand-link">
-                    <div class="admin-brand-logo">🏸</div>
-                    <div>
-                        <div class="admin-brand-title">TIÊU ĐAO SPORT</div>
-                        <div class="admin-brand-badge">ADMIN CONTROL PANEL</div>
-                    </div>
-                </a>
+        <aside class="admin-sidebar" id="adminSidebar">
+            <div>
+                <div class="admin-brand-header d-flex align-items-center justify-content-between">
+                    <a asp-area="Admin" asp-controller="Home" asp-action="Index" class="admin-brand-link">
+                        <div class="admin-brand-logo"><i class="bi bi-trophy-fill"></i></div>
+                        <div>
+                            <div class="admin-brand-title">TIÊU ĐAO SPORT</div>
+                            <div class="admin-brand-badge">ERP & ADMIN PRO</div>
+                        </div>
+                    </a>
+                    <button type="button" class="btn btn-sm btn-link text-white-50 d-lg-none p-1" onclick="toggleAdminSidebar()">
+                        <i class="bi bi-x-lg fs-5"></i>
+                    </button>
+                </div>
+
+                <nav class="admin-nav-menu">
+                    <div class="admin-nav-group-title">ĐIỀU HÀNH KINH DOANH</div>
+
+                    <a class="admin-nav-item @(currentCtrl == "Home" ? "active" : "")"
+                       asp-area="Admin" asp-controller="Home" asp-action="Index">
+                        <span class="nav-icon-box"><i class="bi bi-grid-1x2-fill"></i></span>
+                        <span>Tổng quan (Dashboard)</span>
+                    </a>
+
+                    <a class="admin-nav-item @(currentCtrl == "Orders" ? "active" : "")"
+                       asp-area="Admin" asp-controller="Orders" asp-action="Index">
+                        <span class="nav-icon-box"><i class="bi bi-receipt-cutoff"></i></span>
+                        <span>Quản lý Đơn hàng</span>
+                        @if (totalPendingCount > 0)
+                        {
+                            <span class="badge bg-danger rounded-pill ms-auto px-2 py-1">@totalPendingCount mới</span>
+                        }
+                    </a>
+
+                    <a class="admin-nav-item @(currentCtrl == "Products" ? "active" : "")"
+                       asp-area="Admin" asp-controller="Products" asp-action="Index">
+                        <span class="nav-icon-box"><i class="bi bi-box-seam-fill"></i></span>
+                        <span>Sản phẩm & Kho hàng</span>
+                        @if (lowStockCount > 0)
+                        {
+                            <span class="badge bg-warning text-dark rounded-pill ms-auto px-2 py-1" title="Sản phẩm sắp hết hoặc hết hàng">@lowStockCount</span>
+                        }
+                    </a>
+
+                    <a class="admin-nav-item @(currentCtrl == "StockReceipts" && currentAct != "Report" ? "active" : "")"
+                       asp-area="Admin" asp-controller="StockReceipts" asp-action="Index">
+                        <span class="nav-icon-box"><i class="bi bi-box-arrow-in-down"></i></span>
+                        <span>Phiếu nhập & Nguồn gốc</span>
+                    </a>
+
+                    <a class="admin-nav-item @(currentCtrl == "StockReceipts" && currentAct == "Report" ? "active" : "")"
+                       asp-area="Admin" asp-controller="StockReceipts" asp-action="Report">
+                        <span class="nav-icon-box"><i class="bi bi-graph-up-arrow"></i></span>
+                        <span>Báo cáo Lãi suất (%)</span>
+                    </a>
+
+                    <div class="admin-nav-group-title">DANH MỤC & ĐỐI TÁC</div>
+
+                    <a class="admin-nav-item @(currentCtrl == "Categories" ? "active" : "")"
+                       asp-area="Admin" asp-controller="Categories" asp-action="Index">
+                        <span class="nav-icon-box"><i class="bi bi-folder2-open"></i></span>
+                        <span>Danh mục sản phẩm</span>
+                    </a>
+
+                    <a class="admin-nav-item @(currentCtrl == "Brands" ? "active" : "")"
+                       asp-area="Admin" asp-controller="Brands" asp-action="Index">
+                        <span class="nav-icon-box"><i class="bi bi-tags-fill"></i></span>
+                        <span>Thương hiệu cầu lông</span>
+                    </a>
+
+                    <div class="admin-nav-group-title">NỘI DUNG & KHÁCH HÀNG</div>
+
+                    <a class="admin-nav-item @(currentCtrl == "News" ? "active" : "")"
+                       asp-area="Admin" asp-controller="News" asp-action="Index">
+                        <span class="nav-icon-box"><i class="bi bi-journal-richtext"></i></span>
+                        <span>Tạp chí Cẩm nang</span>
+                    </a>
+
+                    <a class="admin-nav-item @(currentCtrl == "Contacts" ? "active" : "")"
+                       asp-area="Admin" asp-controller="Contacts" asp-action="Index">
+                        <span class="nav-icon-box"><i class="bi bi-envelope-paper-fill"></i></span>
+                        <span>Hộp thư liên hệ</span>
+                        @if (unrepliedContactsCount > 0)
+                        {
+                            <span class="badge bg-info text-dark rounded-pill ms-auto px-2 py-1">@unrepliedContactsCount</span>
+                        }
+                    </a>
+
+                    <a class="admin-nav-item @(currentCtrl == "Accounts" ? "active" : "")"
+                       asp-area="Admin" asp-controller="Accounts" asp-action="Index">
+                        <span class="nav-icon-box"><i class="bi bi-people-fill"></i></span>
+                        <span>Tài khoản & Phân quyền</span>
+                    </a>
+                </nav>
             </div>
-
-            <nav class="admin-nav-menu">
-                <div class="admin-nav-group-title">QUẢN TRỊ KINH DOANH</div>
-
-                <a class="admin-nav-item @(currentCtrl == "Home" ? "active" : "")"
-                   asp-area="Admin" asp-controller="Home" asp-action="Index">
-                    <i class="bi bi-grid-1x2-fill nav-icon"></i>
-                    <span>Tổng quan (Dashboard)</span>
-                </a>
-
-                <a class="admin-nav-item @(currentCtrl == "Orders" ? "active" : "")"
-                   asp-area="Admin" asp-controller="Orders" asp-action="Index">
-                    <i class="bi bi-box-seam-fill nav-icon"></i>
-                    <span>Quản lý Đơn hàng</span>
-                    @if (totalPendingCount > 0)
-                    {
-                        <span class="badge bg-danger rounded-pill ms-auto">@totalPendingCount mới</span>
-                    }
-                </a>
-
-                <a class="admin-nav-item @(currentCtrl == "Products" ? "active" : "")"
-                   asp-area="Admin" asp-controller="Products" asp-action="Index">
-                    <i class="bi bi-bag-check-fill nav-icon"></i>
-                    <span>Sản phẩm & Kho hàng</span>
-                </a>
-
-                <a class="admin-nav-item @(currentCtrl == "StockReceipts" && ViewContext.RouteData.Values["action"]?.ToString() != "Report" ? "active" : "")"
-                   asp-area="Admin" asp-controller="StockReceipts" asp-action="Index">
-                    <i class="bi bi-box-arrow-in-down nav-icon"></i>
-                    <span>Nhập hàng & Nguồn gốc</span>
-                </a>
-
-                <a class="admin-nav-item @(currentCtrl == "StockReceipts" && ViewContext.RouteData.Values["action"]?.ToString() == "Report" ? "active" : "")"
-                   asp-area="Admin" asp-controller="StockReceipts" asp-action="Report">
-                    <i class="bi bi-graph-up-arrow nav-icon"></i>
-                    <span>Báo cáo Lãi suất (%)</span>
-                </a>
-
-                <a class="admin-nav-item @(currentCtrl == "Categories" ? "active" : "")"
-                   asp-area="Admin" asp-controller="Categories" asp-action="Index">
-                    <i class="bi bi-folder2-open nav-icon"></i>
-                    <span>Danh mục sản phẩm</span>
-                </a>
-
-                <a class="admin-nav-item @(currentCtrl == "Brands" ? "active" : "")"
-                   asp-area="Admin" asp-controller="Brands" asp-action="Index">
-                    <i class="bi bi-tag-fill nav-icon"></i>
-                    <span>Thương hiệu</span>
-                </a>
-
-                <div class="admin-nav-group-title mt-3">NỘI DUNG & HỆ THỐNG</div>
-
-                <a class="admin-nav-item @(currentCtrl == "News" ? "active" : "")"
-                   asp-area="Admin" asp-controller="News" asp-action="Index">
-                    <i class="bi bi-newspaper nav-icon"></i>
-                    <span>Quản lý Cẩm nang</span>
-                </a>
-
-                <a class="admin-nav-item @(currentCtrl == "Contacts" ? "active" : "")"
-                   asp-area="Admin" asp-controller="Contacts" asp-action="Index">
-                    <i class="bi bi-envelope-paper-fill nav-icon"></i>
-                    <span>Hộp thư liên hệ</span>
-                </a>
-
-                <a class="admin-nav-item @(currentCtrl == "Accounts" ? "active" : "")"
-                   asp-area="Admin" asp-controller="Accounts" asp-action="Index">
-                    <i class="bi bi-people-fill nav-icon"></i>
-                    <span>Quản lý Tài khoản</span>
-                </a>
-
-                <div class="admin-nav-group-title mt-3">LỐI TẮT BÊN NGOÀI</div>
-
-                <a class="admin-nav-item" asp-area="" asp-controller="Home" asp-action="Index" target="_blank">
-                    <i class="bi bi-box-arrow-up-right nav-icon"></i>
-                    <span>Xem website bán hàng</span>
-                </a>
-            </nav>
 
             <div class="admin-sidebar-footer">
                 <div class="d-flex align-items-center justify-content-between">
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="admin-avatar">👤</div>
+                    <div class="d-flex align-items-center gap-2 overflow-hidden">
+                        <div class="admin-avatar">
+                            @(User?.Identity?.Name?.Substring(0, 1).ToUpper() ?? "A")
+                        </div>
                         <div class="overflow-hidden">
                             <div class="admin-user-name text-truncate">@User?.Identity?.Name</div>
-                            <small class="admin-role-badge">Quản trị viên</small>
+                            <small class="admin-role-badge">
+                                <i class="bi bi-shield-check me-1"></i>@(User?.IsInRole("Admin") == true ? "Administrator" : "Staff Member")
+                            </small>
                         </div>
                     </div>
                     <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="m-0">
                         @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-sm btn-outline-danger p-1 rounded-circle" title="Đăng xuất" style="width: 32px; height: 32px;" onclick="return confirm('Bạn có chắc muốn đăng xuất?');">
-                            <i class="bi bi-box-arrow-right"></i>
+                        <button type="submit" class="btn btn-sm btn-outline-danger p-1 rounded-3" title="Đăng xuất" style="width: 34px; height: 34px;" onclick="return confirm('Bạn có chắc muốn đăng xuất khỏi hệ thống quản trị?');">
+                            <i class="bi bi-power"></i>
                         </button>
                     </form>
                 </div>
@@ -139,46 +158,111 @@
 
         <!-- 2. MAIN CONTENT AREA -->
         <main class="admin-main">
-            <!-- TOPBAR -->
+            <!-- STICKY GLASS TOPBAR -->
             <div class="admin-topbar">
                 <div class="d-flex align-items-center gap-3">
-                    <h5 class="fw-black text-dark m-0">@ViewData["Title"]</h5>
+                    <!-- Mobile Sidebar Toggle -->
+                    <button type="button" class="btn btn-light border rounded-3 d-lg-none p-2" onclick="toggleAdminSidebar()" title="Mở menu quản trị">
+                        <i class="bi bi-list fs-5"></i>
+                    </button>
+
+                    <div>
+                        <div class="d-flex align-items-center gap-2 small text-muted mb-0" style="font-size: 0.72rem;">
+                            <span>Admin Portal</span>
+                            <i class="bi bi-chevron-right" style="font-size: 0.6rem;"></i>
+                            <span class="text-primary fw-semibold">@currentCtrl</span>
+                        </div>
+                        <h5 class="fw-black text-dark m-0">@ViewData["Title"]</h5>
+                    </div>
                 </div>
 
-                <div class="d-flex align-items-center gap-3">
+                <!-- GLOBAL QUICK SEARCH (DESKTOP) -->
+                <form asp-area="Admin" asp-controller="Products" asp-action="Index" method="get" class="d-none d-xl-flex m-0">
+                    <div class="admin-search-pill">
+                        <i class="bi bi-search text-muted small"></i>
+                        <input type="text" name="search" id="adminGlobalSearchInput" placeholder="Tìm nhanh sản phẩm, SKU, kho hàng..." />
+                        <span class="admin-search-kbd">Ctrl K</span>
+                    </div>
+                </form>
+
+                <!-- RIGHT UTILITY ACTIONS -->
+                <div class="d-flex align-items-center gap-2">
+                    <!-- Quick Create Dropdown -->
+                    <div class="dropdown d-none d-md-block">
+                        <button class="btn btn-sm btn-primary rounded-pill px-3 py-2 fw-bold d-flex align-items-center gap-1 shadow-sm dropdown-toggle"
+                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-plus-circle-fill"></i>
+                            <span>Tạo nhanh</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 p-2 mt-2" style="border-radius: 16px; min-width: 220px;">
+                            <li class="px-2 py-1 small fw-bold text-muted text-uppercase" style="font-size: 0.68rem;">Thao tác nhanh</li>
+                            <li>
+                                <a class="dropdown-item rounded-3 py-2 fw-semibold d-flex align-items-center gap-2" asp-area="Admin" asp-controller="Products" asp-action="Create">
+                                    <i class="bi bi-box-seam-fill text-primary"></i> Thêm sản phẩm mới
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item rounded-3 py-2 fw-semibold d-flex align-items-center gap-2" asp-area="Admin" asp-controller="StockReceipts" asp-action="Create">
+                                    <i class="bi bi-box-arrow-in-down text-success"></i> Lập phiếu nhập kho
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item rounded-3 py-2 fw-semibold d-flex align-items-center gap-2" asp-area="Admin" asp-controller="News" asp-action="Create">
+                                    <i class="bi bi-journal-plus text-info"></i> Viết bài cẩm nang
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider my-1" /></li>
+                            <li>
+                                <a class="dropdown-item rounded-3 py-2 fw-semibold d-flex align-items-center gap-2" asp-area="Admin" asp-controller="Categories" asp-action="Create">
+                                    <i class="bi bi-folder-plus text-warning"></i> Tạo danh mục
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item rounded-3 py-2 fw-semibold d-flex align-items-center gap-2" asp-area="Admin" asp-controller="Brands" asp-action="Create">
+                                    <i class="bi bi-tag-fill text-danger"></i> Thêm thương hiệu
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
                     <!-- CHUÔNG THÔNG BÁO ĐƠN HÀNG MỚI -->
                     <div class="dropdown">
-                        <button class="btn btn-sm @(totalPendingCount > 0 ? "btn-danger" : "btn-outline-secondary") rounded-pill px-3 fw-bold position-relative d-flex align-items-center gap-2"
+                        <button class="btn btn-sm @(totalPendingCount > 0 ? "btn-danger" : "btn-light border") rounded-pill px-3 py-2 fw-bold position-relative d-flex align-items-center gap-2"
                                 type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            @if (totalPendingCount > 0)
+                            {
+                                <span class="admin-pulse-dot"></span>
+                            }
                             <i class="bi bi-bell-fill"></i>
-                            <span>Đơn hàng mới</span>
+                            <span class="d-none d-sm-inline">Đơn mới</span>
                             <span class="badge @(totalPendingCount > 0 ? "bg-white text-danger" : "bg-secondary text-white") rounded-pill">@totalPendingCount</span>
                         </button>
-                        <div class="dropdown-menu dropdown-menu-end shadow-lg border-0 p-0 mt-2" style="width: 340px; border-radius: 16px; overflow: hidden;">
+                        <div class="dropdown-menu dropdown-menu-end shadow-lg border-0 p-0 mt-2" style="width: 350px; border-radius: 16px; overflow: hidden;">
                             <div class="p-3 bg-dark text-white d-flex justify-content-between align-items-center">
-                                <span class="fw-bold small">🔔 Thông báo đơn hàng chờ xử lý</span>
+                                <span class="fw-bold small"><i class="bi bi-bell-fill me-1 text-warning"></i> Đơn hàng đang chờ xử lý</span>
                                 <span class="badge bg-danger rounded-pill">@totalPendingCount đơn</span>
                             </div>
                             <div style="max-height: 320px; overflow-y: auto;">
                                 @if (pendingOrders.Count == 0)
                                 {
                                     <div class="p-4 text-center text-muted small">
-                                        ✓ Hiện không có đơn hàng mới nào đang chờ duyệt.
+                                        <i class="bi bi-check-circle-fill text-success fs-4 d-block mb-1"></i>
+                                        Hiện không có đơn hàng mới nào đang chờ duyệt.
                                     </div>
                                 }
                                 else
                                 {
                                     @foreach (var ord in pendingOrders)
                                     {
-                                        <a asp-area="Admin" asp-controller="Orders" asp-action="Index"
+                                        <a asp-area="Admin" asp-controller="Orders" asp-action="Detail" asp-route-id="@ord.Id"
                                            class="dropdown-item p-3 border-bottom text-wrap">
                                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                                <span class="fw-bold text-primary small">#DH@(ord.Id.ToString("D5"))</span>
-                                                <small class="text-muted" style="font-size: 0.72rem;">@ord.CreatedAt.ToLocalTime().ToString("dd/MM HH:mm")</small>
+                                                <span class="fw-bold text-primary small font-monospace">#DH@(ord.Id.ToString("D5"))</span>
+                                                <small class="text-muted" style="font-size: 0.72rem;"><i class="bi bi-clock me-1"></i>@ord.CreatedAt.ToLocalTime().ToString("dd/MM HH:mm")</small>
                                             </div>
                                             <div class="fw-semibold text-dark small">@ord.FullName (@ord.Phone)</div>
                                             <div class="d-flex justify-content-between align-items-center mt-1">
-                                                <span class="badge bg-warning text-dark" style="font-size: 0.7rem;">Chờ xác nhận</span>
+                                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle" style="font-size: 0.7rem;">Chờ xác nhận</span>
                                                 <span class="fw-bold text-danger small">@ord.Total.ToString("n0") đ</span>
                                             </div>
                                         </a>
@@ -187,18 +271,17 @@
                             </div>
                             <div class="p-2 bg-light text-center border-top">
                                 <a asp-area="Admin" asp-controller="Orders" asp-action="Index" class="small fw-bold text-primary text-decoration-none">
-                                    Xem tất cả đơn hàng →
+                                    Mở danh sách quản lý đơn hàng <i class="bi bi-arrow-right ms-1"></i>
                                 </a>
                             </div>
                         </div>
                     </div>
 
-                    <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold" target="_blank">
-                        <i class="bi bi-shop me-1"></i> Xem cửa hàng ngoài shop
+                    <!-- Storefront Shortcut -->
+                    <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-sm btn-light border rounded-pill px-3 py-2 fw-bold text-dark d-none d-sm-inline-flex align-items-center gap-1" target="_blank" title="Xem giao diện bán hàng">
+                        <i class="bi bi-shop text-primary"></i>
+                        <span class="d-none d-md-inline">Storefront</span>
                     </a>
-                    <div class="badge bg-dark rounded-pill px-3 py-2 text-white">
-                        <span>👤 @User?.Identity?.Name</span>
-                    </div>
                 </div>
             </div>
 
@@ -213,6 +296,28 @@
     <!-- SCRIPTS -->
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script>
+        function toggleAdminSidebar() {
+            const sb = document.getElementById('adminSidebar');
+            const bd = document.getElementById('adminSidebarBackdrop');
+            if (sb && bd) {
+                sb.classList.toggle('show');
+                bd.classList.toggle('show');
+            }
+        }
+
+        // Phím tắt Ctrl + K để focus vào thanh tìm kiếm nhanh trên Topbar
+        document.addEventListener('keydown', function (e) {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+                const searchInput = document.getElementById('adminGlobalSearchInput');
+                if (searchInput) {
+                    e.preventDefault();
+                    searchInput.focus();
+                    searchInput.select();
+                }
+            }
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -1,189 +1,183 @@
-# 🏸 Tiêu Đao Badminton - Hệ Thống Bán Lẻ & Dịch Vụ Cầu Lông Chuyên Nghiệp
+# Tiêu Đao Badminton - Hệ Thống Bán Lẻ, Đào Tạo & Dịch Vụ Cầu Lông Chuyên Nghiệp
 
 [![.NET 8](https://img.shields.io/badge/.NET-8.0-blue.svg)](https://dotnet.microsoft.com/download/dotnet/8.0)
 [![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-MVC-purple.svg)](https://docs.microsoft.com/aspnet/core)
 [![Entity Framework Core](https://img.shields.io/badge/EF%20Core-8.0-green.svg)](https://docs.microsoft.com/ef/core)
 [![SQL Server](https://img.shields.io/badge/Database-SQL%20Server-red.svg)](https://www.microsoft.com/sql-server)
 [![Bootstrap](https://img.shields.io/badge/UI-Bootstrap%205.3-indigo.svg)](https://getbootstrap.com/)
+[![Bootstrap Icons](https://img.shields.io/badge/Icons-Bootstrap%20Icons%201.11-purple.svg)](https://icons.getbootstrap.com/)
 [![CKEditor 5](https://img.shields.io/badge/WYSIWYG-CKEditor%205-orange.svg)](https://ckeditor.com/)
 [![SMTP Email](https://img.shields.io/badge/Notification-SMTP%20Email-teal.svg)](https://learn.microsoft.com/en-us/dotnet/api/system.net.mail.smtpclient)
 
-> **Tiêu Đao Badminton** là nền tảng thương mại điện tử và giải pháp quản lý chuỗi bán lẻ thiết bị thể thao (vợt, giày, quần áo, phụ kiện) kết hợp dịch vụ căng cước cầu lông chuẩn thi đấu quốc tế. Hệ thống được xây dựng trên nền tảng **ASP.NET Core 8.0 MVC**, tích hợp đồng bộ kho hàng theo biến thể, tư vấn chọn vợt thông minh, Chatbot tra cứu tồn kho thực tế, địa chỉ hành chính Việt Nam sau sáp nhập 2 cấp, thông báo đơn hàng qua SMTP Email và báo cáo lợi nhuận - lãi suất thực tế.
+> **Tiêu Đao Badminton** là nền tảng thương mại điện tử và giải pháp quản lý chuỗi bán lẻ thiết bị cầu lông (vợt, giày, quần áo, phụ kiện), kết hợp học viện đào tạo cầu lông và dịch vụ căng cước chuẩn thi đấu quốc tế BWF. Hệ thống được xây dựng trên nền tảng **ASP.NET Core 8.0 MVC**, tích hợp đồng bộ kho hàng theo biến thể, ảnh preview tự động đổi theo màu sắc sản phẩm, Bảng xếp hạng VĐV Việt Nam & Thế giới kèm hồ sơ lịch sử dùng vợt, Đăng ký khóa học trực tuyến gửi thẳng về Email Admin, Trợ lý tư vấn chọn vợt AI, Chatbot tra cứu tồn kho thực tế và phân hệ Quản trị Enterprise Admin Pro.
 
 ---
 
-## 📑 Mục Lục
+## Mục Lục
 
-1. [Tổng Quan Dự Án](#-tổng-quan-dự-án)
-2. [Tính Năng Nổi Bật](#-tính-năng-nổi-bật)
+1. [Tổng Quan Dự Án](#tổng-quan-dự-án)
+2. [Tính Năng Nổi Bật](#tính-năng-nổi-bật)
    - [Phân Hệ Khách Hàng (Storefront)](#1-phân-hệ-khách-hàng-storefront)
-   - [Phân Hệ Quản Trị Viên (Admin Portal)](#2-phân-hệ-quản-trị-viên-admin-portal)
-3. [Công Nghệ & Thư Viện Sử Dụng](#-công-nghệ--thư-viện-sử-dụng)
-4. [Cấu Trúc Thư Mục Dự Án](#-cấu-trúc-thư-mục-dự-án)
-5. [Cơ Sở Dữ Liệu & Thực Thể (Database Schema)](#-cơ-sở-dữ-liệu--thực-thể-database-schema)
-6. [Hướng Dẫn Cài Đặt & Chạy Ứng Dụng](#-hướng-dẫn-cài-đặt--chạy-ứng-dụng)
-7. [Hướng Dẫn Chuyển Dự Án Sang Máy Khác](#-hướng-dẫn-chuyển-dự-án-sang-máy-khác)
-8. [Tài Khoản Quản Trị Mặc Định](#-tài-khoản-quản-trị-mặc-định)
-9. [Quy Trình Nghiệp Vụ Đặc Biệt](#-quy-trình-nghiệp-vụ-đặc-biệt)
-10. [Bản Quyền & Tác Giả](#-bản-quyền--tác-giả)
+   - [Phân Hệ Quản Trị Viên (Enterprise Admin Pro)](#2-phân-hệ-quản-trị-viên-enterprise-admin-pro---admin)
+3. [Công Nghệ & Thư Viện Sử Dụng](#công-nghệ--thư-viện-sử-dụng)
+4. [Cấu Trúc Thư Mục Dự Án](#cấu-trúc-thư-mục-dự-án)
+5. [Cơ Sở Dữ Liệu & Thực Thể (Database Schema)](#cơ-sở-dữ-liệu--thực-thể-database-schema)
+6. [Hướng Dẫn Cài Đặt & Chạy Ứng Dụng](#hướng-dẫn-cài-đặt--chạy-ứng-dụng)
+7. [Hướng Dẫn Chuyển Dự Án Sang Máy Khác](#hướng-dẫn-chuyển-dự-án-sang-máy-khác)
+8. [Tài Khoản Quản Trị Mặc Định](#tài-khoản-quản-trị-mặc-định)
+9. [Quy Trình Nghiệp Vụ Đặc Biệt](#quy-trình-nghiệp-vụ-đặc-biệt)
+10. [Bản Quyền & Tác Giả](#bản-quyền--tác-giả)
 
 ---
 
-## 🚀 Tổng Quan Dự Án
+## Tổng Quan Dự Án
 
-Dự án giải quyết trọn vẹn bài toán đặc thù của ngành kinh doanh dụng cụ cầu lông:
-- **Quản lý phân loại đa chiều (Màu sắc & Kích cỡ):** Một cây vợt hoặc đôi giày có đồng thời thông số Màu sắc và Kích cỡ/Trọng lượng (3U-G5, 4U-G5, size giày từ 38 đến 44, size áo S/M/L/XL/XXL).
-- **Dịch vụ căng cước đi kèm:** Khách mua vợt thường yêu cầu căng cước máy điện tử với mức cân (kg) và kiểu đan 4 nút chuẩn Yonex.
-- **Tính toán lãi suất thực tế:** Quản lý phiếu nhập kho riêng biệt, tính toán tỷ suất lợi nhuận gộp (**Profit Margin %**) và chênh lệch giá vốn (**Markup %**) dựa trên giá nhập và giá bán.
-- **Tư vấn & Chăm sóc khách hàng 24/7:** Kết hợp công cụ trắc nghiệm chọn vợt AI và Widget nổi tích hợp Chatbot tra cứu tồn kho trực tiếp từ cơ sở dữ liệu.
-- **Trải nghiệm đặt hàng hiện đại:** Hỗ trợ chọn địa chỉ hành chính Việt Nam mới nhất sau sáp nhập (2 cấp: Tỉnh/Thành phố ➔ Phường/Xã/Đặc khu) và tự động gửi thông báo đơn hàng qua SMTP Email cho cả Khách hàng lẫn Admin.
+Dự án giải quyết trọn vẹn bài toán đặc thù của hệ sinh thái kinh doanh và đào tạo cầu lông hiện đại:
+- **Quản lý phân loại đa chiều (Màu sắc & Kích cỡ) kèm Ảnh Preview theo màu:** Mỗi cây vợt, đôi giày hoặc bộ trang phục có đồng thời thông số Màu sắc, Ảnh đại diện theo đúng màu (`ProductVariant.ImageUrl`) và Kích cỡ/Trọng lượng (`3U-G5`, `4U-G5`, size giày `38`–`44`, size áo `S`/`M`/`L`/`XL`/`XXL`).
+- **Bảng xếp hạng VĐV Việt Nam & Thế giới gắn liền với Vũ khí thi đấu (`/Bang-Xep-Hang`):** Tra cứu thứ hạng BWF, điểm tích lũy, mức căng cước thực tế và toàn bộ lịch sử từng thời kỳ sử dụng vợt của các tuyển thủ Việt Nam (*Nguyễn Thùy Linh, Nguyễn Tiến Minh, Lê Đức Phát...*) và siêu sao thế giới (*Viktor Axelsen, Shi Yu Qi, An Se Young, Lin Dan, Lee Chong Wei...*), kết nối trực tiếp tới sản phẩm đang bán tại cửa hàng.
+- **Học viện Đào tạo Cầu lông Cơ bản & Nâng cao (`/Dang-Ky-Khoa-Hoc`):** Cung cấp lộ trình học bài bản (Gói Cơ Bản & Gói Nâng Cao); khi học viên đăng ký sẽ tự động bắn Email HTML về hộp thư của Admin và lưu hồ sơ vào hệ thống quản trị.
+- **Tính toán lãi suất & đối chiếu tài chính thực tế:** Quản lý phiếu nhập kho riêng biệt, tính toán tỷ suất lợi nhuận gộp (**Profit Margin %**) và chênh lệch giá vốn (**Markup %**) dựa trên giá nhập và giá bán.
+- **Giao diện chuẩn hóa 100% Bootstrap Icons:** Toàn bộ giao diện khách hàng và trang quản trị sử dụng hệ thống biểu tượng vector **Bootstrap Icons 1.11** sắc nét, hoàn toàn không sử dụng emoji.
 
 ---
 
-## ✨ Tính Năng Nổi Bật
+## Tính Năng Nổi Bật
 
 ### 1. Phân Hệ Khách Hàng (Storefront)
 
-* **Trang Chủ Hiện Đại (Home Page):**
-  - Banner Hero chuyển động, danh mục truy cập nhanh.
-  - Khối Flash Sale, sản phẩm bán chạy, sản phẩm mới nhất.
-  - Trưng bày thương hiệu chính hãng: *Yonex, Victor, Li-Ning, Mizuno, Kumpoo, Kawasaki...*
-  - Giới thiệu dịch vụ sân cầu, đan cước lấy ngay 15 phút.
-  - Cẩm nang & tin tức kinh nghiệm mới nhất.
+* **Trang Chủ & Thanh Điều Hướng Tinh Gọn (`_Layout.cshtml` & `Home/Index.cshtml`):**
+  - Thanh menu điều hướng 1 hàng hiện đại gồm Mega Menu Danh mục sản phẩm, Trang chủ, Vợt cầu lông, Giày thi đấu, Tư vấn vợt AI, Khóa học, BXH VĐV, Dịch vụ & Cẩm nang, Liên hệ.
+  - Menu di động thiết kế dạng Lưới ứng dụng 2 cột (2-Column App Grid) gọn gàng.
+  - Trưng bày sản phẩm bán chạy, thương hiệu chính hãng (*Yonex, Victor, Li-Ning, Mizuno, Kawasaki*) và tin tức cẩm nang mới nhất.
 
 * **Bộ Lọc Danh Mục Chuyên Nghiệp (Product Catalog - `/Danh-Muc`):**
-  - Lọc đa tiêu chí: Theo Danh mục, Thương hiệu, Khoảng giá, Tình trạng còn hàng.
-  - Sắp xếp linh hoạt: Bán chạy, Giá tăng/giảm, Mới nhất, Thứ tự chữ cái.
-  - Phân trang (Pagination) mượt mà.
+  - Cây danh mục đa cấp: Vợt cầu lông (*Tấn công Smash, Công thủ toàn diện, Tốc độ & Phản tạt, Trợ lực*), Giày cầu lông (*Đệm êm, Tốc độ, Chân bè Wide*), Trang phục thể thao (*Áo nam, Áo/Váy nữ, Quần short*).
+  - Lọc kết hợp theo Thương hiệu, Khoảng giá, Từ khóa và Sắp xếp linh hoạt.
 
-* **Trang Chi Tiết Sản Phẩm Đột Phá (Product Detail - `/Products/Detail/{id}`):**
-  - **Tách biệt Màu sắc & Kích cỡ (Chuẩn Unicode NFC):** Khách hàng chủ động chọn Màu sắc để mở khóa các Size tương ứng có trong kho.
-  - **Liên kết kho hàng thực tế:** Hiển thị tức thì số lượng tồn kho từng màu (`Kho còn X`) và từng size (`Còn Y chiếc`), gắn mã SKU kho hàng tự động.
-  - **Dịch vụ căng cước tích hợp:** Tùy chọn mức căng cước (10.5kg, 11kg, 11.5kg, 12kg...) miễn phí đan máy điện tử 4 nút chuẩn thi đấu.
-  - **Hệ thống đánh giá & Review:** Đăng nhập để đánh giá sao (1-5 ⭐) và để lại nhận xét, có tổng hợp điểm trung bình và tỷ lệ phân bổ sao.
-  - **Modal bảng quy đổi Size:** Hướng dẫn chọn size vợt (3U/4U/5U), size giày chuẩn mm, size trang phục thể thao.
+* **Trang Chi Tiết Sản Phẩm Đột Phá (`/Products/Detail/{id}` hoặc `/San-Pham/{id}`):**
+  - **Chuyển đổi Ảnh Preview theo Màu sắc:** Khi khách hàng chọn một màu sắc (hoặc bấm vào ảnh thu nhỏ của màu), ảnh lớn sẽ tự động chuyển sang hình ảnh sản phẩm tương ứng với màu đó.
+  - **Tách biệt Màu sắc & Kích cỡ (Chuẩn Unicode NFC):** Khách hàng chọn Màu sắc để lọc các Size thực sự có trong kho, hiển thị tức thì số lượng tồn kho (`Kho còn X`) và mã SKU.
+  - **Hệ thống Đánh giá & Xếp hạng (Reviews & Ratings):** Cho phép khách hàng đã đăng nhập gửi đánh giá 1–5 sao, thống kê điểm trung bình và biểu đồ phân bổ sao.
 
-* **Widget Tiện Ích Nổi 3-Trong-1 & Chatbot Tư Vấn Kho Hàng (`_Layout.cshtml` & `/api/Chatbot/Ask`):**
-  - **Nút Quay về đầu trang (Back to Top):** Tự động xuất hiện khi cuộn trang và cuộn mượt về đầu trang.
-  - **Nút Gọi Tư Vấn (`tel:0900000000`):** Hiệu ứng vòng sóng (Pulse Ring) kết nối nhanh tới Hotline kỹ thuật viên.
-  - **Chatbot Tư Vấn Thông Minh:**
-    - Tích hợp các thẻ câu hỏi nhanh (Quick Reply Chips): *Tư vấn chọn vợt, Giá căng cước, Chọn size giày, Tra cứu đơn, Bảo hành & Freeship, Liên hệ cửa hàng*.
-    - Kết nối trực tiếp tới `ChatbotController` (`/api/Chatbot/Ask`) để tìm kiếm sản phẩm, giá khuyến mãi, màu sắc/size và số lượng tồn kho thực tế trong SQL Server kèm đường dẫn xem chi tiết sản phẩm.
+* **Bảng Xếp Hạng VĐV Việt Nam & Thế Giới - Hồ Sơ Vợt Thi Đấu (`/Bang-Xep-Hang`):**
+  - Chia thành 3 bảng xếp hạng chuyên sâu:
+    1. **BXH Đội Tuyển Quốc Gia Việt Nam:** *Nguyễn Thùy Linh, Nguyễn Tiến Minh, Lê Đức Phát, Nguyễn Hải Đăng, Vũ Thị Trang, Phạm Văn Hải & Thân Vân Anh*.
+    2. **BXH BWF Thế Giới Hiện Tại:** *Shi Yu Qi, Viktor Axelsen, Anders Antonsen, Kunlavut Vitidsarn, Lee Zii Jia, Loh Kean Yew, An Se Young, Chen Yu Fei, Tai Tzu Ying, Lee Yang & Wang Chi-Lin*.
+    3. **BXH Huyền Thoại Thế Giới (Hall of Fame):** *Lin Dan, Lee Chong Wei, Kento Momota, Chen Long, Carolina Marin, Hendra Setiawan & Mohammad Ahsan*.
+  - Hiển thị rõ **Vợt chủ lực hiện tại**, **Loại cước & Số kg căng thực tế**, **Giày thi đấu**, và **Timeline lịch sử từng đánh những cây vợt nào qua các giai đoạn**.
+  - Tự động ánh xạ dòng vợt của VĐV sang sản phẩm trong Database để hiển thị giá bán và nút dẫn thẳng sang trang mua hàng `/Products/Detail/{id}`.
 
-* **Trợ Lý Tư Vấn Chọn Vợt Thông Minh (Racket Advisor - `/Tu-Van-Chon-Vot`):**
-  - Trắc nghiệm theo 3 tiêu chí cốt lõi: *Lối đánh*, *Lực cổ tay*, và *Ngân sách dự kiến*.
-  - Thuật toán tự động chấm điểm và gợi ý Top 4 cây vợt tối ưu kèm lời khuyên chuyên gia.
+* **Đăng Ký Khóa Học Cầu Lông Cơ Bản & Nâng Cao (`/Dang-Ky-Khoa-Hoc`):**
+  - Thiết kế 2 gói đào tạo rõ ràng:
+    - **Gói Cơ Bản (Basic - 1.200.000đ / 12 buổi):** Dành cho người mới bắt đầu, chuẩn hóa cách cầm vợt, bộ pháp di chuyển 6 góc sân, phông cầu, giao cầu và bỏ nhỏ (Tặng 02 quấn cán + miễn phí mượn vợt tập).
+    - **Gói Nâng Cao (Advanced - 2.200.000đ / 12 buổi):** Chuyên sâu kỹ thuật Jump Smash, phản tạt nhanh ngang lưới, trái tay cuối sân và chiến thuật Đánh Đôi xoay vòng (Tặng 01 lần căng cước máy điện tử 4 nút miễn phí + phân tích video Slow-motion 1:1).
+  - Tích hợp bảng so sánh chương trình học và biểu mẫu đăng ký tương tác trực tiếp.
+  - **Gửi Email tự động về Admin:** Ngay khi học viên hoàn tất đăng ký, hệ thống tự động gửi Email HTML chi tiết về địa chỉ `AdminEmail` (kèm `ReplyTo` tới email học viên), gửi email xác nhận cho học viên và lưu vào hộp thư quản trị `/Admin/Contacts`.
 
-* **Tạp Chí Cẩm Nang & Kinh Nghiệm Cầu Lông (News Magazine - `/Cam-Nang`):**
-  - Giao diện báo chí hiện đại với các phân loại: Vợt, Giày, Kỹ thuật Smash, Căng cước.
-  - **Mục lục bài viết tự động (TOC):** Tự động phát hiện các tiêu đề `H2`, `H3` để tạo mục lục nội dung bấm nhảy mượt mà.
-  - **Tiện ích đọc bài chuyên nghiệp:** Thanh tiến trình cuộn trang (Progress Bar), công cụ tăng/giảm cỡ chữ (A-, A, A+), nút in bài viết, sao chép link, chia sẻ qua Facebook & Zalo.
+* **Trợ Lý Tư Vấn Chọn Vợt AI (`/Tu-Van-Chon-Vot`) & Dịch Vụ Căng Cước 4 Nút (`/Dich-Vu-Cang-Cuoc`):**
+  - Phân tích lối chơi, lực cổ tay và ngân sách để chấm điểm độ tương thích và gợi ý mẫu vợt phù hợp nhất.
+  - Bảng giá các dòng cước chính hãng (*Yonex BG65, BG65Ti, BG80 Power, Nanogy 98, Aerobite, Li-Ning No.1, Kizuna Z63X*) và dịch vụ Spa/Hàn vợt carbon.
 
-* **Giỏ Hàng, Địa Chỉ Hành Chính Sau Sáp Nhập & Thanh Toán (Cart & Checkout):**
-  - Quản lý giỏ hàng lưu Session, tự động tính phí vận chuyển (Freeship cho đơn từ 500.000đ).
-  - **Chọn Địa Chỉ Hành Chính Việt Nam Mới (Sau sáp nhập 2 cấp):**
-    - Tích hợp API hành chính v2 (`https://provinces.open-api.vn/api/v2`) với 2 ô `<select><option>`: **Tỉnh / Thành phố (34 tỉnh/thành sau sáp nhập)** ➔ **Phường / Xã / Đặc khu** (bỏ cấp Quận/Huyện cũ).
-    - Tự động ghép nối Số nhà/Tên đường + Phường/Xã + Tỉnh/Thành phố vào trường `ShippingAddress` của đơn hàng.
-  - **Thông báo Email tự động qua SMTP (`OrderNotificationEmailService`):**
-    - Tự động gửi **Email xác nhận đơn hàng (HTML)** cho Khách hàng (nếu khách nhập email khi thanh toán).
-    - Tự động gửi **Email thông báo có đơn hàng mới** kèm danh sách sản phẩm và tổng tiền về hộp thư của Admin.
-  - Đa dạng phương thức thanh toán: COD (Thanh toán khi nhận hàng), Chuyển khoản ngân hàng QR, Ví MoMo.
-  - Tự động sinh mã hóa đơn định danh dạng `ORD-YYYYMMDD-XXXX`.
+* **Widget Tiện Ích Nổi 3-Trong-1 & Chatbot Tư Vấn Tồn Kho (`/api/Chatbot/Ask`):**
+  - Tích hợp nút Lên đầu trang, nút Gọi Hotline và cửa sổ Chatbot trực tuyến.
+  - Chatbot truy vấn trực tiếp cơ sở dữ liệu SQL Server để báo giá khuyến mãi, màu sắc/size và số lượng tồn kho thực tế.
 
-* **Tra Cứu Tiến Trình Đơn Hàng (Order Tracking - `/Tra-Cuu-Don-Hang`):**
-  - Tra cứu nhanh theo Mã đơn hàng kèm Số điện thoại xác thực.
-  - Hiển thị Timeline trạng thái: *Chờ xử lý ➔ Đã xác nhận ➔ Đang vận chuyển ➔ Giao thành công / Đã hủy*.
+* **Giỏ Hàng, Địa Chỉ Hành Chính 2 Cấp & Thanh Toán SMTP Email (`/Checkout`):**
+  - Tích hợp API hành chính Việt Nam mới (`https://provinces.open-api.vn/api/v2`) gồm 2 cấp: **Tỉnh / Thành phố** -> **Phường / Xã / Đặc khu**.
+  - Tự động trừ tồn kho biến thể và gửi Email HTML xác nhận đơn hàng cho cả Khách hàng và Admin.
 
 ---
 
-### 2. Phân Hệ Quản Trị Viên (Admin Portal - `/Admin`)
+### 2. Phân Hệ Quản Trị Viên (Enterprise Admin Pro - `/Admin`)
 
-* **Bảng Thống Kê Tổng Quan & Chuông Thông Báo Đơn Mới (`/Admin/Home`):**
-  - **Chuông thông báo thời gian thực trên thanh Topbar (`_AdminLayout.cshtml`):** Tự động đếm số đơn hàng mới ở trạng thái `Pending` (Chờ xử lý) và hiển thị danh sách 5 đơn mới nhất trong menu thả xuống để Admin bấm duyệt ngay.
-  - Thống kê doanh thu bán hàng, tổng số đơn hàng, số lượng sản phẩm, tình trạng kho tổng.
+* **Giao Diện Quản Trị Enterprise SaaS (`wwwroot/css/admin.css` & `_AdminLayout.cshtml`):**
+  - **Sidebar Dark Obsidian:** Tích hợp bộ đếm trực tiếp (Live Badges) cho *Đơn hàng chờ xử lý*, *Sản phẩm sắp hết/hết hàng*, và *Tin nhắn/Đăng ký khóa học chưa phản hồi*, hỗ trợ đóng/mở ngăn kéo (Drawer) trên thiết bị di động.
+  - **Topbar Glassmorphism:** Tích hợp thanh tìm kiếm nhanh có phím tắt `Ctrl + K`, menu **Tạo nhanh (Quick Create)** và chuông thông báo thời gian thực.
 
-* **Quản Lý Sản Phẩm (Product Management - `/Admin/Products`):**
-  - Thêm, sửa, xóa sản phẩm kèm bộ lọc danh mục và thương hiệu.
-  - Upload ảnh trực tiếp lên máy chủ (`wwwroot/uploads/products/`).
-  - Khởi tạo ma trận phân loại (Màu sắc, Size, SKU, Số lượng kho ban đầu).
+* **Bảng Điều Khiển Trung Tâm (`/Admin/Home`):**
+  - **Executive Hero Banner** & **Dải đối chiếu tài chính (`.admin-profit-strip`):** So sánh trực quan Doanh thu thực thu, Giá vốn xuất kho, Lợi nhuận ròng và Biên lợi nhuận (`%`).
+  - Biểu đồ kết hợp Doanh thu & Số lượng đơn hàng 6 tháng gần nhất và biểu đồ Thị phần thương hiệu (Chart.js).
+  - Bảng đơn hàng mới kèm avatar chữ cái đầu của khách hàng và bảng xếp hạng Top 5 sản phẩm bán chạy (`#1`, `#2`, `#3`).
 
-* **Quản Lý Nhập Kho & Quản Trị Lãi Suất (`/Admin/StockReceipts`):**
-  - **Phiếu Nhập Hàng Độc Lập:** Ghi nhận nhà cung cấp, xuất xứ, mã lô nhập, đơn giá nhập (giá vốn) và tự động cộng dồn số lượng vào kho thực tế.
-  - **Báo Cáo Đối Chiếu Giá & Lãi Suất (`ProfitReport`):**
-    - Tính toán tự động tỷ suất lợi nhuận gộp (**Profit Margin %**) và tỷ lệ chênh lệch giá vốn (**Markup %**):
-      $$\text{Profit Margin (\%)} = \frac{\text{Giá bán} - \text{Giá nhập}}{\text{Giá bán}} \times 100\%$$
-      $$\text{Markup (\%)} = \frac{\text{Giá bán} - \text{Giá nhập}}{\text{Giá nhập}} \times 100\%$$
+* **Quản Lý Sản Phẩm, Kho Hàng & Ảnh Theo Màu (`/Admin/Products` & `/Admin/StockReceipts`):**
+  - Quản lý danh sách sản phẩm, nhập nhanh tồn kho trực tiếp qua Modal hoặc lập Phiếu nhập kho đầy đủ nguồn gốc/giá vốn.
+  - Cho phép tải ảnh hoặc gắn URL ảnh riêng cho từng biến thể màu sắc (`VariantImageUrls`).
+  - Báo cáo đối chiếu lãi suất bán & nhập (`/Admin/StockReceipts/Report`) tính toán tự động **Profit Margin (%)** và **Markup (%)**:
+    $$\text{Profit Margin (\%)} = \frac{\text{Giá bán} - \text{Giá nhập}}{\text{Giá bán}} \times 100\%$$
+    $$\text{Markup (\%)} = \frac{\text{Giá bán} - \text{Giá nhập}}{\text{Giá nhập}} \times 100\%$$
 
-* **Biên Tập Cẩm Nang Với CKEditor 5 (News Management - `/Admin/News`):**
-  - Tích hợp bộ soạn thảo **CKEditor 5 Classic** giao diện tiếng Việt.
-  - **API Upload Ảnh Riêng (`/Admin/News/UploadEditorImage`):** Cho phép kéo thả ảnh hoặc dán ảnh trực tiếp từ clipboard (`Ctrl+V`), tự động lưu vào `wwwroot/uploads/news/` và chèn vào nội dung bài viết.
-
-* **Quản Lý Đơn Hàng, Danh Mục, Thương Hiệu & Người Dùng:**
-  - Theo dõi chi tiết đơn hàng, cập nhật trạng thái đơn, quản lý danh mục, thương hiệu và phân quyền tài khoản (`Admin`, `Staff`, `Customer`).
+* **Quản Lý Đơn Hàng, Tin Tức (CKEditor 5), Hộp Thư Liên Hệ & Tài Khoản:**
+  - Duyệt đơn hàng theo quy trình chuẩn (*Pending -> Confirmed -> Shipping -> Done / Cancelled*), tự động hoàn trả tồn kho nếu hủy đơn.
+  - Soạn thảo bài viết cẩm nang với **CKEditor 5 Classic** hỗ trợ dán/kéo thả ảnh trực tiếp.
+  - Quản lý hộp thư liên hệ & hồ sơ đăng ký khóa học tại `/Admin/Contacts`.
+  - Quản lý tài khoản, khóa/mở khóa và cấp lại mật khẩu khẩn cấp tại `/Admin/Accounts`.
 
 ---
 
-## 🛠 Công Nghệ & Thư Viện Sử Dụng
+## Công Nghệ & Thư Viện Sử Dụng
 
 | Hạng mục | Công nghệ / Thư viện | Ghi chú |
 | :--- | :--- | :--- |
 | **Framework nền tảng** | ASP.NET Core 8.0 MVC | C# .NET 8.0 (LTS) |
 | **ORM & Database** | Entity Framework Core 8.0 | Code-First Migrations, SQL Server / LocalDB |
 | **Bảo mật & Xác thực** | ASP.NET Core Identity | Phân quyền Role-based (`Admin`, `Staff`, `Customer`) |
-| **Giao diện (Frontend)** | Razor Views + Bootstrap 5.3 + Custom CSS | Responsive đa thiết bị, Floating Widget & Chatbot UI |
-| **Trình soạn thảo WYSIWYG** | CKEditor 5 Classic (Gói Tiếng Việt) | Kèm Custom Upload Adapter tải ảnh máy chủ |
-| **Dịch vụ Email** | `System.Net.Mail.SmtpClient` | Gửi email HTML xác nhận đơn hàng bất đồng bộ |
-| **API Địa chỉ hành chính** | Provinces Open API v2 (`provinces.open-api.vn/api/v2`) | Địa chỉ Việt Nam 2 cấp sau sáp nhập (Tỉnh/TP ➔ Phường/Xã) |
+| **Giao diện & Icon** | Razor Views + Bootstrap 5.3 + Bootstrap Icons 1.11 | 100% Vector Icons, Enterprise Admin Pro UI |
+| **Biểu đồ & Trực quan hóa** | Chart.js 4.4 | Biểu đồ doanh thu kép & thị phần thương hiệu |
+| **Trình soạn thảo WYSIWYG** | CKEditor 5 Classic (Tiếng Việt) | Tích hợp API tải ảnh trực tiếp lên máy chủ |
+| **Dịch vụ Email** | `System.Net.Mail.SmtpClient` | Gửi email HTML cho Đơn hàng mới & Đăng ký khóa học |
+| **API Địa chỉ hành chính** | Provinces Open API v2 (`provinces.open-api.vn/api/v2`) | Địa chỉ Việt Nam 2 cấp sau sáp nhập (Tỉnh/TP -> Phường/Xã) |
 
 ---
 
-## 📁 Cấu Trúc Thư Mục Dự Án
+## Cấu Trúc Thư Mục Dự Án
 
 ```plaintext
 tieudaobadminton/
 ├── Areas/
-│   └── Admin/                              # Phân hệ quản trị (Admin Portal)
-│       ├── Controllers/                    # Controllers quản trị (Products, Orders, News, StockReceipts...)
-│       ├── ViewModels/                     # ViewModels dành riêng cho Admin
-│       └── Views/                          # Giao diện quản trị Admin (Tích hợp chuông báo đơn mới & CKEditor 5)
-├── Controllers/                            # Controllers phân hệ khách hàng (Storefront)
-│   ├── AccountController.cs                # Đăng ký, đăng nhập, lịch sử đơn hàng
+│   └── Admin/                              # Phân hệ Quản trị (Enterprise Admin Pro)
+│       ├── Controllers/                    # Controllers quản trị (Home, Orders, Products, StockReceipts, News, Accounts, Contacts...)
+│       ├── ViewModels/                     # ViewModels thống kê Dashboard & Quản trị
+│       └── Views/                          # Giao diện Admin đồng bộ KPI Cards, Avatar Table & Chart.js
+├── Controllers/                            # Controllers phân hệ Khách hàng (Storefront)
+│   ├── AccountController.cs                # Đăng ký, đăng nhập, đơn hàng cá nhân
 │   ├── CartController.cs                   # Giỏ hàng Session
-│   ├── CatalogController.cs                # Danh mục sản phẩm & bộ lọc đa chiều
-│   ├── ChatbotController.cs                # API Chatbot tra cứu sản phẩm & tồn kho thực tế (/api/Chatbot/Ask)
-│   ├── CheckoutController.cs               # Đặt hàng, thanh toán & kích hoạt gửi email SMTP
-│   ├── ContactController.cs                # Trang liên hệ
-│   ├── GuideController.cs                  # Hướng dẫn chọn size
+│   ├── CatalogController.cs                # Danh mục sản phẩm & bộ lọc đa tiêu chí (/Danh-Muc)
+│   ├── ChatbotController.cs                # API Chatbot tra cứu sản phẩm & tồn kho (/api/Chatbot/Ask)
+│   ├── CheckoutController.cs               # Đặt hàng, thanh toán & gửi email xác nhận đơn
+│   ├── ContactController.cs                # Trang liên hệ & hỗ trợ (/Lien-He)
+│   ├── CourseController.cs                 # Trang đăng ký khóa học Cơ bản & Nâng cao (/Dang-Ky-Khoa-Hoc)
+│   ├── GuideController.cs                  # Hướng dẫn chọn size vợt, giày & quần áo (/Huong-Dan-Size)
 │   ├── HomeController.cs                   # Trang chủ
-│   ├── NewsController.cs                   # Tạp chí cẩm nang & kinh nghiệm thi đấu
-│   ├── OrderTrackingController.cs          # Tra cứu tiến độ đơn hàng trực tuyến
-│   ├── ProductsController.cs               # Chi tiết sản phẩm, biến thể kho, review sao
-│   ├── RacketAdvisorController.cs          # Trợ lý tư vấn vợt thông minh
-│   ├── ServicesController.cs               # Dịch vụ căng cước 4 nút
-│   └── WishlistController.cs               # Danh sách sản phẩm yêu thích
-├── Data/                                   # Cấu hình dữ liệu & Entity Framework Core
-│   ├── ApplicationDbContext.cs             # DbContext chính của ứng dụng
-│   ├── DbSeeder.cs                         # Seed dữ liệu mẫu ban đầu (Sản phẩm, danh mục, kho, bài viết)
-│   └── IdentitySeeder.cs                   # Seed tài khoản Admin & vai trò mặc định
+│   ├── NewsController.cs                   # Tạp chí cẩm nang cầu lông (/News)
+│   ├── OrderTrackingController.cs          # Tra cứu tiến độ đơn hàng (/Tra-Cuu-Don-Hang)
+│   ├── ProductsController.cs               # Chi tiết sản phẩm (/Products/Detail/{id} & /San-Pham/{id})
+│   ├── RacketAdvisorController.cs          # Trợ lý tư vấn chọn vợt AI (/Tu-Van-Chon-Vot)
+│   ├── RankingController.cs                # Bảng xếp hạng VĐV Việt Nam & Thế giới + Hồ sơ vợt (/Bang-Xep-Hang)
+│   ├── ServicesController.cs               # Dịch vụ căng cước máy điện tử 4 nút (/Dich-Vu-Cang-Cuoc)
+│   └── WishlistController.cs               # Danh sách sản phẩm yêu thích (/Yeu-Thich)
+├── Data/                                   # Cấu hình Database & Tự động khởi tạo dữ liệu mẫu
+│   ├── ApplicationDbContext.cs             # DbContext chính của hệ thống
+│   ├── DbSeeder.cs                         # Seed sản phẩm, biến thể màu/ảnh, đơn hàng, đánh giá mẫu
+│   └── IdentitySeeder.cs                   # Seed tài khoản Admin & phân quyền mặc định
 ├── Helpers/                                # Các dịch vụ tiện ích
-│   ├── OrderNotificationEmailService.cs    # Dịch vụ gửi Email SMTP cho Admin & Khách hàng khi có đơn mới
+│   ├── OrderNotificationEmailService.cs    # Dịch vụ gửi Email SMTP cho Đơn hàng mới & Đăng ký khóa học
 │   └── SessionExtensions.cs                # Tiện ích lưu/đọc Object JSON trong Session
-├── Migrations/                             # Lịch sử migrations của EF Core
-├── Models/                                 # Các thực thể dữ liệu (Entities)
-├── ViewModels/                             # ViewModels truyền dữ liệu cho Views
+├── Models/                                 # Thực thể cơ sở dữ liệu (Product, ProductVariant, Order, StockReceipt, ContactMessage...)
+├── ViewModels/                             # ViewModels (CourseRegistrationVM, PlayerRankingVM, CheckoutVM, ContactVM...)
 ├── Views/                                  # Giao diện khách hàng (Razor Views)
-│   ├── Checkout/Index.cshtml               # Trang thanh toán tích hợp API Tỉnh/Phường sau sáp nhập
-│   ├── Products/Detail.cshtml              # Trang chi tiết sản phẩm lọc Màu sắc & Size
-│   └── Shared/_Layout.cshtml               # Layout chính tích hợp Floating Widget (Top, Call, Chatbot)
-├── wwwroot/                                # Tệp tĩnh công khai (css, js, img, uploads)
-├── appsettings.json                        # Cấu hình chuỗi kết nối SQL Server và SMTP Email
-├── Program.cs                              # Điểm khởi chạy ứng dụng (DI, Pipeline, Auto-Seed)
+│   ├── Course/Index.cshtml                 # Giao diện Đăng ký khóa học (Gói Cơ bản & Nâng cao)
+│   ├── Ranking/Index.cshtml                # Giao diện Bảng xếp hạng VĐV & Timeline lịch sử dùng vợt
+│   ├── Products/Detail.cshtml              # Chi tiết sản phẩm tự động đổi ảnh preview theo màu
+│   └── Shared/_Layout.cshtml               # Layout chính với thanh điều hướng tinh gọn & Chatbot Widget
+├── wwwroot/                                # Tài nguyên tĩnh (css/site.css, css/admin.css, img, uploads)
+├── appsettings.json                        # Cấu hình chuỗi kết nối SQL Server & SMTP Email
+├── Program.cs                              # Cấu hình Dependency Injection, Routing & Auto-Seeding
 └── tieudaobadminton.csproj                 # Tệp cấu hình dự án .NET 8.0
 ```
 
 ---
 
-## 🗄 Cơ Sở Dữ Liệu & Thực Thể (Database Schema)
+## Cơ Sở Dữ Liệu & Thực Thể (Database Schema)
 
 ```mermaid
 erDiagram
@@ -200,7 +194,6 @@ erDiagram
     PRODUCT {
         int Id PK
         string Name
-        string Slug
         decimal Price
         decimal SalePrice
         string Description
@@ -215,6 +208,7 @@ erDiagram
         int ProductId FK
         string Size
         string Color
+        string ImageUrl
         int Stock
         string Sku
     }
@@ -233,16 +227,23 @@ erDiagram
 
     ORDER {
         int Id PK
-        string OrderCode
-        string CustomerName
+        string FullName
         string Phone
-        string Email
-        string ShippingAddress
-        decimal SubTotal
-        decimal ShippingFee
-        decimal TotalAmount
-        string PaymentMethod
+        string Address
+        decimal Total
         string Status
+        DateTime CreatedAt
+    }
+
+    CONTACT_MESSAGE {
+        int Id PK
+        string FullName
+        string Email
+        string Phone
+        string Subject
+        string Message
+        bool IsReplied
+        string StaffNote
         DateTime CreatedAt
     }
 
@@ -262,7 +263,7 @@ erDiagram
         string Slug
         string Summary
         string Content
-        string ThumbnailUrl
+        string ImageUrl
         bool IsPublished
         DateTime PublishedAt
     }
@@ -270,14 +271,14 @@ erDiagram
 
 ---
 
-## ⚙️ Hướng Dẫn Cài Đặt & Chạy Ứng Dụng
+## Hướng Dẫn Cài Đặt & Chạy Ứng Dụng
 
 ### 1. Yêu Cầu Môi Trường (Prerequisites)
 - [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) trở lên.
 - **SQL Server** (SQL Server LocalDB đi kèm Visual Studio, SQL Server Express, hoặc SQL Server Developer).
 
 ### 2. Cấu Hình `appsettings.json`
-Mở tệp `appsettings.json` tại thư mục gốc của dự án để kiểm tra chuỗi kết nối Database và cấu hình SMTP Email:
+Mở tệp `appsettings.json` tại thư mục gốc của dự án để kiểm tra chuỗi kết nối Database và cấu hình SMTP Email nhận thông báo đơn hàng / đăng ký khóa học:
 ```json
 {
   "ConnectionStrings": {
@@ -295,8 +296,8 @@ Mở tệp `appsettings.json` tại thư mục gốc của dự án để kiểm
 }
 ```
 > **Lưu ý về SMTP Gmail:**
-> - Để gửi email thật qua Gmail, hãy bật xác minh 2 bước (2-Step Verification) trong tài khoản Google và tạo **Mật khẩu ứng dụng (App Password)** gồm 16 ký tự để điền vào `"AppPassword"`.
-> - Nếu bạn chưa điền `"AppPassword"` (để mặc định `"your-app-password"`), đơn hàng vẫn được lưu bình thường và chuông thông báo trên trang Admin vẫn hoạt động đầy đủ mà không gây lỗi.
+> - Để gửi email thực tế về hộp thư `AdminEmail` khi có **Đơn đặt hàng mới** hoặc **Học viên đăng ký khóa học mới**, hãy bật xác minh 2 bước (2-Step Verification) trong tài khoản Google và tạo **Mật khẩu ứng dụng (App Password)** gồm 16 ký tự để điền vào `"AppPassword"`, đồng thời điền địa chỉ email của bạn vào `"SenderEmail"` và `"AdminEmail"`.
+> - Nếu chưa cấu hình SMTP thực tế, toàn bộ đơn hàng và hồ sơ đăng ký khóa học vẫn được lưu an toàn vào cơ sở dữ liệu và hiển thị trực tiếp trên chuông thông báo cũng như mục `/Admin/Orders` và `/Admin/Contacts`.
 
 ### 3. Cập Nhật Cơ Sở Dữ Liệu & Khởi Chạy
 Mở Terminal / PowerShell tại thư mục chứa dự án và chạy:
@@ -305,64 +306,62 @@ dotnet restore
 dotnet ef database update
 dotnet run
 ```
-*(Ứng dụng cũng đã được lập trình tự động chạy Migration và Seed dữ liệu mẫu ngay trong `Program.cs` ở lần khởi chạy đầu tiên).*
+*(Hệ thống đã được lập trình tự động khởi tạo bảng và Seed đầy đủ dữ liệu sản phẩm, biến thể màu/ảnh, bài viết, đơn hàng mẫu và tài khoản Admin ngay trong lần chạy đầu tiên).*
 
-Sau khi khởi động, truy cập:
-- **Trang chủ Khách hàng:** `https://localhost:7085` (hoặc địa chỉ hiển thị trên màn hình console).
-- **Trang Quản trị Admin:** `https://localhost:7085/Admin`
+Sau khi khởi động, truy cập các phân hệ chính:
+- **Trang chủ Khách hàng:** `https://localhost:7085`
+- **Danh mục Sản phẩm:** `https://localhost:7085/Danh-Muc`
+- **Đăng ký Khóa học (Cơ bản & Nâng cao):** `https://localhost:7085/Dang-Ky-Khoa-Hoc`
+- **Bảng xếp hạng VĐV & Hồ sơ Vợt thi đấu:** `https://localhost:7085/Bang-Xep-Hang`
+- **Tư vấn chọn vợt thông minh (AI):** `https://localhost:7085/Tu-Van-Chon-Vot`
+- **Trang Quản trị Enterprise Admin Pro:** `https://localhost:7085/Admin`
 
 ---
 
-## 💻 Hướng Dẫn Chuyển Dự Án Sang Máy Khác
+## Hướng Dẫn Chuyển Dự Án Sang Máy Khác
 
-Khi copy hoặc clone dự án sang một máy tính mới, bạn chỉ cần thực hiện 4 bước sau:
+Khi sao chép hoặc clone dự án sang một máy tính mới, chỉ cần thực hiện 4 bước:
 
-1. **Cài đặt công cụ trên máy mới:**
-   - Cài **.NET 8.0 SDK** và **SQL Server (LocalDB hoặc SQL Express)**.
-2. **Sao chép mã nguồn kèm thư mục ảnh:**
-   - Đảm bảo copy đầy đủ thư mục `wwwroot/img/` và `wwwroot/uploads/` để không bị mất ảnh sản phẩm và ảnh bài viết cẩm nang.
-   - Có thể xóa 2 thư mục tạm `bin/` và `obj/` trước khi nén gửi sang máy khác cho nhẹ dung lượng.
+1. **Cài đặt công cụ trên máy mới:** Cài **.NET 8.0 SDK** và **SQL Server (LocalDB hoặc SQL Express)**.
+2. **Sao chép mã nguồn kèm thư mục ảnh:** Đảm bảo giữ nguyên thư mục `wwwroot/img/` và `wwwroot/uploads/` (có thể xóa `bin/` và `obj/` trước khi nén).
 3. **Kiểm tra tên Server SQL trong `appsettings.json`:**
-   - Nếu máy mới dùng LocalDB: giữ nguyên `Server=(localdb)\\MSSQLLocalDB`.
-   - Nếu máy mới dùng SQL Express: đổi thành `Server=.\\SQLEXPRESS`.
+   - Dùng LocalDB: giữ nguyên `Server=(localdb)\\MSSQLLocalDB`.
+   - Dùng SQL Express: đổi thành `Server=.\\SQLEXPRESS`.
 4. **Chạy lệnh khởi động:**
    ```powershell
    dotnet restore
    dotnet run
    ```
-   Hệ thống sẽ **tự động tạo Database `BadmintonShop`**, tự tạo toàn bộ bảng và nạp sẵn dữ liệu mẫu + tài khoản Admin mà không cần import file `.bak` hay `.sql` thủ công.
+   Ứng dụng sẽ tự động tạo Database `BadmintonShop`, khởi tạo toàn bộ bảng, chuẩn hóa biến thể màu sắc/ảnh sản phẩm và nạp sẵn tài khoản Admin.
 
 ---
 
-## 🔑 Tài Khoản Quản Trị Mặc Định
+## Tài Khoản Quản Trị Mặc Định
 
 | Vai trò (Role) | Tài khoản (Email) | Mật khẩu (Password) | Quyền hạn |
 | :--- | :--- | :--- | :--- |
-| **Quản trị viên (Admin)** | `admin@shop.com` | `Admin@12345` | Toàn quyền quản trị hệ thống, đơn hàng, kho hàng, tài khoản, bài viết |
+| **Quản trị viên (Admin)** | `admin@shop.com` | `Admin@12345` | Toàn quyền quản trị Dashboard, đơn hàng, kho hàng, phiếu nhập, bài viết, liên hệ & khóa học, tài khoản |
 
 ---
 
-## 💡 Quy Trình Nghiệp Vụ Đặc Biệt
+## Quy Trình Nghiệp Vụ Đặc Biệt
 
-### 1. Cơ Chế Lọc & Hiển Thị Phân Loại Kho Tự Động (Variant Matrix)
-- Dữ liệu màu sắc và kích cỡ được trích xuất hoàn toàn tự động từ bảng `ProductVariants`.
-- Khi khách hàng click chọn Màu sắc (Ví dụ: `Đen`), hệ thống chuẩn hóa chuỗi **Unicode NFC** và lọc tức thời các kích cỡ thực sự có trong kho ứng với màu đó, hiển thị số lượng tồn kho chính xác (`Còn X chiếc`) và mã SKU tương ứng.
+### 1. Cơ Chế Lọc Phân Loại Kho & Đổi Ảnh Preview Theo Màu (`ProductVariant.ImageUrl`)
+- Dữ liệu màu sắc, đường dẫn ảnh theo màu (`ImageUrl`) và kích cỡ được quản lý trong bảng `ProductVariants`.
+- Khi khách hàng chọn một màu sắc tại trang chi tiết sản phẩm (`/Products/Detail/{id}` hoặc `/San-Pham/{id}`), hệ thống tự động đổi ảnh preview chính sang hình ảnh của màu đó và lọc danh sách kích cỡ kèm số lượng tồn kho tương ứng.
 
-### 2. Địa Chỉ Thanh Toán Hành Chính Mới & Thông Báo Đơn Hàng Kép
-- Tại trang `/Checkout`, khách hàng chọn **Tỉnh / Thành phố** và **Phường / Xã / Đặc khu** theo cơ cấu hành chính 2 cấp mới nhất qua API trực tuyến (có cơ chế dự phòng nhập tay nếu mất kết nối mạng).
-- Ngay khi đặt hàng thành công:
-  1. Tồn kho của biến thể (`ProductVariant.Stock`) được trừ tự động.
-  2. Chuông thông báo trên thanh công cụ Admin (`/Admin`) lập tức nhảy số lượng đơn hàng mới chờ duyệt.
-  3. Dịch vụ `OrderNotificationEmailService` chạy bất đồng bộ gửi 2 email HTML chuyên nghiệp tới Admin và Khách hàng.
+### 2. Luồng Đăng Ký Khóa Học & Thông Báo Kép Về Admin (`/Dang-Ky-Khoa-Hoc`)
+- Học viên chọn giữa **Gói Cơ Bản (1.200.000đ)** và **Gói Nâng Cao (2.200.000đ)**, điền thông tin cá nhân, độ tuổi, ca học và cơ sở sân tập.
+- Hệ thống lưu hồ sơ vào bảng `ContactMessages` (hiển thị ngay trên bộ đếm Sidebar Admin `/Admin/Contacts`) đồng thời gọi `OrderNotificationEmailService.SendCourseRegistrationNotificationAsync` để gửi Email HTML chi tiết về hộp thư của Admin và gửi email xác nhận mã hồ sơ `#KHxxxx` cho học viên.
 
-### 3. Soạn Thảo Cẩm Nang Với CKEditor 5
-- Khung nội dung chi tiết bài viết tại `/Admin/News/Create` và `/Admin/News/Edit` được tích hợp **CKEditor 5 Classic**.
-- Ảnh dán từ Clipboard hoặc kéo thả được tải ngầm qua API `/Admin/News/UploadEditorImage`, lưu vào `wwwroot/uploads/news/` và nhúng trực tiếp vào bài viết.
+### 3. Bảng Xếp Hạng VĐV & Ánh Xạ Sản Phẩm Tự Động (`/Bang-Xep-Hang`)
+- `RankingController` tổng hợp dữ liệu 16 VĐV và cặp đôi hàng đầu Việt Nam, Thế giới và Huyền thoại BWF cùng lịch sử các đời vợt từng sử dụng.
+- Hệ thống tự động đối chiếu tên vợt của từng VĐV với bảng `Products` trong cơ sở dữ liệu để hiển thị giá bán thực tế và tạo liên kết mua hàng trực tiếp tới đúng mẫu vợt đó tại cửa hàng.
 
 ---
 
-## 👨‍💻 Bản Quyền & Tác Giả
+## Bản Quyền & Tác Giả
 
-- **Dự Án:** Đồ Án Môn Học - Hệ Thống Bán Lẻ & Quản Lý Dụng Cụ Cầu Lông Tiêu Đao
+- **Dự Án:** Đồ Án Môn Học - Hệ Thống Bán Lẻ, Đào Tạo & Quản Lý Dụng Cụ Cầu Lông Tiêu Đao
 - **Nền tảng phát triển:** ASP.NET Core 8.0 MVC
 - **Năm thực hiện:** 2026

@@ -11,11 +11,11 @@
     string GetTopicBadge(string title)
     {
         var t = title.ToLower();
-        if (t.Contains("vợt")) return "🏸 VỢT CẦU LÔNG";
-        if (t.Contains("cước") || t.Contains("căng") || t.Contains("đan")) return "🛠️ CĂNG CƯỚC";
-        if (t.Contains("giày") || t.Contains("size")) return "👟 GIÀY & ĐỒ TẬP";
-        if (t.Contains("kỹ thuật") || t.Contains("smash") || t.Contains("đập")) return "⚡ KỸ THUẬT";
-        return "📰 CẨM NANG";
+        if (t.Contains("vợt")) return "<i class=\"bi bi-trophy-fill me-1\"></i>VỢT CẦU LÔNG";
+        if (t.Contains("cước") || t.Contains("căng") || t.Contains("đan")) return "<i class=\"bi bi-tools me-1\"></i>CĂNG CƯỚC";
+        if (t.Contains("giày") || t.Contains("size")) return "<i class=\"bi bi-lightning-fill me-1\"></i>GIÀY & ĐỒ TẬP";
+        if (t.Contains("kỹ thuật") || t.Contains("smash") || t.Contains("đập")) return "<i class=\"bi bi-lightning-charge-fill me-1\"></i>KỸ THUẬT";
+        return "<i class=\"bi bi-newspaper me-1\"></i>CẨM NANG";
     }
 }
 
@@ -34,7 +34,7 @@
 
             <div class="row align-items-center justify-content-between g-4">
                 <div class="col-lg-7">
-                    <span class="news-hero-pill">📖 TẠP CHÍ & BÍ QUYẾT SÂN CẦU</span>
+                    <span class="news-hero-pill"><i class="bi bi-book-half me-1"></i>TẠP CHÍ & BÍ QUYẾT SÂN CẦU</span>
                     <h1 class="news-hero-heading">Cẩm Nang & Kinh Nghiệm Cầu Lông</h1>
                     <p class="news-hero-sub">
                         Cập nhật các bài viết phân tích vợt chuyên sâu, kỹ thuật đập cầu smash uy lực, bảng đo size chân chuẩn xác và kinh nghiệm đan cước điện tử từ chuyên gia Tiêu Đao.
@@ -45,7 +45,7 @@
                         <div class="mt-3">
                             <a class="btn btn-sm btn-light rounded-pill px-3 py-2 fw-bold text-dark d-inline-flex align-items-center gap-2 shadow-sm"
                                asp-area="Admin" asp-controller="News" asp-action="Create">
-                                <span>✍️</span>
+                                <i class="bi bi-pencil-square"></i>
                                 <span>Đăng bài viết mới (Admin)</span>
                             </a>
                         </div>
@@ -68,19 +68,19 @@
             <div class="news-topics-scroll mt-4">
                 <div class="news-topics-bar">
                     <a href="/Cam-Nang" class="topic-chip @(string.IsNullOrEmpty(currentTopic) ? "active" : "")">
-                        ✨ Tất cả bài viết
+                        <i class="bi bi-stars me-1"></i>Tất cả bài viết
                     </a>
                     <a href="/Cam-Nang?topic=vot" class="topic-chip @(currentTopic == "vot" ? "active" : "")">
-                        🏸 Tư vấn chọn vợt
+                        <i class="bi bi-trophy-fill me-1"></i>Tư vấn chọn vợt
                     </a>
                     <a href="/Cam-Nang?topic=ky-thuat" class="topic-chip @(currentTopic == "ky-thuat" ? "active" : "")">
-                        ⚡ Kỹ thuật & Smash
+                        <i class="bi bi-lightning-charge-fill me-1"></i>Kỹ thuật & Smash
                     </a>
                     <a href="/Cam-Nang?topic=giay" class="topic-chip @(currentTopic == "giay" ? "active" : "")">
-                        👟 Giày & Chọn size
+                        <i class="bi bi-lightning-fill me-1"></i>Giày & Chọn size
                     </a>
                     <a href="/Cam-Nang?topic=cang-cuoc" class="topic-chip @(currentTopic == "cang-cuoc" ? "active" : "")">
-                        🛠️ Căng cước 4 nút
+                        <i class="bi bi-tools me-1"></i>Căng cước 4 nút
                     </a>
                 </div>
             </div>
@@ -97,17 +97,17 @@
                     <div class="col-lg-7">
                         <div class="featured-img-wrap">
                             <img src="@(featuredPost.ThumbnailUrl ?? "/img/banners/banner.jpg")" alt="@featuredPost.Title" class="featured-img" />
-                            <span class="featured-badge">🔥 BÀI VIẾT TIÊU ĐIỂM</span>
+                            <span class="featured-badge"><i class="bi bi-fire me-1"></i>BÀI VIẾT TIÊU ĐIỂM</span>
                         </div>
                     </div>
                     <div class="col-lg-5 d-flex flex-column justify-content-between p-4 p-md-5">
                         <div>
                             <div class="featured-meta-row mb-2">
-                                <span class="badge-topic-lead">@GetTopicBadge(featuredPost.Title)</span>
+                                <span class="badge-topic-lead">@Html.Raw(GetTopicBadge(featuredPost.Title))</span>
                                 <span class="meta-sep">•</span>
                                 <span class="meta-date">@featuredPost.PublishedAt.ToString("dd/MM/yyyy")</span>
                                 <span class="meta-sep">•</span>
-                                <span class="meta-time">⏱️ 5 phút đọc</span>
+                                <span class="meta-time"><i class="bi bi-clock me-1"></i>5 phút đọc</span>
                             </div>
                             <h2 class="featured-title">
                                 <a asp-controller="News" asp-action="Detail" asp-route-id="@featuredPost.Id">
@@ -122,7 +122,7 @@
                         </div>
                         <div class="featured-bottom-row pt-3">
                             <div class="author-info d-flex align-items-center gap-2">
-                                <div class="author-avatar-badge">🏸</div>
+                                <div class="author-avatar-badge"><i class="bi bi-trophy-fill"></i></div>
                                 <div>
                                     <div class="author-name-text">Tiêu Đao Editorial</div>
                                     <small class="author-role text-muted">Ban Chuyên Môn</small>
@@ -160,7 +160,7 @@
                 @if (!Model.Any())
                 {
                     <div class="news-empty-state text-center py-5">
-                        <div class="display-3 mb-3">📰</div>
+                        <div class="display-3 mb-3 text-muted"><i class="bi bi-newspaper"></i></div>
                         <h4 class="fw-bold">Chưa tìm thấy bài viết phù hợp</h4>
                         <p class="text-muted" style="max-width: 420px; margin: 0 auto;">
                             Không có bài cẩm nang nào khớp với tiêu chí bạn đang tìm kiếm. Vui lòng thử lại với từ khóa khác.
@@ -181,13 +181,13 @@
                                 <article class="news-card-pro h-100">
                                     <div class="news-card-thumb-wrap">
                                         <img src="@(post.ThumbnailUrl ?? "/img/banners/banner1.jfif")" alt="@post.Title" class="news-card-thumb" loading="lazy" />
-                                        <span class="news-card-topic">@GetTopicBadge(post.Title)</span>
+                                        <span class="news-card-topic">@Html.Raw(GetTopicBadge(post.Title))</span>
                                     </div>
                                     <div class="news-card-content">
                                         <div class="news-card-meta">
                                             <span>@post.PublishedAt.ToString("dd/MM/yyyy")</span>
                                             <span>•</span>
-                                            <span>⏱️ 4 phút</span>
+                                            <span><i class="bi bi-clock me-1"></i>4 phút</span>
                                         </div>
                                         <h5 class="news-card-title">
                                             <a asp-controller="News" asp-action="Detail" asp-route-id="@post.Id" title="@post.Title">
@@ -219,7 +219,7 @@
 
                     <!-- Widget 1: AI Advisor Card -->
                     <div class="news-widget-ai mb-4">
-                        <div class="widget-ai-pill">⚡ TRỢ LÝ THÔNG MINH</div>
+                        <div class="widget-ai-pill"><i class="bi bi-lightning-charge-fill me-1"></i>TRỢ LÝ THÔNG MINH</div>
                         <h5 class="fw-black text-white mb-2">Chưa biết chọn cây vợt nào?</h5>
                         <p class="small text-white-50 mb-3" style="line-height: 1.6;">
                             Công nghệ AI phân tích lối đánh tấn công/thủ, lực cổ tay và ngân sách để đề xuất cây vợt chuẩn xác nhất cho bạn.
@@ -231,7 +231,7 @@
 
                     <!-- Widget 2: Trending / Top Guides -->
                     <div class="news-widget-box mb-4">
-                        <h6 class="widget-heading">🔥 Cẩm nang đọc nhiều</h6>
+                        <h6 class="widget-heading"><i class="bi bi-fire text-danger me-1"></i>Cẩm nang đọc nhiều</h6>
                         <div class="widget-trending-list">
                             @for (int idx = 0; idx < Math.Min(Model.Count, 4); idx++)
                             {
@@ -249,24 +249,24 @@
 
                     <!-- Widget 3: Quick Services & Tools -->
                     <div class="news-widget-box mb-4">
-                        <h6 class="widget-heading">🛠️ Tiện ích & Hướng dẫn</h6>
+                        <h6 class="widget-heading"><i class="bi bi-tools text-primary me-1"></i>Tiện ích & Hướng dẫn</h6>
                         <div class="d-flex flex-column gap-2">
                             <a href="/Dich-Vu-Cang-Cuoc" class="widget-service-row">
-                                <span class="service-icon-badge">⚡</span>
+                                <span class="service-icon-badge"><i class="bi bi-lightning-charge-fill"></i></span>
                                 <div>
                                     <div class="service-row-title">Căng cước máy điện tử 4 nút</div>
                                     <small class="text-muted">Lấy ngay sau 15 phút tại sân</small>
                                 </div>
                             </a>
                             <a href="/Huong-Dan-Size" class="widget-service-row">
-                                <span class="service-icon-badge">📏</span>
+                                <span class="service-icon-badge"><i class="bi bi-rulers"></i></span>
                                 <div>
                                     <div class="service-row-title">Bảng đo Size Giày & Cán G5/G6</div>
                                     <small class="text-muted">Đo chính xác theo mm bàn chân</small>
                                 </div>
                             </a>
                             <a href="/Tra-Cuu-Don-Hang" class="widget-service-row">
-                                <span class="service-icon-badge">📦</span>
+                                <span class="service-icon-badge"><i class="bi bi-box-seam-fill"></i></span>
                                 <div>
                                     <div class="service-row-title">Tra cứu lộ trình đơn hàng</div>
                                     <small class="text-muted">Kiểm tra mã vận đơn hỏa tốc</small>
@@ -277,7 +277,7 @@
 
                     <!-- Widget 4: Newsletter Box -->
                     <div class="news-widget-box">
-                        <h6 class="widget-heading">📬 Nhận mẹo chơi cầu hàng tuần</h6>
+                        <h6 class="widget-heading"><i class="bi bi-envelope-paper-fill text-primary me-1"></i>Nhận mẹo chơi cầu hàng tuần</h6>
                         <p class="small text-muted mb-3">
                             Nhận các bài hướng dẫn kỹ thuật mới nhất và ưu đãi đặc quyền từ Tiêu Đao Badminton.
                         </p>

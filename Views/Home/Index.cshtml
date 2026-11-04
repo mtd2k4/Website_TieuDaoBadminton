@@ -14,7 +14,7 @@
             <div class="col-lg-7 col-xl-8">
                 <div class="bento-hero-main">
                     <div>
-                        <span class="bento-tag">⚡ THẾ HỆ DỤNG CỤ THI ĐẤU 2026</span>
+                        <span class="bento-tag"><i class="bi bi-lightning-charge-fill me-1"></i>THẾ HỆ DỤNG CỤ THI ĐẤU 2026</span>
                         <h1 class="bento-hero-title">
                             Đẳng Cấp Sân Cầu<br />
                             <span class="hero-gradient-text">Làm Chủ Từng Cú Smash</span>
@@ -24,10 +24,10 @@
                         </p>
                         <div class="d-flex gap-3 flex-wrap mb-4">
                             <a class="btn btn-primary btn-lg rounded-pill px-4 py-3 fw-bold shadow-lg" href="/Danh-Muc">
-                                🛍️ Khám phá bộ sưu tập →
+                                <i class="bi bi-bag-check-fill me-1"></i>Khám phá bộ sưu tập →
                             </a>
                             <a class="btn btn-outline-light btn-lg rounded-pill px-4 py-3 fw-bold" href="/Danh-Muc?cat=vot">
-                                🏸 Dòng vợt Pro
+                                <i class="bi bi-trophy-fill me-1"></i>Dòng vợt Pro
                             </a>
                         </div>
                     </div>
@@ -43,7 +43,7 @@
                             <div class="stat-label">Chính hãng<br />chuẩn bảo hành</div>
                         </div>
                         <div class="stat-pill">
-                            <span class="stat-number">4.9 ★</span>
+                            <span class="stat-number">4.9 <i class="bi bi-star-fill text-warning"></i></span>
                             <div class="stat-label">Hài lòng<br />(2,500+ vote)</div>
                         </div>
                     </div>
@@ -85,35 +85,35 @@
     <section class="mb-5">
         <div class="category-chips-wrap">
             <a class="category-chip active" href="/Danh-Muc">
-                <span class="chip-icon">⚡</span>
+                <span class="chip-icon"><i class="bi bi-lightning-charge-fill"></i></span>
                 <span>Tất cả</span>
             </a>
             <a class="category-chip" href="/Danh-Muc?cat=vot">
-                <span class="chip-icon">🏸</span>
+                <span class="chip-icon"><i class="bi bi-trophy-fill"></i></span>
                 <span>Vợt thi đấu Pro</span>
             </a>
             <a class="category-chip" href="/Danh-Muc?cat=giay">
-                <span class="chip-icon">👟</span>
+                <span class="chip-icon"><i class="bi bi-lightning-fill"></i></span>
                 <span>Giày bám sân</span>
             </a>
             <a class="category-chip" href="/Danh-Muc?cat=quan-ao">
-                <span class="chip-icon">👕</span>
+                <span class="chip-icon"><i class="bi bi-handbag-fill"></i></span>
                 <span>Trang phục & Phụ kiện</span>
             </a>
             <a class="category-chip border border-danger border-opacity-50" href="/Tu-Van-Chon-Vot">
-                <span class="chip-icon">🎯</span>
+                <span class="chip-icon"><i class="bi bi-bullseye"></i></span>
                 <span class="fw-bold text-danger">Tư vấn chọn vợt AI</span>
             </a>
             <a class="category-chip" href="/Dich-Vu-Cang-Cuoc">
-                <span class="chip-icon">🛠️</span>
+                <span class="chip-icon"><i class="bi bi-tools"></i></span>
                 <span>Căng cước 4 nút</span>
             </a>
             <a class="category-chip" href="/Huong-Dan-Size">
-                <span class="chip-icon">📏</span>
+                <span class="chip-icon"><i class="bi bi-rulers"></i></span>
                 <span>Hướng dẫn chọn Size</span>
             </a>
             <a class="category-chip" href="/Tra-Cuu-Don-Hang">
-                <span class="chip-icon">📦</span>
+                <span class="chip-icon"><i class="bi bi-box-seam-fill"></i></span>
                 <span>Tra cứu đơn hàng</span>
             </a>
         </div>
@@ -123,7 +123,7 @@
     <section class="flash-sale-wrap">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
             <div class="d-flex align-items-center gap-3">
-                <span class="flash-sale-badge">⚡ FLASH SALE GIỜ VÀNG</span>
+                <span class="flash-sale-badge"><i class="bi bi-lightning-charge-fill me-1"></i>FLASH SALE GIỜ VÀNG</span>
                 <span class="text-light opacity-75 small d-none d-sm-inline">Kết thúc trong:</span>
             </div>
 
@@ -165,13 +165,20 @@
                         <div class="pro-card-media">
                             <img class="pro-card-img" src="@(p.MainImageUrl ?? "/img/demo/placeholder.jpg")" alt="@p.Name" loading="lazy" />
                             <div class="pro-card-badges">
-                                <span class="badge-sale-pro">⚡ GIẢM @discountPercent%</span>
+                                <span class="badge-sale-pro"><i class="bi bi-lightning-charge-fill me-1"></i>GIẢM @discountPercent%</span>
                             </div>
                             @{
                                 var isFav = wishlistIds.Contains(p.Id);
                             }
                             <button type="button" class="pro-wishlist-btn @(isFav ? "active" : "")" onclick="toggleWishlist(@p.Id, this);" title="Yêu thích">
-                                @(isFav ? "❤️" : "🤍")
+                                @if (isFav)
+                                {
+                                    <i class="bi bi-heart-fill"></i>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-heart"></i>
+                                }
                             </button>
                             <div class="pro-quick-sizes">
                                 <span>3U | 4U | G5 • SẴN HÀNG</span>
@@ -210,7 +217,7 @@
     <section class="mb-5">
         <div class="d-flex justify-content-between align-items-end mb-4">
             <div>
-                <span class="badge bg-primary bg-opacity-10 text-primary fw-bold px-3 py-1 mb-2 rounded-pill">🏆 BEST SELLERS 2026</span>
+                <span class="badge bg-primary bg-opacity-10 text-primary fw-bold px-3 py-1 mb-2 rounded-pill"><i class="bi bi-trophy-fill me-1"></i>BEST SELLERS 2026</span>
                 <h2 class="fw-bold mb-0">Sản phẩm được các tay vợt tin dùng</h2>
             </div>
             <a class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold" href="/Danh-Muc">
@@ -248,7 +255,14 @@
                                 var isFav2 = wishlistIds.Contains(p.Id);
                             }
                             <button type="button" class="pro-wishlist-btn @(isFav2 ? "active" : "")" onclick="toggleWishlist(@p.Id, this);" title="Yêu thích">
-                                @(isFav2 ? "❤️" : "🤍")
+                                @if (isFav2)
+                                {
+                                    <i class="bi bi-heart-fill"></i>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-heart"></i>
+                                }
                             </button>
 
                             <div class="pro-quick-sizes">
@@ -259,7 +273,7 @@
                         <!-- Body with Rating Stars -->
                         <div class="pro-card-body">
                             <div class="pro-rating-row">
-                                <span>★★★★★</span>
+                                <span><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></span>
                                 <span class="pro-rating-score">4.9</span>
                                 <span class="pro-rating-count">(86)</span>
                             </div>
@@ -297,7 +311,7 @@
                 <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white d-flex flex-column justify-content-between position-relative overflow-hidden">
                     <div>
                         <div class="d-flex align-items-center justify-content-between mb-3">
-                            <span class="fs-1">⚡</span>
+                            <span class="fs-1 text-danger"><i class="bi bi-lightning-charge-fill"></i></span>
                             <span class="badge bg-danger rounded-pill px-3 py-1">THUẬT TOÁN AI</span>
                         </div>
                         <h4 class="fw-black mb-2 text-dark">Tư Vấn Chọn Vợt Thông Minh</h4>
@@ -316,7 +330,7 @@
                 <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white d-flex flex-column justify-content-between position-relative overflow-hidden">
                     <div>
                         <div class="d-flex align-items-center justify-content-between mb-3">
-                            <span class="fs-1">🛠️</span>
+                            <span class="fs-1 text-dark"><i class="bi bi-tools"></i></span>
                             <span class="badge bg-dark text-white rounded-pill px-3 py-1">LẤY SAU 15 PHÚT</span>
                         </div>
                         <h4 class="fw-black mb-2 text-dark">Dịch Vụ Căng Cước 4 Nút</h4>
@@ -335,7 +349,7 @@
                 <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white d-flex flex-column justify-content-between position-relative overflow-hidden">
                     <div>
                         <div class="d-flex align-items-center justify-content-between mb-3">
-                            <span class="fs-1">📏</span>
+                            <span class="fs-1 text-primary"><i class="bi bi-rulers"></i></span>
                             <span class="badge bg-primary rounded-pill px-3 py-1">CHUẨN TỪNG MM</span>
                         </div>
                         <h4 class="fw-black mb-2 text-dark">Đo Chu Vi Cán Vợt & Size Giày</h4>
@@ -355,7 +369,7 @@
     <section class="mb-5 brand-showcase-section">
         <div class="text-center mb-4">
             <span class="badge bg-primary bg-opacity-10 text-primary fw-bold px-3 py-1 mb-2 rounded-pill">
-                🏆 ĐỐI TÁC CHIẾN LƯỢC CHÍNH HÃNG
+                <i class="bi bi-trophy-fill me-1"></i>ĐỐI TÁC CHIẾN LƯỢC CHÍNH HÃNG
             </span>
             <h2 class="fw-bold text-dark">Thương hiệu phân phối ủy quyền</h2>
             <p class="text-muted small">Cam kết 100% nhập khẩu chính ngạch, nguyên seal quét mã QR bảo hành điện tử</p>
@@ -414,7 +428,7 @@
                                         }
                                         else
                                         {
-                                            <span class="fs-4">🏸</span>
+                                            <span class="fs-4"><i class="bi bi-trophy-fill"></i></span>
                                         }
                                     </div>
                                     <div class="brand-name-title">@brand.Name.ToUpper()</div>
@@ -486,7 +500,7 @@
                                         }
                                         else
                                         {
-                                            <span class="fs-4">🏸</span>
+                                            <span class="fs-4"><i class="bi bi-trophy-fill"></i></span>
                                         }
                                     </div>
                                     <div class="brand-name-title">@brand.Name.ToUpper()</div>
@@ -513,7 +527,7 @@
         <div class="container mt-4">
             <div class="brand-trust-bar">
                 <div class="brand-trust-item">
-                    <span class="trust-icon">🛡️</span>
+                    <span class="trust-icon"><i class="bi bi-shield-check"></i></span>
                     <div>
                         <strong class="text-dark">100% Chính Hãng</strong>
                         <small class="text-muted d-block">Đền bù 200% nếu phát hiện giả mạo</small>
@@ -521,7 +535,7 @@
                 </div>
                 <div class="brand-trust-sep d-none d-md-block"></div>
                 <div class="brand-trust-item">
-                    <span class="trust-icon">⚡</span>
+                    <span class="trust-icon"><i class="bi bi-lightning-charge-fill"></i></span>
                     <div>
                         <strong class="text-dark">Căng Cước Điện Tử 4 Nút</strong>
                         <small class="text-muted d-block">Chuẩn kg thi đấu, lấy ngay 15 phút</small>
@@ -529,7 +543,7 @@
                 </div>
                 <div class="brand-trust-sep d-none d-md-block"></div>
                 <div class="brand-trust-item">
-                    <span class="trust-icon">🚚</span>
+                    <span class="trust-icon"><i class="bi bi-truck"></i></span>
                     <div>
                         <strong class="text-dark">Freeship Toàn Quốc</strong>
                         <small class="text-muted d-block">Đơn từ 499k & Bảo hiểm vận chuyển</small>
@@ -542,7 +556,7 @@
     <!-- 6. SOCIAL PROOF / KHÁCH HÀNG ĐÁNH GIÁ (TESTIMONIALS) -->
     <section class="mb-5">
         <div class="text-center mb-4">
-            <span class="badge bg-success bg-opacity-10 text-success fw-bold px-3 py-1 mb-2 rounded-pill">💬 CỘNG ĐỒNG SÂN CẦU</span>
+            <span class="badge bg-success bg-opacity-10 text-success fw-bold px-3 py-1 mb-2 rounded-pill"><i class="bi bi-chat-dots-fill me-1"></i>CỘNG ĐỒNG SÂN CẦU</span>
             <h2 class="fw-bold">Cảm nhận từ các tay vợt</h2>
             <p class="text-muted small">Hơn 10,000+ người chơi phong trào và VĐV đã tin tưởng Tiêu Đao Badminton</p>
         </div>
@@ -551,7 +565,7 @@
             <div class="col-md-4">
                 <div class="testimonial-card">
                     <div>
-                        <div class="text-warning mb-2">★★★★★</div>
+                        <div class="text-warning mb-2"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
                         <p class="text-dark small mb-3" style="line-height: 1.7;">
                             "Vợt Yonex Astrox 100ZZ mua ở shop chuẩn chính hãng, bao check mã cào. Đan cước 11kg nổ cầu cực kỳ đã tay. Giao hàng hỏa tốc trong 2 tiếng rất ưng ý!"
                         </p>
@@ -560,7 +574,7 @@
                         <img src="~/img/tieudao.jpg" class="testimonial-avatar" alt="Avatar" />
                         <div>
                             <div class="fw-bold text-dark fs-6">Trần Tuấn Anh</div>
-                            <div class="verified-badge">✓ Đã mua hàng • CLB Cầu Lông Tân Bình</div>
+                            <div class="verified-badge"><i class="bi bi-check-circle-fill me-1"></i>Đã mua hàng • CLB Cầu Lông Tân Bình</div>
                         </div>
                     </div>
                 </div>
@@ -569,7 +583,7 @@
             <div class="col-md-4">
                 <div class="testimonial-card">
                     <div>
-                        <div class="text-warning mb-2">★★★★★</div>
+                        <div class="text-warning mb-2"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
                         <p class="text-dark small mb-3" style="line-height: 1.7;">
                             "Mình mua đôi giày Victor đệm êm tuyệt đối, đế bám sân gỗ rất tốt không hề bị trơn trượt. Shop tư vấn chuẩn size 42 vừa khít chân."
                         </p>
@@ -578,7 +592,7 @@
                         <img src="~/img/tieudao.jpg" class="testimonial-avatar" alt="Avatar" />
                         <div>
                             <div class="fw-bold text-dark fs-6">Nguyễn Hoàng Long</div>
-                            <div class="verified-badge">✓ Đã mua hàng • Sân Cầu Lông Thủ Đức</div>
+                            <div class="verified-badge"><i class="bi bi-check-circle-fill me-1"></i>Đã mua hàng • Sân Cầu Lông Thủ Đức</div>
                         </div>
                     </div>
                 </div>
@@ -587,7 +601,7 @@
             <div class="col-md-4">
                 <div class="testimonial-card">
                     <div>
-                        <div class="text-warning mb-2">★★★★★</div>
+                        <div class="text-warning mb-2"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
                         <p class="text-dark small mb-3" style="line-height: 1.7;">
                             "Áo đấu chất vải mè thể thao mặc thoáng nhẹ, thấm mồ hôi tốt. Dịch vụ chăm sóc khách hàng và chính sách bảo hành 7 ngày rất chuyên nghiệp."
                         </p>
@@ -596,7 +610,7 @@
                         <img src="~/img/tieudao.jpg" class="testimonial-avatar" alt="Avatar" />
                         <div>
                             <div class="fw-bold text-dark fs-6">Lê Minh Trang</div>
-                            <div class="verified-badge">✓ Đã mua hàng • VĐV Phong Trào Q.10</div>
+                            <div class="verified-badge"><i class="bi bi-check-circle-fill me-1"></i>Đã mua hàng • VĐV Phong Trào Q.10</div>
                         </div>
                     </div>
                 </div>
@@ -610,7 +624,7 @@
         <section class="mb-5">
             <div class="d-flex justify-content-between align-items-end mb-4">
                 <div>
-                    <span class="badge bg-primary bg-opacity-10 text-primary fw-bold px-3 py-1 mb-2 rounded-pill">📰 CẨM NANG THI ĐẤU</span>
+                    <span class="badge bg-primary bg-opacity-10 text-primary fw-bold px-3 py-1 mb-2 rounded-pill"><i class="bi bi-newspaper me-1"></i>CẨM NANG THI ĐẤU</span>
                     <h2 class="fw-bold mb-0">Kiến thức & Mẹo chọn đồ cầu lông</h2>
                 </div>
                 <a class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold" asp-controller="News" asp-action="Index">
@@ -631,8 +645,8 @@
 
                             <div class="card-body p-4 d-flex flex-column">
                                 <div class="d-flex justify-content-between align-items-center text-muted small mb-2">
-                                    <span>📅 @n.PublishedAt.ToLocalTime().ToString("dd/MM/yyyy")</span>
-                                    <span>⏱️ 3 phút đọc</span>
+                                    <span><i class="bi bi-calendar3 me-1"></i>@n.PublishedAt.ToLocalTime().ToString("dd/MM/yyyy")</span>
+                                    <span><i class="bi bi-clock me-1"></i>3 phút đọc</span>
                                 </div>
 
                                 <h5 class="fw-bold mt-1 text-dark news-title" style="line-height: 1.4;">

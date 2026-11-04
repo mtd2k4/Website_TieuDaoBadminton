@@ -16,7 +16,7 @@
         <!-- PAGE HEADER -->
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
             <div>
-                <h1 class="fw-black h3 mb-1">❤️ Sản Phẩm Yêu Thích Của Bạn</h1>
+                <h1 class="fw-black h3 mb-1"><i class="bi bi-heart-fill text-danger me-2"></i>Sản Phẩm Yêu Thích Của Bạn</h1>
                 <p class="text-muted mb-0">
                     @(Model.Count > 0 ? $"Bạn đang lưu {Model.Count} sản phẩm quan tâm trong danh sách." : "Lưu lại những món đồ cầu lông bạn yêu thích để tiện theo dõi giá và mua sắm sau.")
                 </p>
@@ -26,12 +26,12 @@
             {
                 <div class="d-flex align-items-center gap-2">
                     <a asp-controller="Products" asp-action="Index" class="btn btn-outline-dark rounded-pill fw-bold btn-sm px-3">
-                        🛍️ Xem thêm sản phẩm
+                        <i class="bi bi-bag-check-fill me-1"></i>Xem thêm sản phẩm
                     </a>
                     <form asp-action="Clear" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa toàn bộ danh sách yêu thích?');">
                         @Html.AntiForgeryToken()
                         <button type="submit" class="btn btn-outline-danger rounded-pill fw-bold btn-sm px-3">
-                            🗑️ Xóa tất cả
+                            <i class="bi bi-trash3-fill me-1"></i>Xóa tất cả
                         </button>
                     </form>
                 </div>
@@ -42,10 +42,10 @@
         @if (Model == null || Model.Count == 0)
         {
             <div class="card border-0 shadow-sm rounded-4 text-center py-5 px-3 bg-white mb-5">
-                <div class="display-3 mb-3">🤍</div>
+                <div class="display-3 mb-3 text-muted"><i class="bi bi-heart"></i></div>
                 <h4 class="fw-bold mb-2">Danh sách yêu thích đang trống!</h4>
                 <p class="text-muted mb-4" style="max-width: 480px; margin: 0 auto;">
-                    Bạn chưa lưu sản phẩm nào. Hãy nhấn vào biểu tượng trái tim <strong>🤍</strong> trên mỗi cây vợt, đôi giày hoặc phụ kiện để lưu lại nhé!
+                    Bạn chưa lưu sản phẩm nào. Hãy nhấn vào biểu tượng trái tim <strong><i class="bi bi-heart"></i></strong> trên mỗi cây vợt, đôi giày hoặc phụ kiện để lưu lại nhé!
                 </p>
                 <div class="d-flex justify-content-center gap-3">
                     <a asp-controller="Products" asp-action="Index" class="btn btn-danger btn-lg rounded-pill px-5 fw-bold shadow-sm">
@@ -96,7 +96,7 @@
                                     <button type="submit" class="btn btn-sm btn-white rounded-circle shadow-sm border p-0 d-flex align-items-center justify-content-center" 
                                             style="width: 34px; height: 34px; background: rgba(255,255,255,0.9);" 
                                             title="Xóa khỏi yêu thích">
-                                        ❌
+                                        <i class="bi bi-x-lg text-danger"></i>
                                     </button>
                                 </form>
                             </div>
@@ -142,7 +142,7 @@
             <div class="row align-items-center g-3">
                 <div class="col-md-8">
                     <div class="d-flex align-items-center gap-2 mb-2">
-                        <span class="fs-4">💡</span>
+                        <span class="fs-4 text-warning"><i class="bi bi-lightbulb-fill"></i></span>
                         <h5 class="fw-bold mb-0 text-white">Bạn đang phân vân giữa các cây vợt?</h5>
                     </div>
                     <p class="text-light opacity-75 small mb-0">
@@ -151,7 +151,7 @@
                 </div>
                 <div class="col-md-4 text-md-end">
                     <a href="/Tu-Van-Chon-Vot" class="btn btn-danger rounded-pill fw-bold px-4">
-                        ⚡ Thử Tư Vấn AI Ngay
+                        <i class="bi bi-lightning-charge-fill me-1"></i>Thử Tư Vấn AI Ngay
                     </a>
                 </div>
             </div>

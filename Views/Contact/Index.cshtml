@@ -7,7 +7,7 @@
 <section class="contact-hero-section text-center">
     <div class="container">
         <div class="contact-badge-lead">
-            <span>🏸</span>
+            <i class="bi bi-trophy-fill"></i>
             <span>TRUNG TÂM DỊCH VỤ & HỖ TRỢ KHÁCH HÀNG</span>
         </div>
         <h1 class="contact-hero-title">
@@ -70,7 +70,7 @@
         <!-- LEFT COLUMN: CONTACT FORM (7 COLS) -->
         <div class="col-lg-7">
             <div class="contact-form-card">
-                <h3 class="contact-form-title">Gửi yêu cầu tư vấn hoặc phản hồi ✉️</h3>
+                <h3 class="contact-form-title">Gửi yêu cầu tư vấn hoặc phản hồi <i class="bi bi-envelope-paper-fill text-primary"></i></h3>
                 <p class="contact-form-subtitle">
                     Vui lòng điền thông tin bên dưới, kỹ thuật viên của Tiêu Đao sẽ phản hồi bạn trong vòng 15 - 30 phút.
                 </p>
@@ -78,7 +78,7 @@
                 @if (TempData["Ok"] != null)
                 {
                     <div class="alert alert-success d-flex align-items-center gap-3 rounded-4 p-3 mb-4 border-0 shadow-sm">
-                        <div class="fs-3">🎉</div>
+                        <div class="fs-3 text-success"><i class="bi bi-check-circle-fill"></i></div>
                         <div>
                             <div class="fw-bold fs-6">Gửi thông tin thành công!</div>
                             <div class="small">@TempData["Ok"]</div>
@@ -135,12 +135,12 @@
                     <div class="contact-input-wrap">
                         <label class="contact-input-label">Chủ đề bạn cần hỗ trợ</label>
                         <select asp-for="Subject" class="form-select rounded-3 py-2 px-3 border-secondary-subtle" style="background-color: #f8fafc; font-size: 0.92rem;">
-                            <option value="Tư vấn chọn vợt & giày phù hợp">🏸 Tư vấn chọn vợt & giày phù hợp lực tay</option>
-                            <option value="Hẹn lịch căng cước máy điện tử 4 nút">🛠️ Hẹn lịch căng cước máy điện tử 4 nút (lấy liền 15p)</option>
-                            <option value="Tra cứu & kiểm tra đơn hàng">📦 Tra cứu hành trình & kiểm tra đơn hàng</option>
-                            <option value="Bảo hành & đổi trả sản phẩm">🛡️ Yêu cầu bảo hành hoặc đổi size sản phẩm</option>
-                            <option value="Hợp tác sân cầu & câu lạc bộ">🤝 Hợp tác đại lý, sân cầu & câu lạc bộ phong trào</option>
-                            <option value="Ý kiến đóng góp khác">💬 Ý kiến đóng góp & phản hồi dịch vụ</option>
+                            <option value="Tư vấn chọn vợt & giày phù hợp">Tư vấn chọn vợt & giày phù hợp lực tay</option>
+                            <option value="Hẹn lịch căng cước máy điện tử 4 nút">Hẹn lịch căng cước máy điện tử 4 nút (lấy liền 15p)</option>
+                            <option value="Tra cứu & kiểm tra đơn hàng">Tra cứu hành trình & kiểm tra đơn hàng</option>
+                            <option value="Bảo hành & đổi trả sản phẩm">Yêu cầu bảo hành hoặc đổi size sản phẩm</option>
+                            <option value="Hợp tác sân cầu & câu lạc bộ">Hợp tác đại lý, sân cầu & câu lạc bộ phong trào</option>
+                            <option value="Ý kiến đóng góp khác">Ý kiến đóng góp & phản hồi dịch vụ</option>
                         </select>
                     </div>
 
@@ -169,7 +169,7 @@
         <div class="col-lg-5">
             <div class="contact-store-card">
                 <div class="store-card-heading">
-                    <span class="fs-4">🏸</span>
+                    <span class="fs-4 text-primary"><i class="bi bi-shop"></i></span>
                     <span>Showroom Trải Nghiệm Tiêu Đao</span>
                 </div>
 
@@ -214,18 +214,18 @@
                 </div>
 
                 <div class="store-services-chips">
-                    <span class="store-service-pill">⚡ Đan cước 15 phút</span>
-                    <span class="store-service-pill">👟 Đo size chân 3D</span>
-                    <span class="store-service-pill">🏸 Cân bằng trọng lượng vợt</span>
-                    <span class="store-service-pill">🛡️ 100% Chính hãng Yonex/Victor</span>
+                    <span class="store-service-pill"><i class="bi bi-lightning-charge-fill me-1"></i>Đan cước 15 phút</span>
+                    <span class="store-service-pill"><i class="bi bi-rulers me-1"></i>Đo size chân 3D</span>
+                    <span class="store-service-pill"><i class="bi bi-trophy-fill me-1"></i>Cân bằng trọng lượng vợt</span>
+                    <span class="store-service-pill"><i class="bi bi-shield-check me-1"></i>100% Chính hãng Yonex/Victor</span>
                 </div>
 
                 <div class="d-flex gap-2 mt-3 pt-3 border-top">
                     <a href="https://zalo.me" target="_blank" class="btn btn-outline-primary btn-sm rounded-pill flex-grow-1 fw-bold py-2">
-                        💬 Nhắn tin Zalo
+                        <i class="bi bi-chat-dots-fill me-1"></i>Nhắn tin Zalo
                     </a>
                     <a href="tel:0900000000" class="btn btn-dark btn-sm rounded-pill flex-grow-1 fw-bold py-2">
-                        📞 Gọi trực tiếp
+                        <i class="bi bi-telephone-fill me-1"></i>Gọi trực tiếp
                     </a>
                 </div>
             </div>

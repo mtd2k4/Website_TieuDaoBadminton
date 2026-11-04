@@ -8,13 +8,13 @@
     <!-- BACK -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <a asp-action="Index" class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold">
-            ← Quay lại hộp thư
+            <i class="bi bi-arrow-left me-1"></i> Quay lại hộp thư
         </a>
         <div>
             @if (Model.IsReplied)
             {
                 <span class="badge bg-success-subtle text-success fs-6 rounded-pill px-3 py-1">
-                    ✓ Đã phản hồi
+                    <i class="bi bi-check-lg me-1"></i> Đã phản hồi
                 </span>
             }
             else
@@ -93,11 +93,11 @@
                         <button type="submit" class="btn @(Model.IsReplied ? "btn-outline-warning" : "btn-success") rounded-pill px-4 fw-bold">
                             @if (Model.IsReplied)
                             {
-                                <span>↩ Chuyển về "Chưa phản hồi" & Lưu ghi chú</span>
+                                <span><i class="bi bi-arrow-counterclockwise me-1"></i> Chuyển về "Chưa phản hồi" & Lưu ghi chú</span>
                             }
                             else
                             {
-                                <span>✓ Đánh dấu "Đã phản hồi" & Lưu ghi chú</span>
+                                <span><i class="bi bi-check-lg me-1"></i> Đánh dấu "Đã phản hồi" & Lưu ghi chú</span>
                             }
                         </button>
                     </div>

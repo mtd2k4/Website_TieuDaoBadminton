@@ -143,6 +143,44 @@ namespace tieudaobadminton.Areas.Admin.Controllers
                 ? Array.Empty<string>()
                 : vm.InitialColors.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 
+            // Đọc ảnh riêng cho từng màu sắc (Upload file hoặc URL) từ form Create
+            var cat = await _db.Categories.FindAsync(vm.CategoryId);
+            var catSlug = cat?.Slug?.ToLower() ?? "";
+            bool isRacket = catSlug.Contains("vot");
+            bool isShoe = catSlug.Contains("giay");
+            bool isApparel = catSlug.Contains("ao") || catSlug.Contains("quan");
+
+            var colorImageDict = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
+            for (int cIdx = 0; cIdx < colors.Length; cIdx++)
+            {
+                var cName = colors[cIdx];
+                string? cImg = null;
+                var fileKey = $"colorFile_{cIdx}";
+                var urlKey = $"colorUrl_{cIdx}";
+
+                var uploadedColorFile = Request.Form.Files[fileKey];
+                if (uploadedColorFile != null && uploadedColorFile.Length > 0)
+                {
+                    cImg = await SaveFile(uploadedColorFile, "uploads/products");
+                }
+                else if (!string.IsNullOrWhiteSpace(Request.Form[urlKey]))
+                {
+                    cImg = Request.Form[urlKey].ToString().Trim();
+                }
+                else
+                {
+                    cImg = DbSeeder.ResolveVariantColorImage(isRacket, isShoe, isApparel, p.Name, cName, p.Id);
+                }
+
+                colorImageDict[cName] = cImg;
+            }
+
+            // Nếu sản phẩm chưa có ảnh đại diện chính mà màu đầu tiên có ảnh -> dùng ảnh màu đầu tiên
+            if (string.IsNullOrWhiteSpace(p.MainImageUrl) && colors.Length > 0 && colorImageDict.TryGetValue(colors[0], out var firstColorImg) && !string.IsNullOrWhiteSpace(firstColorImg))
+            {
+                p.MainImageUrl = firstColorImg;
+            }
+
             var initialStock = Math.Max(0, vm.InitialStock);
             var baseSku = string.IsNullOrWhiteSpace(vm.Sku) ? $"SP-{p.Id:D4}" : vm.Sku.Trim();
 
@@ -159,6 +197,7 @@ namespace tieudaobadminton.Areas.Admin.Controllers
                             ProductId = p.Id,
                             Size = size,
                             Color = color,
+                            ImageUrl = colorImageDict.TryGetValue(color, out var img) ? img : null,
                             Stock = initialStock,
                             Sku = $"{baseSku}-{size}-{color}"
                         };
@@ -176,6 +215,7 @@ namespace tieudaobadminton.Areas.Admin.Controllers
                         ProductId = p.Id,
                         Size = size,
                         Color = null,
+                        ImageUrl = p.MainImageUrl,
                         Stock = initialStock,
                         Sku = $"{baseSku}-{size}"
                     };
@@ -192,6 +232,7 @@ namespace tieudaobadminton.Areas.Admin.Controllers
                         ProductId = p.Id,
                         Size = null,
                         Color = color,
+                        ImageUrl = colorImageDict.TryGetValue(color, out var img) ? img : null,
                         Stock = initialStock,
                         Sku = $"{baseSku}-{color}"
                     };
@@ -262,6 +303,7 @@ namespace tieudaobadminton.Areas.Admin.Controllers
                     Id = v.Id,
                     Size = v.Size,
                     Color = v.Color,
+                    ImageUrl = v.ImageUrl,
                     Stock = v.Stock,
                     Sku = v.Sku
                 }).ToList()
@@ -278,10 +320,10 @@ namespace tieudaobadminton.Areas.Admin.Controllers
         }
 
         // POST: /Admin/Products/Edit/5
-        // Chú ý: TỒN KHO KHÔNG CHO PHÉP SỬA TRỰC TIẾP Ở ĐÂY (chỉ cho phép cập nhật thông tin sản phẩm và mã SKU)
+        // Chú ý: TỒN KHO KHÔNG CHO PHÉP SỬA TRỰC TIẾP Ở ĐÂY (chỉ cho phép cập nhật thông tin sản phẩm, mã SKU và ảnh theo màu)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(AdminProductFormVM vm, List<int>? variantIds, List<string>? variantSkus)
+        public async Task<IActionResult> Edit(AdminProductFormVM vm, List<int>? variantIds, List<string>? variantSkus, List<string>? variantImageUrls)
         {
             var p = await _db.Products
                 .Include(x => x.Variants)
@@ -296,6 +338,7 @@ namespace tieudaobadminton.Areas.Admin.Controllers
                     Id = v.Id,
                     Size = v.Size,
                     Color = v.Color,
+                    ImageUrl = v.ImageUrl,
                     Stock = v.Stock,
                     Sku = v.Sku
                 }).ToList();
@@ -316,16 +359,23 @@ namespace tieudaobadminton.Areas.Admin.Controllers
             else if (!string.IsNullOrWhiteSpace(vm.MainImageUrl))
                 p.MainImageUrl = vm.MainImageUrl;
 
-            // Cập nhật mã SKU của các biến thể (tồn kho KHÔNG bị ghi đè, tuân thủ nguyên tắc quản lý kho)
-            if (variantIds != null && variantSkus != null)
+            // Cập nhật mã SKU & Ảnh theo màu của các biến thể (tồn kho KHÔNG bị ghi đè, tuân thủ nguyên tắc quản lý kho)
+            if (variantIds != null)
             {
                 for (int i = 0; i < variantIds.Count; i++)
                 {
                     var vid = variantIds[i];
                     var variant = p.Variants.FirstOrDefault(v => v.Id == vid);
-                    if (variant != null && i < variantSkus.Count)
+                    if (variant != null)
                     {
-                        variant.Sku = variantSkus[i]?.Trim();
+                        if (variantSkus != null && i < variantSkus.Count)
+                        {
+                            variant.Sku = variantSkus[i]?.Trim();
+                        }
+                        if (variantImageUrls != null && i < variantImageUrls.Count)
+                        {
+                            variant.ImageUrl = string.IsNullOrWhiteSpace(variantImageUrls[i]) ? null : variantImageUrls[i].Trim();
+                        }
                     }
                 }
             }
@@ -386,7 +436,7 @@ namespace tieudaobadminton.Areas.Admin.Controllers
                 await _db.SaveChangesAsync();
 
                 var variantLabel = !string.IsNullOrEmpty(targetVariant.Size) ? $" (Size: {targetVariant.Size})" : "";
-                TempData["Ok"] = $"✓ Nhập hàng thành công! Đã tăng thêm +{quantity} chiếc cho '{p.Name}{variantLabel}'. Tồn kho mới: {targetVariant.Stock} chiếc.";
+                TempData["Ok"] = $"Nhập hàng thành công! Đã tăng thêm +{quantity} chiếc cho '{p.Name}{variantLabel}'. Tồn kho mới: {targetVariant.Stock} chiếc.";
             }
             else if (p.Variants.Count > 1)
             {
@@ -410,7 +460,7 @@ namespace tieudaobadminton.Areas.Admin.Controllers
                 }
 
                 await _db.SaveChangesAsync();
-                TempData["Ok"] = $"✓ Nhập hàng thành công! Đã tăng thêm +{quantity} chiếc cho mỗi phân loại của '{p.Name}'.";
+                TempData["Ok"] = $"Nhập hàng thành công! Đã tăng thêm +{quantity} chiếc cho mỗi phân loại của '{p.Name}'.";
             }
             else
             {
@@ -439,7 +489,7 @@ namespace tieudaobadminton.Areas.Admin.Controllers
                 });
                 await _db.SaveChangesAsync();
 
-                TempData["Ok"] = $"✓ Nhập hàng thành công! Đã nhập +{quantity} chiếc vào kho.";
+                TempData["Ok"] = $"Nhập hàng thành công! Đã nhập +{quantity} chiếc vào kho.";
             }
 
             if (!string.IsNullOrEmpty(returnUrl)) return LocalRedirect(returnUrl);
@@ -447,13 +497,27 @@ namespace tieudaobadminton.Areas.Admin.Controllers
         }
 
         // POST: /Admin/Products/AddVariant
-        // Thêm phân loại mới kèm số lượng nhập ban đầu
+        // Thêm phân loại mới kèm số lượng nhập ban đầu & ảnh màu sắc
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddVariant(int productId, string? size, string? color, int stock, string? sku)
+        public async Task<IActionResult> AddVariant(int productId, string? size, string? color, int stock, string? sku, string? imageUrl, IFormFile? variantImageFile)
         {
-            var p = await _db.Products.FindAsync(productId);
+            var p = await _db.Products.Include(x => x.Category).FirstOrDefaultAsync(x => x.Id == productId);
             if (p == null) return NotFound();
+
+            string? resolvedImg = string.IsNullOrWhiteSpace(imageUrl) ? null : imageUrl.Trim();
+            if (variantImageFile != null && variantImageFile.Length > 0)
+            {
+                resolvedImg = await SaveFile(variantImageFile, "uploads/products");
+            }
+            else if (string.IsNullOrWhiteSpace(resolvedImg) && !string.IsNullOrWhiteSpace(color))
+            {
+                var catSlug = p.Category?.Slug?.ToLower() ?? "";
+                bool isRacket = catSlug.Contains("vot");
+                bool isShoe = catSlug.Contains("giay");
+                bool isApparel = catSlug.Contains("ao") || catSlug.Contains("quan");
+                resolvedImg = DbSeeder.ResolveVariantColorImage(isRacket, isShoe, isApparel, p.Name, color, p.Id);
+            }
 
             var initialStock = Math.Max(0, stock);
             var variant = new ProductVariant
@@ -461,6 +525,7 @@ namespace tieudaobadminton.Areas.Admin.Controllers
                 ProductId = productId,
                 Size = string.IsNullOrWhiteSpace(size) ? null : size.Trim(),
                 Color = string.IsNullOrWhiteSpace(color) ? null : color.Trim(),
+                ImageUrl = resolvedImg,
                 Stock = initialStock,
                 Sku = string.IsNullOrWhiteSpace(sku) ? $"SP-{productId:D4}-{(size ?? "DEF")}" : sku.Trim()
             };
@@ -485,6 +550,44 @@ namespace tieudaobadminton.Areas.Admin.Controllers
             }
 
             TempData["Ok"] = $"Đã thêm phân loại mới vào kho: {size ?? "Mặc định"} - {color ?? ""} (SL ban đầu: {initialStock})";
+            return RedirectToAction(nameof(Edit), new { id = productId });
+        }
+
+        // POST: /Admin/Products/UpdateColorImage
+        // Cập nhật đồng loạt ảnh preview cho tất cả các Size của cùng 1 Màu sắc
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateColorImage(int productId, string colorName, IFormFile? colorImageFile, string? colorImageUrl)
+        {
+            if (string.IsNullOrWhiteSpace(colorName))
+            {
+                TempData["Error"] = "Không xác định được tên màu sắc cần cập nhật ảnh.";
+                return RedirectToAction(nameof(Edit), new { id = productId });
+            }
+
+            string? resolvedImg = string.IsNullOrWhiteSpace(colorImageUrl) ? null : colorImageUrl.Trim();
+            if (colorImageFile != null && colorImageFile.Length > 0)
+            {
+                resolvedImg = await SaveFile(colorImageFile, "uploads/products");
+            }
+
+            if (string.IsNullOrWhiteSpace(resolvedImg))
+            {
+                TempData["Error"] = $"Vui lòng chọn tệp ảnh từ máy tính hoặc nhập đường dẫn URL ảnh cho màu '{colorName}'.";
+                return RedirectToAction(nameof(Edit), new { id = productId });
+            }
+
+            var variantsOfColor = await _db.ProductVariants
+                .Where(v => v.ProductId == productId && v.Color != null && v.Color.Trim() == colorName.Trim())
+                .ToListAsync();
+
+            foreach (var v in variantsOfColor)
+            {
+                v.ImageUrl = resolvedImg;
+            }
+
+            await _db.SaveChangesAsync();
+            TempData["Ok"] = $"Đã cập nhật ảnh preview cho màu '{colorName}' (áp dụng cho {variantsOfColor.Count} phân loại size).";
             return RedirectToAction(nameof(Edit), new { id = productId });
         }
 
@@ -542,7 +645,7 @@ namespace tieudaobadminton.Areas.Admin.Controllers
         private async Task<string> SaveFile(IFormFile file, string folder)
         {
             var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
-            var allowed = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            var allowed = new[] { ".jpg", ".jpeg", ".png", ".webp", ".jfif" };
             if (!allowed.Contains(ext)) ext = ".jpg";
 
             var name = $"{Guid.NewGuid():N}{ext}";

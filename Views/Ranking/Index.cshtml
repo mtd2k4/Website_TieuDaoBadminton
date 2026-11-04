@@ -1,0 +1,605 @@
+@model List<tieudaobadminton.ViewModels.PlayerRankingVM>
+@{
+    ViewData["Title"] = "Bảng Xếp Hạng VĐV Việt Nam & Thế Giới - Hồ Sơ Vợt Thi Đấu";
+    string selectedRegion = ViewBag.SelectedRegion as string ?? "all";
+    string selectedBrand = ViewBag.SelectedBrand as string ?? "all";
+    string searchQuery = ViewBag.SearchQuery as string ?? "";
+
+    var vnPlayers = Model.Where(p => p.RegionGroup == "Vietnam").OrderBy(p => p.Rank).ToList();
+    var worldPlayers = Model.Where(p => p.RegionGroup == "World").OrderBy(p => p.Rank).ToList();
+    var legendPlayers = Model.Where(p => p.RegionGroup == "Legends").OrderBy(p => p.Rank).ToList();
+}
+
+<!-- 1. HERO BANNER -->
+<section class="py-5 text-white position-relative overflow-hidden" style="background: linear-gradient(135deg, #090d16 0%, #1e1b4b 55%, #450a0a 100%);">
+    <div class="container py-3 position-relative" style="z-index: 2;">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-8">
+                <span class="badge bg-danger text-white px-3 py-2 rounded-pill fw-bold mb-3 shadow-sm d-inline-flex align-items-center gap-2">
+                    <i class="bi bi-trophy-fill"></i>
+                    <span>BWF WORLD TOUR &amp; VIETNAM PRO BADMINTON DATABASE</span>
+                </span>
+                <h1 class="display-5 fw-black text-white mb-3">
+                    Bảng Xếp Hạng VĐV Việt Nam &amp; Thế Giới <br />
+                    <span class="text-warning">Hồ Sơ Chi Tiết Từng Đánh Vợt Nào</span>
+                </h1>
+                <p class="fs-6 text-light opacity-75 mb-4" style="line-height: 1.8; max-width: 680px;">
+                    Tra cứu thứ hạng BWF, điểm tích lũy, thông số mức căng cước thực tế và toàn bộ lịch sử các dòng vợt từng gắn liền với tên tuổi của các tuyển thủ Việt Nam (Nguyễn Tiến Minh, Nguyễn Thùy Linh, Lê Đức Phát...) cùng dàn siêu sao thế giới (Viktor Axelsen, Shi Yu Qi, An Se Young, Lin Dan, Lee Chong Wei...).
+                </p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="#bxh-viet-nam" class="btn btn-danger rounded-pill fw-bold px-4 py-2 shadow-sm">
+                        <i class="bi bi-flag-fill me-1"></i> BXH Đội Tuyển Việt Nam
+                    </a>
+                    <a href="#bxh-the-gioi" class="btn btn-warning text-dark rounded-pill fw-bold px-4 py-2 shadow-sm">
+                        <i class="bi bi-globe-americas me-1"></i> BXH BWF Thế Giới
+                    </a>
+                    <a href="#bxh-huyen-thoai" class="btn btn-outline-light rounded-pill fw-bold px-4 py-2">
+                        <i class="bi bi-award-fill me-1"></i> Huyền Thoại Thế Giới
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="p-3 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-10 text-center">
+                            <div class="fs-2 fw-black text-warning">@Model.Count</div>
+                            <div class="small text-light opacity-75">Hồ sơ VĐV Đỉnh cao</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-10 text-center">
+                            <div class="fs-2 fw-black text-info">@Model.Sum(p => p.RacketHistory.Count)</div>
+                            <div class="small text-light opacity-75">Cây vợt lịch sử ghi nhận</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-10 text-center">
+                            <div class="fs-2 fw-black text-danger">14.5 kg</div>
+                            <div class="small text-light opacity-75">Mức căng kỷ lục (32 lbs)</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-10 text-center">
+                            <div class="fs-2 fw-black text-success">100%</div>
+                            <div class="small text-light opacity-75">Có sẵn vợt tại Shop</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 2. BỘ LỌC TƯƠNG TÁC & TÌM KIẾM VĐV / CÂY VỢT -->
+<section class="py-4 bg-white border-bottom sticky-top" style="top: 68px; z-index: 90;">
+    <div class="container">
+        <form method="get" asp-controller="Ranking" asp-action="Index" class="row g-2 align-items-center">
+            <!-- Tabs khu vực -->
+            <div class="col-lg-5 d-flex flex-wrap gap-1">
+                <a asp-action="Index" asp-route-region="all" asp-route-brand="@selectedBrand" asp-route-q="@searchQuery"
+                   class="btn btn-sm rounded-pill px-3 py-2 fw-bold @(selectedRegion == "all" ? "btn-dark" : "btn-light border")">
+                    <i class="bi bi-layers-fill me-1"></i> Tất cả
+                </a>
+                <a asp-action="Index" asp-route-region="Vietnam" asp-route-brand="@selectedBrand" asp-route-q="@searchQuery"
+                   class="btn btn-sm rounded-pill px-3 py-2 fw-bold @(selectedRegion == "Vietnam" ? "btn-danger" : "btn-light border")">
+                    <i class="bi bi-flag-fill me-1"></i> Việt Nam (@ViewBag.TotalVietnamPlayers)
+                </a>
+                <a asp-action="Index" asp-route-region="World" asp-route-brand="@selectedBrand" asp-route-q="@searchQuery"
+                   class="btn btn-sm rounded-pill px-3 py-2 fw-bold @(selectedRegion == "World" ? "btn-primary" : "btn-light border")">
+                    <i class="bi bi-globe2 me-1"></i> BWF Thế Giới (@ViewBag.TotalWorldPlayers)
+                </a>
+                <a asp-action="Index" asp-route-region="Legends" asp-route-brand="@selectedBrand" asp-route-q="@searchQuery"
+                   class="btn btn-sm rounded-pill px-3 py-2 fw-bold @(selectedRegion == "Legends" ? "btn-warning text-dark" : "btn-light border")">
+                    <i class="bi bi-trophy-fill me-1"></i> Huyền Thoại (@ViewBag.TotalLegendPlayers)
+                </a>
+            </div>
+
+            <!-- Chọn thương hiệu vợt -->
+            <div class="col-lg-3 col-md-5">
+                <input type="hidden" name="region" value="@selectedRegion" />
+                <select name="brand" class="form-select form-select-sm rounded-pill py-2 px-3 fw-semibold" onchange="this.form.submit()">
+                    <option value="all" selected="@(selectedBrand == "all")">-- Tất cả hãng vợt VĐV dùng --</option>
+                    <option value="Yonex" selected="@(selectedBrand == "Yonex")">Hãng Yonex (Nhật Bản)</option>
+                    <option value="Victor" selected="@(selectedBrand == "Victor")">Hãng Victor (Đài Bắc)</option>
+                    <option value="Li-Ning" selected="@(selectedBrand == "Li-Ning")">Hãng Li-Ning (Trung Quốc)</option>
+                    <option value="Mizuno" selected="@(selectedBrand == "Mizuno")">Hãng Mizuno (Nhật Bản)</option>
+                </select>
+            </div>
+
+            <!-- Tìm theo tên VĐV hoặc tên vợt -->
+            <div class="col-lg-4 col-md-7">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light border-end-0 rounded-start-pill ps-3"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" name="q" value="@searchQuery" class="form-control border-start-0 py-2" placeholder="Tìm VĐV (Tiến Minh, Axelsen...) hoặc tên vợt (Astrox 99, 1000Z)..." />
+                    <button type="submit" class="btn btn-dark rounded-end-pill px-3 fw-bold">Lọc</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+<div class="bg-light py-5">
+    <div class="container">
+
+        @if (Model.Count == 0)
+        {
+            <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white">
+                <div class="fs-1 text-muted mb-2"><i class="bi bi-search"></i></div>
+                <h5 class="fw-bold text-dark">Không tìm thấy VĐV hoặc dòng vợt phù hợp</h5>
+                <p class="text-muted small mb-3">Thử tìm với từ khóa khác như "Astrox 99", "Astrox 77", "Nguyễn Tiến Minh", "Viktor Axelsen"...</p>
+                <div>
+                    <a asp-action="Index" class="btn btn-dark rounded-pill px-4 fw-bold">Xem toàn bộ Bảng xếp hạng</a>
+                </div>
+            </div>
+        }
+
+        <!-- ============================================================== -->
+        <!-- PHẦN 1: BẢNG XẾP HẠNG VẬN ĐỘNG VIÊN VIỆT NAM & LỊCH SỬ DÙNG VỢT -->
+        <!-- ============================================================== -->
+        @if (vnPlayers.Any())
+        {
+            <div id="bxh-viet-nam" class="mb-5">
+                <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-4">
+                    <div>
+                        <span class="badge bg-danger text-white px-3 py-1 rounded-pill fw-bold small mb-2">
+                            <i class="bi bi-flag-fill me-1"></i> ĐỘI TUYỂN QUỐC GIA VIỆT NAM
+                        </span>
+                        <h2 class="fw-black text-dark m-0">Bảng Xếp Hạng Vận Động Viên Cầu Lông Việt Nam</h2>
+                        <div class="text-muted small mt-1">Thứ hạng thực lực, điểm số BWF và chi tiết từng cây vợt các tuyển thủ Việt Nam đã và đang sử dụng</div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th class="ps-4 py-3" style="width: 90px;">HẠNG</th>
+                                    <th class="py-3" style="min-width: 250px;">VẬN ĐỘNG VIÊN &amp; THÀNH TÍCH</th>
+                                    <th class="py-3 text-center" style="width: 140px;">ĐIỂM BWF</th>
+                                    <th class="py-3" style="min-width: 260px;">VỢT CHỦ LỰC HIỆN TẠI &amp; CƯỚC</th>
+                                    <th class="py-3 pe-4" style="min-width: 390px;">LỊCH SỬ TỪNG ĐÁNH VỢT NÀO (TIMELINE)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var p in vnPlayers)
+                                {
+                                    <tr>
+                                        <!-- CỘT HẠNG -->
+                                        <td class="ps-4">
+                                            <div class="d-flex flex-column align-items-center justify-content-center rounded-4 p-2 @(p.Rank == 1 ? "bg-danger text-white shadow-sm" : p.Rank == 2 ? "bg-warning text-dark" : p.Rank == 3 ? "bg-primary text-white" : "bg-light text-dark border")" style="width: 56px; height: 56px;">
+                                                <span class="fw-black fs-5">#@p.Rank</span>
+                                                <span style="font-size: 0.65rem;" class="fw-bold">@p.CountryBadge</span>
+                                            </div>
+                                        </td>
+
+                                        <!-- CỘT THÔNG TIN VĐV -->
+                                        <td class="py-3">
+                                            <div class="d-flex align-items-center gap-2 mb-1">
+                                                <span class="badge bg-danger-subtle text-danger fw-bold rounded-pill">@p.Category</span>
+                                                <span class="badge bg-light text-dark border">@p.BestWorldRank</span>
+                                            </div>
+                                            <h5 class="fw-black text-dark mb-0">@p.FullName</h5>
+                                            <div class="text-primary fw-semibold small mb-1">@p.Nickname</div>
+                                            <div class="small text-muted mb-1"><i class="bi bi-geo-alt-fill text-danger me-1"></i>@p.Country</div>
+                                            <div class="small text-dark bg-light rounded-3 p-2 border mt-2">
+                                                <div><i class="bi bi-trophy-fill text-warning me-1"></i><strong>Thành tích:</strong> @p.Achievements</div>
+                                                <div class="mt-1 text-muted"><i class="bi bi-lightning-charge-fill text-primary me-1"></i><strong>Lối chơi:</strong> @p.PlayStyle</div>
+                                            </div>
+                                        </td>
+
+                                        <!-- CỘT ĐIỂM BWF -->
+                                        <td class="text-center">
+                                            <div class="fs-5 fw-black text-dark font-monospace">@p.BwfPoints.ToString("n0")</div>
+                                            <span class="badge bg-success-subtle text-success rounded-pill small">BWF Points</span>
+                                        </td>
+
+                                        <!-- CỘT VỢT HIỆN TẠI & LINK MUA TẠI SHOP -->
+                                        <td class="py-3">
+                                            <div class="p-3 rounded-4 border bg-primary bg-opacity-10 border-primary border-opacity-25">
+                                                <div class="small fw-bold text-primary text-uppercase mb-1">
+                                                    <i class="bi bi-shield-fill-check me-1"></i>Vũ khí đang sử dụng:
+                                                </div>
+                                                <div class="fw-black text-dark fs-6 mb-2">@p.CurrentRacket</div>
+                                                <div class="small text-muted mb-1">
+                                                    <i class="bi bi-sliders me-1"></i><strong>Cước &amp; Mức căng:</strong> @p.StringAndTension
+                                                </div>
+                                                <div class="small text-muted mb-3">
+                                                    <i class="bi bi-shield-check me-1"></i><strong>Giày thi đấu:</strong> @p.ShoeModel
+                                                </div>
+
+                                                @if (p.ShopProductId.HasValue)
+                                                {
+                                                    <a asp-controller="Products" asp-action="Detail" asp-route-id="@p.ShopProductId" class="btn btn-sm btn-dark rounded-pill w-100 fw-bold d-flex align-items-center justify-content-between px-3 py-2">
+                                                        <span><i class="bi bi-cart-check-fill me-1 text-warning"></i> @p.ShopProductName</span>
+                                                        <span class="badge bg-warning text-dark rounded-pill">@(p.ShopProductPrice?.ToString("n0"))đ</span>
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <a href="/Danh-Muc?cat=vot" class="btn btn-sm btn-outline-dark rounded-pill w-100 fw-bold">
+                                                        <i class="bi bi-box-arrow-up-right me-1"></i> Xem dòng vợt này tại Shop
+                                                    </a>
+                                                }
+                                            </div>
+                                        </td>
+
+                                        <!-- CỘT LỊCH SỬ TỪNG ĐÁNH VỢT NÀO -->
+                                        <td class="py-3 pe-4">
+                                            <div class="d-flex flex-column gap-2">
+                                                @foreach (var h in p.RacketHistory)
+                                                {
+                                                    <div class="p-2 px-3 rounded-3 bg-light border-start border-4 @(h.Brand == "Yonex" ? "border-primary" : h.Brand == "Victor" ? "border-warning" : h.Brand == "Li-Ning" ? "border-danger" : "border-info")">
+                                                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-1">
+                                                            <span class="badge bg-dark text-white rounded-pill" style="font-size: 0.7rem;">
+                                                                <i class="bi bi-calendar3 me-1"></i>@h.Period
+                                                            </span>
+                                                            @if (h.ShopProductId.HasValue)
+                                                            {
+                                                                <a asp-controller="Products" asp-action="Detail" asp-route-id="@h.ShopProductId" class="badge bg-primary-subtle text-primary text-decoration-none fw-bold">
+                                                                    <i class="bi bi-bag-check-fill me-1"></i>Có sẵn tại Shop →
+                                                                </a>
+                                                            }
+                                                        </div>
+                                                        <div class="fw-bold text-dark mt-1">@h.RacketModel</div>
+                                                        <div class="small text-muted">@h.HighlightNote</div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- ============================================================== -->
+        <!-- PHẦN 2: BẢNG XẾP HẠNG BWF THẾ GIỚI HIỆN TẠI (WORLD RANKINGS)   -->
+        <!-- ============================================================== -->
+        @if (worldPlayers.Any())
+        {
+            <div id="bxh-the-gioi" class="mb-5">
+                <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-4">
+                    <div>
+                        <span class="badge bg-primary text-white px-3 py-1 rounded-pill fw-bold small mb-2">
+                            <i class="bi bi-globe-americas me-1"></i> BWF WORLD RANKINGS • TOP SIÊU SAO HIỆN TẠI
+                        </span>
+                        <h2 class="fw-black text-dark m-0">Bảng Xếp Hạng Các VĐV Hàng Đầu Thế Giới</h2>
+                        <div class="text-muted small mt-1">Tổng hợp thông số vợt, cước đan và lịch sử đổi vợt của các nhà vô địch Olympic &amp; BWF World Tour</div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th class="ps-4 py-3" style="width: 90px;">HẠNG</th>
+                                    <th class="py-3" style="min-width: 250px;">SIÊU SAO QUỐC TẾ &amp; DANH HIỆU</th>
+                                    <th class="py-3 text-center" style="width: 140px;">ĐIỂM BWF</th>
+                                    <th class="py-3" style="min-width: 260px;">VỢT CHỦ LỰC HIỆN TẠI &amp; CƯỚC</th>
+                                    <th class="py-3 pe-4" style="min-width: 390px;">LỊCH SỬ TỪNG ĐÁNH VỢT NÀO (TIMELINE)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var p in worldPlayers)
+                                {
+                                    <tr>
+                                        <td class="ps-4">
+                                            <div class="d-flex flex-column align-items-center justify-content-center rounded-4 p-2 @(p.Rank == 1 ? "bg-warning text-dark shadow-sm" : p.Rank <= 3 ? "bg-primary text-white" : "bg-light text-dark border")" style="width: 56px; height: 56px;">
+                                                <span class="fw-black fs-5">#@p.Rank</span>
+                                                <span style="font-size: 0.65rem;" class="fw-bold">@p.CountryBadge</span>
+                                            </div>
+                                        </td>
+
+                                        <td class="py-3">
+                                            <div class="d-flex align-items-center gap-2 mb-1">
+                                                <span class="badge bg-primary-subtle text-primary fw-bold rounded-pill">@p.Category</span>
+                                                <span class="badge bg-light text-dark border">@p.Country</span>
+                                            </div>
+                                            <h5 class="fw-black text-dark mb-0">@p.FullName</h5>
+                                            <div class="text-danger fw-semibold small mb-1">@p.Nickname</div>
+                                            <div class="small text-dark bg-light rounded-3 p-2 border mt-2">
+                                                <div><i class="bi bi-trophy-fill text-warning me-1"></i><strong>Danh hiệu:</strong> @p.Achievements</div>
+                                                <div class="mt-1 text-muted"><i class="bi bi-lightning-charge-fill text-primary me-1"></i><strong>Đặc trưng:</strong> @p.PlayStyle</div>
+                                            </div>
+                                        </td>
+
+                                        <td class="text-center">
+                                            <div class="fs-5 fw-black text-primary font-monospace">@p.BwfPoints.ToString("n0")</div>
+                                            <span class="badge bg-primary-subtle text-primary rounded-pill small">@p.BestWorldRank</span>
+                                        </td>
+
+                                        <td class="py-3">
+                                            <div class="p-3 rounded-4 border bg-light">
+                                                <div class="small fw-bold text-danger text-uppercase mb-1">
+                                                    <i class="bi bi-fire me-1"></i>Vợt thi đấu hiện tại:
+                                                </div>
+                                                <div class="fw-black text-dark fs-6 mb-2">@p.CurrentRacket</div>
+                                                <div class="small text-muted mb-1">
+                                                    <i class="bi bi-sliders me-1"></i><strong>Cước &amp; Lực căng:</strong> @p.StringAndTension
+                                                </div>
+                                                <div class="small text-muted mb-3">
+                                                    <i class="bi bi-shield-check me-1"></i><strong>Giày thi đấu:</strong> @p.ShoeModel
+                                                </div>
+
+                                                @if (p.ShopProductId.HasValue)
+                                                {
+                                                    <a asp-controller="Products" asp-action="Detail" asp-route-id="@p.ShopProductId" class="btn btn-sm btn-dark rounded-pill w-100 fw-bold d-flex align-items-center justify-content-between px-3 py-2">
+                                                        <span><i class="bi bi-cart-check-fill me-1 text-warning"></i> @p.ShopProductName</span>
+                                                        <span class="badge bg-warning text-dark rounded-pill">@(p.ShopProductPrice?.ToString("n0"))đ</span>
+                                                    </a>
+                                                }
+                                            </div>
+                                        </td>
+
+                                        <td class="py-3 pe-4">
+                                            <div class="d-flex flex-column gap-2">
+                                                @foreach (var h in p.RacketHistory)
+                                                {
+                                                    <div class="p-2 px-3 rounded-3 bg-light border-start border-4 @(h.Brand == "Yonex" ? "border-primary" : h.Brand == "Victor" ? "border-warning" : h.Brand == "Li-Ning" ? "border-danger" : "border-info")">
+                                                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-1">
+                                                            <span class="badge bg-dark text-white rounded-pill" style="font-size: 0.7rem;">
+                                                                <i class="bi bi-calendar3 me-1"></i>@h.Period
+                                                            </span>
+                                                            @if (h.ShopProductId.HasValue)
+                                                            {
+                                                                <a asp-controller="Products" asp-action="Detail" asp-route-id="@h.ShopProductId" class="badge bg-primary-subtle text-primary text-decoration-none fw-bold">
+                                                                    <i class="bi bi-bag-check-fill me-1"></i>Có sẵn tại Shop →
+                                                                </a>
+                                                            }
+                                                        </div>
+                                                        <div class="fw-bold text-dark mt-1">@h.RacketModel</div>
+                                                        <div class="small text-muted">@h.HighlightNote</div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- ============================================================== -->
+        <!-- PHẦN 3: BẢNG XẾP HẠNG HUYỀN THOẠI THẾ GIỚI (LEGENDS HALL)      -->
+        <!-- ============================================================== -->
+        @if (legendPlayers.Any())
+        {
+            <div id="bxh-huyen-thoai" class="mb-5">
+                <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-4">
+                    <div>
+                        <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold small mb-2">
+                            <i class="bi bi-award-fill me-1"></i> BWF HALL OF FAME &amp; LEGENDS
+                        </span>
+                        <h2 class="fw-black text-dark m-0">Bảng Xếp Hạng Các Huyền Thoại Cầu Lông Thế Giới</h2>
+                        <div class="text-muted small mt-1">Những cây vợt biểu tượng đã làm nên lịch sử cùng Lin Dan, Lee Chong Wei, Kento Momota, Chen Long, Carolina Marin &amp; The Daddies</div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th class="ps-4 py-3" style="width: 90px;">HẠNG</th>
+                                    <th class="py-3" style="min-width: 250px;">HUYỀN THOẠI &amp; SỰ NGHIỆP</th>
+                                    <th class="py-3 text-center" style="width: 140px;">ĐỈNH CAO BWF</th>
+                                    <th class="py-3" style="min-width: 260px;">VỢT BIỂU TƯỢNG &amp; MỨC CĂNG</th>
+                                    <th class="py-3 pe-4" style="min-width: 390px;">LỊCH SỬ TỪNG ĐÁNH VỢT NÀO (TIMELINE)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var p in legendPlayers)
+                                {
+                                    <tr>
+                                        <td class="ps-4">
+                                            <div class="d-flex flex-column align-items-center justify-content-center rounded-4 p-2 bg-warning text-dark shadow-sm" style="width: 56px; height: 56px;">
+                                                <span class="fw-black fs-5">#@p.Rank</span>
+                                                <span style="font-size: 0.65rem;" class="fw-bold">@p.CountryBadge</span>
+                                            </div>
+                                        </td>
+
+                                        <td class="py-3">
+                                            <div class="d-flex align-items-center gap-2 mb-1">
+                                                <span class="badge bg-warning-subtle text-dark border fw-bold rounded-pill">@p.Category</span>
+                                                <span class="badge bg-light text-dark border">@p.Country</span>
+                                            </div>
+                                            <h5 class="fw-black text-dark mb-0">@p.FullName</h5>
+                                            <div class="text-danger fw-semibold small mb-1">@p.Nickname</div>
+                                            <div class="small text-dark bg-light rounded-3 p-2 border mt-2">
+                                                <div><i class="bi bi-trophy-fill text-warning me-1"></i><strong>Di sản:</strong> @p.Achievements</div>
+                                                <div class="mt-1 text-muted"><i class="bi bi-lightning-charge-fill text-primary me-1"></i><strong>Phong cách:</strong> @p.PlayStyle</div>
+                                            </div>
+                                        </td>
+
+                                        <td class="text-center">
+                                            <div class="fs-5 fw-black text-dark font-monospace">@p.BwfPoints.ToString("n0")</div>
+                                            <span class="badge bg-warning text-dark rounded-pill small">GOAT Peak</span>
+                                        </td>
+
+                                        <td class="py-3">
+                                            <div class="p-3 rounded-4 border bg-warning bg-opacity-10 border-warning border-opacity-50">
+                                                <div class="small fw-bold text-dark text-uppercase mb-1">
+                                                    <i class="bi bi-stars me-1 text-danger"></i>Vũ khí biểu tượng:
+                                                </div>
+                                                <div class="fw-black text-dark fs-6 mb-2">@p.CurrentRacket</div>
+                                                <div class="small text-muted mb-1">
+                                                    <i class="bi bi-sliders me-1"></i><strong>Cước &amp; Mức căng:</strong> @p.StringAndTension
+                                                </div>
+                                                <div class="small text-muted mb-3">
+                                                    <i class="bi bi-shield-check me-1"></i><strong>Giày thi đấu:</strong> @p.ShoeModel
+                                                </div>
+
+                                                @if (p.ShopProductId.HasValue)
+                                                {
+                                                    <a asp-controller="Products" asp-action="Detail" asp-route-id="@p.ShopProductId" class="btn btn-sm btn-dark rounded-pill w-100 fw-bold d-flex align-items-center justify-content-between px-3 py-2">
+                                                        <span><i class="bi bi-cart-check-fill me-1 text-warning"></i> @p.ShopProductName</span>
+                                                        <span class="badge bg-warning text-dark rounded-pill">@(p.ShopProductPrice?.ToString("n0"))đ</span>
+                                                    </a>
+                                                }
+                                            </div>
+                                        </td>
+
+                                        <td class="py-3 pe-4">
+                                            <div class="d-flex flex-column gap-2">
+                                                @foreach (var h in p.RacketHistory)
+                                                {
+                                                    <div class="p-2 px-3 rounded-3 bg-light border-start border-4 @(h.Brand == "Yonex" ? "border-primary" : h.Brand == "Victor" ? "border-warning" : h.Brand == "Li-Ning" ? "border-danger" : "border-info")">
+                                                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-1">
+                                                            <span class="badge bg-dark text-white rounded-pill" style="font-size: 0.7rem;">
+                                                                <i class="bi bi-calendar3 me-1"></i>@h.Period
+                                                            </span>
+                                                            @if (h.ShopProductId.HasValue)
+                                                            {
+                                                                <a asp-controller="Products" asp-action="Detail" asp-route-id="@h.ShopProductId" class="badge bg-primary-subtle text-primary text-decoration-none fw-bold">
+                                                                    <i class="bi bi-bag-check-fill me-1"></i>Có sẵn tại Shop →
+                                                                </a>
+                                                            }
+                                                        </div>
+                                                        <div class="fw-bold text-dark mt-1">@h.RacketModel</div>
+                                                        <div class="small text-muted">@h.HighlightNote</div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- ============================================================== -->
+        <!-- PHẦN 4: TỔNG KẾT CÁC DÒNG VỢT ĐƯỢC NHIỀU VĐV CHỌN NHẤT         -->
+        <!-- ============================================================== -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 p-lg-5 bg-white">
+            <div class="text-center mb-4">
+                <span class="badge bg-primary-subtle text-primary px-3 py-1 rounded-pill fw-bold small mb-2">
+                    <i class="bi bi-bar-chart-fill me-1"></i> THỐNG KÊ VŨ KHÍ ĐỈNH CAO
+                </span>
+                <h3 class="fw-black text-dark m-0">Top 6 Cây Vợt Được Nhiều Tuyển Thủ Sử Dụng Nhất</h3>
+                <p class="text-muted small mt-1">Bấm vào từng dòng vợt để xem chi tiết thông số kỹ thuật và đặt mua chính hãng tại Tiêu Đao Badminton</p>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-6 col-lg-4">
+                    <div class="p-3 rounded-4 border bg-light h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-danger">Top 1 Tấn Công</span>
+                                <span class="small fw-bold text-muted">Yonex Japan</span>
+                            </div>
+                            <h5 class="fw-black text-dark mb-1">Yonex Astrox 99 Pro / 100ZZ</h5>
+                            <p class="small text-muted mb-2">
+                                <strong>VĐV tiêu biểu:</strong> Nguyễn Tiến Minh, Lê Đức Phát, Nguyễn Hải Đăng, Kento Momota, Viktor Axelsen, Shi Yu Qi, Lee Chong Wei.
+                            </p>
+                        </div>
+                        <a href="/Danh-Muc?cat=vot&amp;q=Astrox+99" class="btn btn-sm btn-outline-dark rounded-pill fw-bold w-100">
+                            <i class="bi bi-arrow-right-circle me-1"></i> Xem Yonex Astrox 99 Pro tại Shop
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="p-3 rounded-4 border bg-light h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-primary">Top 1 Đơn Nữ &amp; Toàn Diện</span>
+                                <span class="small fw-bold text-muted">Yonex Japan</span>
+                            </div>
+                            <h5 class="fw-black text-dark mb-1">Yonex Astrox 77 / 77 Pro</h5>
+                            <p class="small text-muted mb-2">
+                                <strong>VĐV tiêu biểu:</strong> Nguyễn Thùy Linh (#1 VN), Vũ Thị Trang, An Se Young (#1 BWF), Chen Yu Fei (HCV Olympic), Shi Yu Qi (2018).
+                            </p>
+                        </div>
+                        <a href="/Danh-Muc?cat=vot&amp;q=Astrox+77" class="btn btn-sm btn-outline-dark rounded-pill fw-bold w-100">
+                            <i class="bi bi-arrow-right-circle me-1"></i> Xem Yonex Astrox 77 tại Shop
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="p-3 rounded-4 border bg-light h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-warning text-dark">Top 1 Tốc Độ Vung Vợt</span>
+                                <span class="small fw-bold text-muted">Yonex Japan</span>
+                            </div>
+                            <h5 class="fw-black text-dark mb-1">Yonex Nanoflare 1000Z &amp; 800</h5>
+                            <p class="small text-muted mb-2">
+                                <strong>VĐV tiêu biểu:</strong> Carolina Marin, Kunlavut Vitidsarn (VĐTG 2023), Lee Yang &amp; Wang Chi-Lin (2 HCV Olympic), Thân Vân Anh.
+                            </p>
+                        </div>
+                        <a href="/Danh-Muc?cat=vot&amp;q=Nanoflare" class="btn btn-sm btn-outline-dark rounded-pill fw-bold w-100">
+                            <i class="bi bi-arrow-right-circle me-1"></i> Xem Dòng Nanoflare tại Shop
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="p-3 rounded-4 border bg-light h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-success">Top 1 Đánh Đôi Cầu Sau</span>
+                                <span class="small fw-bold text-muted">Yonex Japan</span>
+                            </div>
+                            <h5 class="fw-black text-dark mb-1">Yonex Astrox 88D Pro &amp; Arcsaber 11 Pro</h5>
+                            <p class="small text-muted mb-2">
+                                <strong>VĐV tiêu biểu:</strong> Kunlavut Vitidsarn, Phạm Văn Hải (#1 Đôi VN), Nguyễn Tiến Minh (2013), Viktor Axelsen (VĐTG 2017).
+                            </p>
+                        </div>
+                        <a href="/Danh-Muc?cat=vot&amp;q=Astrox+88D" class="btn btn-sm btn-outline-dark rounded-pill fw-bold w-100">
+                            <i class="bi bi-arrow-right-circle me-1"></i> Xem Astrox 88D Pro tại Shop
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="p-3 rounded-4 border bg-light h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-dark">Biểu Tượng Hãng Victor</span>
+                                <span class="small fw-bold text-muted">Victor Taiwan</span>
+                            </div>
+                            <h5 class="fw-black text-dark mb-1">Victor Thruster K F &amp; Auraspeed 90K</h5>
+                            <p class="small text-muted mb-2">
+                                <strong>VĐV tiêu biểu:</strong> Tai Tzu Ying (#1 BWF 214 tuần), Lee Zii Jia, Anders Antonsen, Hendra Setiawan &amp; Mohammad Ahsan.
+                            </p>
+                        </div>
+                        <a href="/Danh-Muc?cat=vot&amp;q=Victor" class="btn btn-sm btn-outline-dark rounded-pill fw-bold w-100">
+                            <i class="bi bi-arrow-right-circle me-1"></i> Xem Vợt Victor tại Shop
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="p-3 rounded-4 border bg-light h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-info text-dark">Biểu Tượng Li-Ning &amp; Mizuno</span>
+                                <span class="small fw-bold text-muted">Li-Ning / Mizuno</span>
+                            </div>
+                            <h5 class="fw-black text-dark mb-1">Li-Ning Tectonic 9 / Axforce 90 &amp; Fortius 11</h5>
+                            <p class="small text-muted mb-2">
+                                <strong>VĐV tiêu biểu:</strong> Chen Long (HCV Olympic), Loh Kean Yew (VĐTG 2021), Nguyễn Tiến Minh (2019–2021), Vũ Thị Trang.
+                            </p>
+                        </div>
+                        <a href="/Danh-Muc?cat=vot&amp;q=Tectonic" class="btn btn-sm btn-outline-dark rounded-pill fw-bold w-100">
+                            <i class="bi bi-arrow-right-circle me-1"></i> Xem Li-Ning &amp; Mizuno tại Shop
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

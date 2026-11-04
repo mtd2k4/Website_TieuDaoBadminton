@@ -115,19 +115,19 @@
                                 {
                                     <li>
                                         <a class="dropdown-item py-2 fw-bold text-primary rounded-3" asp-area="Admin" asp-controller="Home" asp-action="Index">
-                                            📊 Bảng Quản trị (Dashboard)
+                                            <i class="bi bi-bar-chart-line-fill me-1"></i> Bảng Quản trị (Dashboard)
                                         </a>
                                     </li>
                                     <li><hr class="dropdown-divider my-1"></li>
                                 }
                                 <li>
                                     <a class="dropdown-item py-2 fw-bold rounded-3" asp-controller="Account" asp-action="Orders">
-                                        📦 Đơn hàng của tôi
+                                        <i class="bi bi-box-seam-fill me-1 text-primary"></i> Đơn hàng của tôi
                                     </a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item py-2 fw-bold rounded-3" asp-controller="Wishlist" asp-action="Index">
-                                        ❤️ Yêu thích (@totalWishlistCount)
+                                        <i class="bi bi-heart-fill me-1 text-danger"></i> Yêu thích (@totalWishlistCount)
                                     </a>
                                 </li>
                                 <li><hr class="dropdown-divider my-1"></li>
@@ -135,7 +135,7 @@
                                     <form asp-controller="Account" asp-action="Logout" method="post">
                                         @Html.AntiForgeryToken()
                                         <button type="submit" class="dropdown-item text-danger py-2 fw-bold rounded-3">
-                                            🚪 Đăng xuất
+                                            <i class="bi bi-box-arrow-right me-1"></i> Đăng xuất
                                         </button>
                                     </form>
                                 </li>
@@ -152,7 +152,7 @@
 
                     <!-- Mobile Toggler -->
                     <button class="navbar-toggler d-lg-none border-0 p-2 fs-4" type="button" data-bs-toggle="collapse" data-bs-target="#mobileNavPro">
-                        ☰
+                        <i class="bi bi-list"></i>
                     </button>
                 </div>
             </div>
@@ -177,14 +177,14 @@
                                href="/Danh-Muc" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                                 <span>Danh mục sản phẩm</span>
-                                <span class="catalog-caret">▾</span>
+                                <span class="catalog-caret"><i class="bi bi-chevron-down small"></i></span>
                             </a>
                             <div class="dropdown-menu dropdown-menu-catalog shadow-xl border-0 p-3">
                                 <div class="row g-3">
                                     <!-- Cột 1: Vợt cầu lông (Cấp 2) -->
                                     <div class="col-3 catalog-mega-col">
                                         <a class="catalog-mega-title" href="/Danh-Muc?cat=vot">
-                                            🏸 Vợt Cầu Lông
+                                            <i class="bi bi-trophy-fill text-danger me-1"></i> Vợt Cầu Lông
                                         </a>
                                         <ul class="catalog-mega-sublist">
                                             <li><a href="/Danh-Muc?cat=vot&sub=tan-cong">Vợt Tấn Công Smash</a></li>
@@ -198,7 +198,7 @@
                                     <!-- Cột 2: Giày cầu lông (Cấp 2) -->
                                     <div class="col-3 catalog-mega-col">
                                         <a class="catalog-mega-title" href="/Danh-Muc?cat=giay">
-                                            👟 Giày Cầu Lông
+                                            <i class="bi bi-lightning-charge-fill text-warning me-1"></i> Giày Cầu Lông
                                         </a>
                                         <ul class="catalog-mega-sublist">
                                             <li><a href="/Danh-Muc?cat=giay&sub=dem-em">Đệm Êm Giảm Chấn</a></li>
@@ -212,7 +212,7 @@
                                     <!-- Cột 3: Trang phục thể thao (Cấp 2) -->
                                     <div class="col-3 catalog-mega-col">
                                         <a class="catalog-mega-title" href="/Danh-Muc?cat=quan-ao">
-                                            👕 Trang Phục & Đồ Tập
+                                            <i class="bi bi-handbag-fill text-primary me-1"></i> Trang Phục & Đồ Tập
                                         </a>
                                         <ul class="catalog-mega-sublist">
                                             <li><a href="/Danh-Muc?cat=quan-ao&sub=ao-nam">Áo Thi Đấu Nam</a></li>
@@ -226,7 +226,7 @@
                                     <div class="col-3 catalog-mega-col">
                                         <div class="catalog-dropdown-promo">
                                             <div>
-                                                <div class="fw-bold text-dark mb-1">⚡ Chọn vợt theo lối chơi?</div>
+                                                <div class="fw-bold text-dark mb-1"><i class="bi bi-lightning-charge-fill text-warning me-1"></i> Chọn vợt theo lối chơi?</div>
                                                 <p class="small text-muted mb-2">Trợ lý AI phân tích lối đánh & lực cổ tay để gợi ý mẫu vợt phù hợp nhất.</p>
                                             </div>
                                             <div>
@@ -240,7 +240,7 @@
                                 <!-- Mega menu bottom banner -->
                                 <div class="catalog-mega-bottom">
                                     <div class="small text-muted">
-                                        🔥 <strong>100% Chính hãng:</strong> Yonex, Victor, Li-Ning, Mizuno, Kawasaki. Bảo hành đầy đủ, miễn phí căng cước 4 nút!
+                                        <i class="bi bi-fire text-danger me-1"></i> <strong>100% Chính hãng:</strong> Yonex, Victor, Li-Ning, Mizuno, Kawasaki. Bảo hành đầy đủ, miễn phí căng cước 4 nút!
                                     </div>
                                     <a href="/Danh-Muc" class="fw-bold small text-primary text-decoration-none">
                                         Mở trang danh mục đầy đủ →
@@ -249,7 +249,7 @@
                             </div>
                         </li>
 
-                        <!-- 2. CLEAN HIGH-END TEXT LINKS (NO EMOJI CLUTTER) -->
+                        <!-- 2. CLEAN HIGH-END TEXT LINKS (COMPACT & BALANCED) -->
                         <li>
                             <a class="pro-nav-link @(activeController == "Home" && activeAction == "Index" ? "active" : "")" 
                                asp-controller="Home" asp-action="Index">
@@ -269,61 +269,71 @@
                             </a>
                         </li>
                         <li>
-                            <a class="pro-nav-link @(activeCategory == "quan-ao" ? "active" : "")" 
-                               href="/Danh-Muc?cat=quan-ao">
-                                Trang phục
+                            <a class="pro-nav-link @(activeController == "RacketAdvisor" ? "active" : "")" 
+                               href="/Tu-Van-Chon-Vot">
+                                Tư vấn vợt <span class="nav-pill-ai">AI</span>
                             </a>
                         </li>
                         <li>
-                            <a class="pro-nav-link @(activeController == "RacketAdvisor" ? "active" : "")" 
-                               href="/Tu-Van-Chon-Vot">
-                                Tư vấn chọn vợt <span class="nav-pill-ai">AI</span>
+                            <a class="pro-nav-link @(activeController == "Course" ? "active" : "")" 
+                               href="/Dang-Ky-Khoa-Hoc">
+                                Khóa học
                             </a>
                         </li>
-                        
-                        <!-- DROPDOWN DỊCH VỤ & HƯỚNG DẪN -->
-                        <li class="dropdown">
-                            <a class="pro-nav-link dropdown-toggle @(activeController == "Services" || activeController == "Guide" || activeController == "OrderTracking" ? "active" : "")" 
-                               href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Dịch vụ & Tiện ích
+                        <li>
+                            <a class="pro-nav-link @(activeController == "Ranking" ? "active" : "")" 
+                               href="/Bang-Xep-Hang">
+                                BXH VĐV
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-pro shadow-lg border-0 p-2" style="min-width: 290px;">
+                        </li>
+
+                        <!-- DROPDOWN DỊCH VỤ & CẨM NANG (GOM GỌN CÁC TIỆN ÍCH) -->
+                        <li class="dropdown">
+                            <a class="pro-nav-link dropdown-toggle @(activeController == "Services" || activeController == "Guide" || activeController == "OrderTracking" || activeController == "News" ? "active" : "")" 
+                               href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Dịch vụ &amp; Cẩm nang
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-pro shadow-lg border-0 p-2" style="min-width: 300px;">
                                 <li>
                                     <a class="dropdown-item d-flex align-items-center gap-3 p-2 rounded-3" href="/Dich-Vu-Cang-Cuoc">
-                                        <span class="fs-5">🛠️</span>
+                                        <span class="nav-drop-icon bg-primary bg-opacity-10 text-primary"><i class="bi bi-tools"></i></span>
                                         <div>
-                                            <div class="fw-bold text-dark">Căng cước máy điện tử 4 nút</div>
-                                            <small class="text-muted">Bảng giá cước & Lấy ngay sau 15p</small>
+                                            <div class="fw-bold text-dark small">Căng cước máy điện tử 4 nút</div>
+                                            <small class="text-muted" style="font-size: 0.75rem;">Bảng giá cước &amp; Lấy ngay sau 15p</small>
                                         </div>
                                     </a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item d-flex align-items-center gap-3 p-2 rounded-3" href="/Huong-Dan-Size">
-                                        <span class="fs-5">📏</span>
+                                        <span class="nav-drop-icon bg-success bg-opacity-10 text-success"><i class="bi bi-rulers"></i></span>
                                         <div>
-                                            <div class="fw-bold text-dark">Hướng dẫn chọn Size & Cán</div>
-                                            <small class="text-muted">Đo chu vi cán G5/G6 & Size giày</small>
+                                            <div class="fw-bold text-dark small">Hướng dẫn chọn Size &amp; Cán</div>
+                                            <small class="text-muted" style="font-size: 0.75rem;">Đo chu vi cán G5/G6 &amp; Size giày</small>
                                         </div>
                                     </a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item d-flex align-items-center gap-3 p-2 rounded-3" href="/Tra-Cuu-Don-Hang">
-                                        <span class="fs-5">📦</span>
+                                        <span class="nav-drop-icon bg-warning bg-opacity-10 text-warning"><i class="bi bi-box-seam-fill"></i></span>
                                         <div>
-                                            <div class="fw-bold text-dark">Tra cứu tiến độ đơn hàng</div>
-                                            <small class="text-muted">Kiểm tra lộ trình theo Mã / SĐT</small>
+                                            <div class="fw-bold text-dark small">Tra cứu tiến độ đơn hàng</div>
+                                            <small class="text-muted" style="font-size: 0.75rem;">Kiểm tra lộ trình theo Mã / SĐT</small>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider my-1" /></li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center gap-3 p-2 rounded-3" asp-controller="News" asp-action="Index">
+                                        <span class="nav-drop-icon bg-info bg-opacity-10 text-info"><i class="bi bi-journal-richtext"></i></span>
+                                        <div>
+                                            <div class="fw-bold text-dark small">Cẩm nang &amp; Tin tức cầu lông</div>
+                                            <small class="text-muted" style="font-size: 0.75rem;">Kỹ thuật đánh cầu &amp; Đánh giá vợt</small>
                                         </div>
                                     </a>
                                 </li>
                             </ul>
                         </li>
 
-                        <li>
-                            <a class="pro-nav-link @(activeController == "News" ? "active" : "")" 
-                               asp-controller="News" asp-action="Index">
-                                Cẩm nang
-                            </a>
-                        </li>
                         <li>
                             <a class="pro-nav-link @(activeController == "Contact" ? "active" : "")" 
                                asp-controller="Contact" asp-action="Index">
@@ -334,10 +344,10 @@
 
                     @if (User?.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("Staff")))
                     {
-                        <div class="ms-3">
+                        <div class="ms-2 flex-shrink-0">
                             <a class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 rounded-pill text-decoration-none fw-bold small d-inline-flex align-items-center gap-1" 
-                               asp-area="Admin" asp-controller="Products" asp-action="Index">
-                                <span>⚙️</span>
+                               asp-area="Admin" asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-shield-lock-fill"></i>
                                 <span>Quản trị</span>
                             </a>
                         </div>
@@ -345,63 +355,50 @@
                 </div>
             </div>
 
-            <!-- Mobile Menu Dropdown -->
+            <!-- Mobile Menu Dropdown (Compact 2-Column App Grid) -->
             <div class="collapse navbar-collapse d-lg-none py-3 border-top" id="mobileNavPro">
-                <div class="d-flex flex-column gap-2">
-                    <a class="pro-nav-link @(activeController == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index">🏠 Trang chủ</a>
-                    <!-- Mobile Danh Mục Accordion -->
-                    <div class="border-bottom pb-2 mb-1">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <a class="pro-nav-link @(activeController == "Catalog" ? "active" : "") fw-bold text-primary" href="/Danh-Muc">
-                                📂 Danh mục sản phẩm
-                            </a>
-                            <button class="btn btn-sm btn-light border px-2 py-1 rounded-2 text-muted fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#mobileMenuCatalogSub">
-                                ▾
-                            </button>
-                        </div>
-                        <div class="collapse ps-3 mt-1" id="mobileMenuCatalogSub">
-                            <div class="small fw-bold text-dark mt-1">🏸 Vợt theo lối chơi:</div>
-                            <div class="d-flex flex-wrap gap-1 my-1">
-                                <a class="badge bg-white text-dark border text-decoration-none py-1 px-2" href="/Danh-Muc?cat=vot&sub=tan-cong">Tấn công</a>
-                                <a class="badge bg-white text-dark border text-decoration-none py-1 px-2" href="/Danh-Muc?cat=vot&sub=toan-dien">Toàn diện</a>
-                                <a class="badge bg-white text-dark border text-decoration-none py-1 px-2" href="/Danh-Muc?cat=vot&sub=phan-tat">Tốc độ</a>
-                                <a class="badge bg-white text-dark border text-decoration-none py-1 px-2" href="/Danh-Muc?cat=vot&sub=tro-luc">Trợ lực</a>
-                            </div>
-                            <div class="small fw-bold text-dark mt-2">👟 Giày thi đấu:</div>
-                            <div class="d-flex flex-wrap gap-1 my-1">
-                                <a class="badge bg-white text-dark border text-decoration-none py-1 px-2" href="/Danh-Muc?cat=giay&sub=dem-em">Đệm êm</a>
-                                <a class="badge bg-white text-dark border text-decoration-none py-1 px-2" href="/Danh-Muc?cat=giay&sub=toc-do">Tốc độ</a>
-                                <a class="badge bg-white text-dark border text-decoration-none py-1 px-2" href="/Danh-Muc?cat=giay&sub=wide">Chân bè</a>
-                            </div>
-                            <div class="small fw-bold text-dark mt-2">👕 Trang phục:</div>
-                            <div class="d-flex flex-wrap gap-1 my-1">
-                                <a class="badge bg-white text-dark border text-decoration-none py-1 px-2" href="/Danh-Muc?cat=quan-ao&sub=ao-nam">Áo nam</a>
-                                <a class="badge bg-white text-dark border text-decoration-none py-1 px-2" href="/Danh-Muc?cat=quan-ao&sub=ao-nu">Áo/Váy nữ</a>
-                                <a class="badge bg-white text-dark border text-decoration-none py-1 px-2" href="/Danh-Muc?cat=quan-ao&sub=quan-short">Quần short</a>
-                            </div>
-                            <a class="small fw-bold text-primary text-decoration-none d-block mt-2 mb-1" href="/Danh-Muc">
-                                Xem tất cả danh mục sản phẩm →
-                            </a>
-                        </div>
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <a class="d-flex align-items-center gap-2 p-2 rounded-3 bg-light border text-decoration-none text-dark fw-bold small" href="/Danh-Muc?cat=vot">
+                            <i class="bi bi-trophy-fill text-danger"></i> Vợt cầu lông
+                        </a>
                     </div>
-                    <a class="pro-nav-link" href="/Danh-Muc?cat=vot">🏸 Vợt cầu lông</a>
-                    <a class="pro-nav-link" href="/Danh-Muc?cat=giay">👟 Giày thi đấu</a>
-                    <a class="pro-nav-link" href="/Danh-Muc?cat=quan-ao">👕 Trang phục & Phụ kiện</a>
-                    <a class="pro-nav-link text-danger fw-bold" href="/Tu-Van-Chon-Vot">⚡ Tư vấn chọn vợt thông minh (AI)</a>
-                    <a class="pro-nav-link" href="/Dich-Vu-Cang-Cuoc">🛠️ Bảng giá cước & Căng vợt 4 nút</a>
-                    <a class="pro-nav-link" href="/Huong-Dan-Size">📏 Hướng dẫn chọn size vợt & giày</a>
-                    <a class="pro-nav-link" href="/Tra-Cuu-Don-Hang">📦 Tra cứu tiến độ đơn hàng</a>
-                    <a class="pro-nav-link text-danger fw-bold" asp-controller="Wishlist" asp-action="Index">❤️ Danh sách yêu thích (@totalWishlistCount)</a>
-                    @if (User?.Identity?.IsAuthenticated == true)
-                    {
-                        <a class="pro-nav-link text-primary fw-bold" asp-controller="Account" asp-action="Orders">📦 Đơn hàng của tôi</a>
-                    }
-                    <a class="pro-nav-link" asp-controller="News" asp-action="Index">📰 Cẩm nang kiến thức</a>
-                    <a class="pro-nav-link" asp-controller="Contact" asp-action="Index">📞 Liên hệ shop</a>
+                    <div class="col-6">
+                        <a class="d-flex align-items-center gap-2 p-2 rounded-3 bg-light border text-decoration-none text-dark fw-bold small" href="/Danh-Muc?cat=giay">
+                            <i class="bi bi-lightning-charge-fill text-warning"></i> Giày thi đấu
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a class="d-flex align-items-center gap-2 p-2 rounded-3 bg-light border text-decoration-none text-dark fw-bold small" href="/Danh-Muc?cat=quan-ao">
+                            <i class="bi bi-handbag-fill text-primary"></i> Trang phục
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a class="d-flex align-items-center gap-2 p-2 rounded-3 bg-danger bg-opacity-10 border border-danger-subtle text-decoration-none text-danger fw-bold small" href="/Tu-Van-Chon-Vot">
+                            <i class="bi bi-cpu-fill"></i> Tư vấn vợt AI
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a class="d-flex align-items-center gap-2 p-2 rounded-3 bg-primary bg-opacity-10 border border-primary-subtle text-decoration-none text-primary fw-bold small" href="/Dang-Ky-Khoa-Hoc">
+                            <i class="bi bi-mortarboard-fill"></i> Khóa học
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a class="d-flex align-items-center gap-2 p-2 rounded-3 bg-warning bg-opacity-10 border border-warning-subtle text-decoration-none text-dark fw-bold small" href="/Bang-Xep-Hang">
+                            <i class="bi bi-award-fill text-warning"></i> BXH VĐV &amp; Vợt
+                        </a>
+                    </div>
+                </div>
 
+                <div class="d-flex flex-wrap gap-2 pt-2 border-top small">
+                    <a class="btn btn-sm btn-light border rounded-pill fw-semibold" href="/Dich-Vu-Cang-Cuoc"><i class="bi bi-tools me-1 text-primary"></i>Căng cước 4 nút</a>
+                    <a class="btn btn-sm btn-light border rounded-pill fw-semibold" href="/Huong-Dan-Size"><i class="bi bi-rulers me-1 text-success"></i>Chọn Size</a>
+                    <a class="btn btn-sm btn-light border rounded-pill fw-semibold" href="/Tra-Cuu-Don-Hang"><i class="bi bi-box-seam-fill me-1 text-warning"></i>Tra cứu đơn</a>
+                    <a class="btn btn-sm btn-light border rounded-pill fw-semibold" asp-controller="News" asp-action="Index"><i class="bi bi-journal-richtext me-1 text-info"></i>Cẩm nang</a>
+                    <a class="btn btn-sm btn-light border rounded-pill fw-semibold" asp-controller="Contact" asp-action="Index"><i class="bi bi-telephone-fill me-1 text-danger"></i>Liên hệ</a>
                     @if (User?.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("Staff")))
                     {
-                        <a class="pro-nav-link text-primary fw-bold" asp-area="Admin" asp-controller="Home" asp-action="Index">📊 Bảng Quản trị (Dashboard)</a>
+                        <a class="btn btn-sm btn-dark rounded-pill fw-bold" asp-area="Admin" asp-controller="Home" asp-action="Index"><i class="bi bi-bar-chart-line-fill me-1"></i>Quản trị</a>
                     }
                 </div>
 
@@ -415,7 +412,7 @@
                 else
                 {
                     <div class="d-flex justify-content-between align-items-center pt-3 mt-3 border-top">
-                        <span class="fw-bold">👤 @User.Identity!.Name</span>
+                        <span class="fw-bold"><i class="bi bi-person-circle me-1"></i> @User.Identity!.Name</span>
                         <form asp-controller="Account" asp-action="Logout" method="post">
                             @Html.AntiForgeryToken()
                             <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill fw-bold">Đăng xuất</button>
@@ -437,15 +434,15 @@
     <!-- 3. MOBILE BOTTOM NAVIGATION BAR (APP-LIKE) -->
     <nav class="mobile-bottom-nav">
         <a asp-controller="Home" asp-action="Index" class="bottom-nav-item @(activeController == "Home" ? "active" : "")">
-            <span class="bottom-nav-icon">🏠</span>
+            <span class="bottom-nav-icon"><i class="bi bi-house-door-fill"></i></span>
             <span>Trang chủ</span>
         </a>
         <a href="/Danh-Muc" class="bottom-nav-item @(activeController == "Catalog" ? "active" : "")">
-            <span class="bottom-nav-icon">🏸</span>
+            <span class="bottom-nav-icon"><i class="bi bi-grid-fill"></i></span>
             <span>Sản phẩm</span>
         </a>
         <a asp-controller="Cart" asp-action="Index" class="bottom-nav-item @(activeController == "Cart" ? "active" : "")">
-            <span class="bottom-nav-icon">🛒</span>
+            <span class="bottom-nav-icon"><i class="bi bi-cart3"></i></span>
             <span>Giỏ hàng</span>
             @if (totalCartCount > 0)
             {
@@ -453,18 +450,18 @@
             }
         </a>
         <a asp-controller="News" asp-action="Index" class="bottom-nav-item @(activeController == "News" ? "active" : "")">
-            <span class="bottom-nav-icon">📰</span>
+            <span class="bottom-nav-icon"><i class="bi bi-journal-richtext"></i></span>
             <span>Cẩm nang</span>
         </a>
         <a asp-controller="Account" asp-action="Login" class="bottom-nav-item @(activeController == "Account" ? "active" : "")">
-            <span class="bottom-nav-icon">👤</span>
+            <span class="bottom-nav-icon"><i class="bi bi-person-fill"></i></span>
             <span>Tài khoản</span>
         </a>
     </nav>
 
     <!-- GLOBAL INTERACTIVE TOAST -->
     <div id="proToast" class="pro-toast">
-        <span id="toastIcon">✨</span>
+        <span id="toastIcon"><i class="bi bi-check-circle-fill text-success"></i></span>
         <span id="toastMsg">Thông báo thành công</span>
     </div>
 
@@ -497,7 +494,7 @@
         <div class="chatbot-header">
             <div class="d-flex align-items-center gap-2">
                 <div class="chatbot-avatar">
-                    <span>🏸</span>
+                    <span><i class="bi bi-robot"></i></span>
                     <span class="chatbot-online-dot"></span>
                 </div>
                 <div>
@@ -519,7 +516,7 @@
         <div class="chatbot-messages" id="chatbotMessages">
             <div class="chat-msg bot">
                 <div class="chat-bubble">
-                    Xin chào! 👋 Mình là <strong>Trợ lý AI của Tiêu Đao Badminton</strong>.<br/>
+                    Xin chào! <i class="bi bi-stars text-warning"></i> Mình là <strong>Trợ lý AI của Tiêu Đao Badminton</strong>.<br/>
                     Bạn đang cần tìm hiểu thông tin gì hôm nay? Hãy chọn chủ đề bên dưới hoặc nhập câu hỏi nhé!
                 </div>
                 <div class="chat-time">Vừa xong</div>
@@ -528,12 +525,12 @@
 
         <!-- Gợi ý câu hỏi nhanh (Quick Replies) -->
         <div class="chatbot-quick-replies" id="chatbotQuickReplies">
-            <button type="button" class="quick-reply-chip" data-query="Tư vấn chọn vợt phù hợp">🏸 Tư vấn chọn vợt</button>
-            <button type="button" class="quick-reply-chip" data-query="Bảng giá căng cước 4 nút">🛠️ Giá căng cước</button>
-            <button type="button" class="quick-reply-chip" data-query="Hướng dẫn chọn size giày">👟 Chọn size giày</button>
-            <button type="button" class="quick-reply-chip" data-query="Tra cứu đơn hàng">📦 Tra cứu đơn</button>
-            <button type="button" class="quick-reply-chip" data-query="Chính sách bảo hành & Freeship">🛡️ Bảo hành & Ship</button>
-            <button type="button" class="quick-reply-chip" data-query="Liên hệ hotline cửa hàng">📞 Gặp nhân viên</button>
+            <button type="button" class="quick-reply-chip" data-query="Tư vấn chọn vợt phù hợp"><i class="bi bi-trophy-fill me-1"></i> Tư vấn chọn vợt</button>
+            <button type="button" class="quick-reply-chip" data-query="Bảng giá căng cước 4 nút"><i class="bi bi-tools me-1"></i> Giá căng cước</button>
+            <button type="button" class="quick-reply-chip" data-query="Hướng dẫn chọn size giày"><i class="bi bi-rulers me-1"></i> Chọn size giày</button>
+            <button type="button" class="quick-reply-chip" data-query="Tra cứu đơn hàng"><i class="bi bi-box-seam-fill me-1"></i> Tra cứu đơn</button>
+            <button type="button" class="quick-reply-chip" data-query="Chính sách bảo hành & Freeship"><i class="bi bi-shield-check me-1"></i> Bảo hành & Ship</button>
+            <button type="button" class="quick-reply-chip" data-query="Liên hệ hotline cửa hàng"><i class="bi bi-telephone-fill me-1"></i> Gặp nhân viên</button>
         </div>
 
         <!-- Ô nhập tin nhắn -->
@@ -684,65 +681,65 @@
             const q = input.toLowerCase();
 
             if (q.includes('vợt') || q.includes('chọn vợt') || q.includes('người mới') || q.includes('công thủ') || q.includes('smash')) {
-                return `🏸 <strong>Gợi ý chọn vợt cầu lông chuẩn:</strong><br/>
+                return `<i class="bi bi-trophy-fill text-danger me-1"></i> <strong>Gợi ý chọn vợt cầu lông chuẩn:</strong><br/>
                 • <strong>Người mới / Cổ tay vừa:</strong> Nên chọn vợt <strong>4U (80-84g)</strong>, thân dẻo hoặc trung bình để trợ lực tốt.<br/>
                 • <strong>Chuyên công Smash:</strong> Chọn vợt nặng đầu (Head-Heavy >295mm).<br/>
                 • <strong>Phản tạt / Đánh lưới:</strong> Chọn vợt nhẹ đầu hoặc cân bằng.<br/>
-                👉 <a href="/Tu-Van-Chon-Vot" class="chat-action-link">Trắc nghiệm chọn vợt AI ngay →</a>
-                <a href="/Danh-Muc?cat=vot" class="chat-action-link">Xem danh sách vợt chính hãng →</a>`;
+                <a href="/Tu-Van-Chon-Vot" class="chat-action-link"><i class="bi bi-arrow-right-circle-fill me-1"></i> Trắc nghiệm chọn vợt AI ngay →</a>
+                <a href="/Danh-Muc?cat=vot" class="chat-action-link"><i class="bi bi-arrow-right-circle-fill me-1"></i> Xem danh sách vợt chính hãng →</a>`;
             }
 
             if (q.includes('cước') || q.includes('căng') || q.includes('đan') || q.includes('kg')) {
-                return `🛠️ <strong>Dịch vụ Căng Cước Điện Tử 4 Nút:</strong><br/>
+                return `<i class="bi bi-tools text-primary me-1"></i> <strong>Dịch vụ Căng Cước Điện Tử 4 Nút:</strong><br/>
                 • <strong>Miễn phí công đan máy</strong> trị giá 60.000đ khi mua vợt tại shop!<br/>
                 • <strong>Mức cân gợi ý:</strong> Người mới (9.5 - 10.5kg) • Phong trào (10.5 - 11.5kg) • Bán chuyên (12kg+).<br/>
                 • Cước phổ biến: Yonex BG65 Ti, BG80 Power, Exbolt 63/65, Aerobite.<br/>
-                👉 <a href="/Dich-Vu-Cang-Cuoc" class="chat-action-link">Xem bảng giá cước & quy trình đan 15p →</a>`;
+                <a href="/Dich-Vu-Cang-Cuoc" class="chat-action-link"><i class="bi bi-arrow-right-circle-fill me-1"></i> Xem bảng giá cước & quy trình đan 15p →</a>`;
             }
 
             if (q.includes('giày') || q.includes('size') || q.includes('chân') || q.includes('áo') || q.includes('quần')) {
-                return `👟 <strong>Hướng dẫn chọn Size Giày & Trang Phục:</strong><br/>
+                return `<i class="bi bi-rulers text-success me-1"></i> <strong>Hướng dẫn chọn Size Giày & Trang Phục:</strong><br/>
                 • Đo chiều dài bàn chân (cm) và cộng thêm <strong>0.5cm</strong> (trừ hao tất dày thi đấu).<br/>
                 • Bàn chân bè ngang nên ưu tiên dòng <strong>Wide (3E/4E)</strong> để êm mũi chân.<br/>
-                👉 <a href="/Huong-Dan-Size" class="chat-action-link">Mở bảng quy đổi Size chuẩn →</a>
-                <a href="/Danh-Muc?cat=giay" class="chat-action-link">Xem các mẫu giày giảm chấn →</a>`;
+                <a href="/Huong-Dan-Size" class="chat-action-link"><i class="bi bi-arrow-right-circle-fill me-1"></i> Mở bảng quy đổi Size chuẩn →</a>
+                <a href="/Danh-Muc?cat=giay" class="chat-action-link"><i class="bi bi-arrow-right-circle-fill me-1"></i> Xem các mẫu giày giảm chấn →</a>`;
             }
 
             if (q.includes('đơn') || q.includes('tra cứu') || q.includes('vận chuyển') || q.includes('giao hàng')) {
-                return `📦 <strong>Tra cứu đơn hàng & Vận chuyển:</strong><br/>
+                return `<i class="bi bi-box-seam-fill text-warning me-1"></i> <strong>Tra cứu đơn hàng & Vận chuyển:</strong><br/>
                 • Giao siêu tốc nội thành <strong>2-4 giờ</strong>, toàn quốc 2-3 ngày.<br/>
                 • Bạn có thể kiểm tra trạng thái đơn bằng <strong>Mã đơn hàng</strong> hoặc <strong>Số điện thoại</strong>.<br/>
-                👉 <a href="/Tra-Cuu-Don-Hang" class="chat-action-link">Tra cứu tiến độ đơn hàng ngay →</a>`;
+                <a href="/Tra-Cuu-Don-Hang" class="chat-action-link"><i class="bi bi-arrow-right-circle-fill me-1"></i> Tra cứu tiến độ đơn hàng ngay →</a>`;
             }
 
             if (q.includes('bảo hành') || q.includes('freeship') || q.includes('đổi trả') || q.includes('chính sách') || q.includes('ship')) {
-                return `🛡️ <strong>Chính sách Ưu đãi & Bảo hành:</strong><br/>
+                return `<i class="bi bi-shield-check text-success me-1"></i> <strong>Chính sách Ưu đãi & Bảo hành:</strong><br/>
                 • Cam kết <strong>100% Chính hãng</strong> (Yonex, Victor, Li-Ning, Mizuno, Kawasaki).<br/>
                 • <strong>Freeship toàn quốc</strong> cho đơn hàng từ 499.000đ.<br/>
                 • Đổi trả miễn phí trong <strong>7 ngày</strong> nếu có lỗi từ nhà sản xuất.`;
             }
 
             if (q.includes('liên hệ') || q.includes('hotline') || q.includes('nhân viên') || q.includes('địa chỉ') || q.includes('gọi') || q.includes('sđt')) {
-                return `📞 <strong>Thông tin Liên hệ Tiêu Đao Badminton:</strong><br/>
+                return `<i class="bi bi-telephone-fill text-danger me-1"></i> <strong>Thông tin Liên hệ Tiêu Đao Badminton:</strong><br/>
                 • <strong>Hotline Tư vấn 24/7:</strong> <a href="tel:0900000000" class="fw-bold text-danger">0900 000 000</a><br/>
                 • <strong>Địa chỉ:</strong> 123 Đường Cầu Lông, TP. Hồ Chí Minh (8:00 - 21:30)<br/>
-                👉 <a href="tel:0900000000" class="chat-action-link">📞 Gọi ngay cho kỹ thuật viên →</a>
-                <a href="/Contact" class="chat-action-link">📍 Xem bản đồ cửa hàng →</a>`;
+                <a href="tel:0900000000" class="chat-action-link"><i class="bi bi-telephone-outbound-fill me-1"></i> Gọi ngay cho kỹ thuật viên →</a>
+                <a href="/Contact" class="chat-action-link"><i class="bi bi-geo-alt-fill me-1"></i> Xem bản đồ cửa hàng →</a>`;
             }
 
-            return `Cảm ơn câu hỏi của bạn! 🏸 Để được hỗ trợ nhanh và chính xác nhất về <strong>"${input}"</strong>, bạn có thể:<br/>
+            return `Cảm ơn câu hỏi của bạn! <i class="bi bi-chat-heart-fill text-danger"></i> Để được hỗ trợ nhanh và chính xác nhất về <strong>"${input}"</strong>, bạn có thể:<br/>
             • Khám phá <a href="/Tu-Van-Chon-Vot" class="fw-bold text-primary">Trợ lý Tư vấn Vợt AI</a> hoặc <a href="/Danh-Muc" class="fw-bold text-primary">Danh mục sản phẩm</a>.<br/>
             • Hoặc gọi trực tiếp Hotline <a href="tel:0900000000" class="fw-bold text-danger">0900 000 000</a> để kỹ thuật viên tư vấn 1-1 ngay nhé!`;
         }
 
         // Interactive Toast Function
-        function showToast(message, icon = '✨') {
+        function showToast(message, iconHtml = '<i class="bi bi-check-circle-fill text-success"></i>') {
             const toast = document.getElementById('proToast');
             const toastMsg = document.getElementById('toastMsg');
             const toastIcon = document.getElementById('toastIcon');
             if (toast && toastMsg) {
                 toastMsg.innerText = message;
-                if (toastIcon) toastIcon.innerText = icon;
+                if (toastIcon) toastIcon.innerHTML = iconHtml;
                 toast.classList.add('show');
                 setTimeout(() => {
                     toast.classList.remove('show');
@@ -761,7 +758,7 @@
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    showToast(data.message, data.isAdded ? '❤️' : '🤍');
+                    showToast(data.message, data.isAdded ? '<i class="bi bi-heart-fill text-danger"></i>' : '<i class="bi bi-heart"></i>');
                     const badge = document.getElementById('wishlistBadge');
                     if (badge) {
                         badge.innerText = data.count > 99 ? '99+' : data.count;
@@ -774,21 +771,21 @@
                     if (btnElement) {
                         if (data.isAdded) {
                             btnElement.classList.add('active');
-                            btnElement.innerHTML = '❤️';
+                            btnElement.innerHTML = '<i class="bi bi-heart-fill"></i>';
                             btnElement.style.color = '#e11d48';
                         } else {
                             btnElement.classList.remove('active');
-                            btnElement.innerHTML = '🤍';
+                            btnElement.innerHTML = '<i class="bi bi-heart"></i>';
                             btnElement.style.color = '';
                         }
                     }
                 } else {
-                    showToast(data.message || 'Lỗi xử lý yêu thích', '⚠️');
+                    showToast(data.message || 'Lỗi xử lý yêu thích', '<i class="bi bi-exclamation-triangle-fill text-warning"></i>');
                 }
             })
             .catch(err => {
                 console.error('Error toggling wishlist:', err);
-                showToast('Không thể kết nối đến máy chủ', '⚠️');
+                showToast('Không thể kết nối đến máy chủ', '<i class="bi bi-exclamation-triangle-fill text-warning"></i>');
             });
         }
     </script>

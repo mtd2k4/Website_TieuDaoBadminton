@@ -17,10 +17,15 @@
 <div class="container-fluid py-3">
 
     <!-- HEADER & ACTION -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
-        <div>
-            <h4 class="fw-black text-dark m-0">🏸 Quản lý sản phẩm & Kho hàng</h4>
-            <div class="text-muted small">Theo dõi danh sách sản phẩm, nhập thêm hàng vào kho và quản lý phân loại kích cỡ</div>
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <div class="admin-header-icon bg-primary bg-opacity-10 text-primary">
+                <i class="bi bi-trophy-fill"></i>
+            </div>
+            <div>
+                <h4 class="fw-black text-dark m-0">Quản lý sản phẩm & Kho hàng</h4>
+                <div class="text-muted small">Theo dõi danh sách sản phẩm, nhập thêm hàng vào kho và quản lý phân loại kích cỡ</div>
+            </div>
         </div>
         <div class="d-flex flex-wrap gap-2">
             <a class="btn btn-outline-success rounded-pill px-3 fw-bold shadow-sm" asp-area="Admin" asp-controller="StockReceipts" asp-action="Create">
@@ -54,49 +59,49 @@
     <!-- 4 INVENTORY KPI CARDS -->
     <div class="row g-3 mb-4">
         <div class="col-sm-6 col-xl-3">
-            <div class="card border-0 shadow-sm p-3 rounded-4 bg-white h-100">
+            <div class="card kpi-card border-0 shadow-sm p-3 rounded-4 bg-white h-100">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <div class="text-muted small fw-bold text-uppercase">TỔNG MẪU SẢN PHẨM</div>
                         <div class="fs-3 fw-bold text-dark mt-1">@ViewBag.TotalProducts <small class="fs-6 text-muted fw-normal">mẫu</small></div>
                     </div>
-                    <div class="kpi-icon-badge bg-primary bg-opacity-10 text-primary fs-3">🏸</div>
+                    <div class="kpi-icon-badge bg-primary bg-opacity-10 text-primary fs-3"><i class="bi bi-trophy"></i></div>
                 </div>
             </div>
         </div>
 
         <div class="col-sm-6 col-xl-3">
-            <div class="card border-0 shadow-sm p-3 rounded-4 bg-white h-100">
+            <div class="card kpi-card border-0 shadow-sm p-3 rounded-4 bg-white h-100">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <div class="text-muted small fw-bold text-uppercase">TỔNG LƯỢNG HÀNG TRONG KHO</div>
                         <div class="fs-3 fw-bold text-primary mt-1">@ViewBag.TotalInventoryUnits <small class="fs-6 text-muted fw-normal">chiếc/đôi</small></div>
                     </div>
-                    <div class="kpi-icon-badge bg-info bg-opacity-10 text-info fs-3">📦</div>
+                    <div class="kpi-icon-badge bg-info bg-opacity-10 text-info fs-3"><i class="bi bi-box-seam"></i></div>
                 </div>
             </div>
         </div>
 
         <div class="col-sm-6 col-xl-3">
-            <div class="card border-0 shadow-sm p-3 rounded-4 bg-white h-100">
+            <div class="card kpi-card border-0 shadow-sm p-3 rounded-4 bg-white h-100">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <div class="text-muted small fw-bold text-uppercase">CẢNH BÁO SẮP HẾT HÀNG</div>
                         <div class="fs-3 fw-bold text-warning mt-1">@ViewBag.LowStockCount <small class="fs-6 text-muted fw-normal">mẫu (≤5)</small></div>
                     </div>
-                    <div class="kpi-icon-badge bg-warning bg-opacity-10 text-warning fs-3">⚠️</div>
+                    <div class="kpi-icon-badge bg-warning bg-opacity-10 text-warning fs-3"><i class="bi bi-exclamation-triangle"></i></div>
                 </div>
             </div>
         </div>
 
         <div class="col-sm-6 col-xl-3">
-            <div class="card border-0 shadow-sm p-3 rounded-4 bg-white h-100">
+            <div class="card kpi-card border-0 shadow-sm p-3 rounded-4 bg-white h-100">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <div class="text-muted small fw-bold text-uppercase">ĐÃ HẾT HÀNG TRONG KHO</div>
                         <div class="fs-3 fw-bold text-danger mt-1">@ViewBag.OutOfStockCount <small class="fs-6 text-muted fw-normal">mẫu (=0)</small></div>
                     </div>
-                    <div class="kpi-icon-badge bg-danger bg-opacity-10 text-danger fs-3">🚫</div>
+                    <div class="kpi-icon-badge bg-danger bg-opacity-10 text-danger fs-3"><i class="bi bi-slash-circle"></i></div>
                 </div>
             </div>
         </div>
@@ -150,7 +155,7 @@
         @if (Model.Count == 0)
         {
             <div class="text-center py-5 text-muted">
-                <div class="fs-1">📦</div>
+                <div class="fs-1"><i class="bi bi-box-seam"></i></div>
                 <div class="mt-2">Không tìm thấy sản phẩm nào phù hợp điều kiện lọc.</div>
                 <a asp-action="Index" class="btn btn-outline-dark rounded-pill px-4 mt-3">Xóa bộ lọc</a>
             </div>
@@ -214,19 +219,19 @@
                                     @if (totalStock == 0)
                                     {
                                         <span class="badge bg-danger text-white rounded-pill px-3 py-1 fw-bold">
-                                            🚫 Hết hàng (0)
+                                            <i class="bi bi-slash-circle me-1"></i> Hết hàng (0)
                                         </span>
                                     }
                                     else if (totalStock <= 5)
                                     {
                                         <span class="badge bg-warning text-dark rounded-pill px-3 py-1 fw-bold">
-                                            ⚠️ Sắp hết (@totalStock)
+                                            <i class="bi bi-exclamation-triangle me-1"></i> Sắp hết (@totalStock)
                                         </span>
                                     }
                                     else
                                     {
                                         <span class="badge bg-success-subtle text-success fw-bold rounded-pill px-3 py-1">
-                                            ✓ Còn @totalStock chiếc
+                                            <i class="bi bi-check-lg me-1"></i> Còn @totalStock chiếc
                                         </span>
                                     }
 
@@ -283,7 +288,7 @@
 
                                                     <div class="modal-header border-bottom pb-3">
                                                         <div class="d-flex align-items-center gap-2">
-                                                            <div class="fs-4 text-success">📥</div>
+                                                            <div class="fs-4 text-success"><i class="bi bi-box-arrow-in-down"></i></div>
                                                             <div>
                                                                 <h5 class="modal-title fw-black text-dark m-0">Phiếu Nhập Hàng Vào Kho</h5>
                                                                 <small class="text-muted">Cộng dồn số lượng tồn kho sản phẩm</small>
@@ -347,12 +352,12 @@
 
                                                     <div class="modal-footer border-top pt-3 d-flex justify-content-between">
                                                         <a asp-area="Admin" asp-controller="StockReceipts" asp-action="Create" asp-route-productId="@p.Id" class="btn btn-outline-primary btn-sm rounded-pill fw-bold">
-                                                            <i class="bi bi-file-earmark-spreadsheet me-1"></i> Nhập đầy đủ nguồn gốc & giá vốn &rarr;
+                                                            <i class="bi bi-file-earmark-spreadsheet me-1"></i> Nhập đầy đủ nguồn gốc & giá vốn <i class="bi bi-arrow-right ms-1"></i>
                                                         </a>
                                                         <div class="d-flex gap-2">
                                                             <button type="button" class="btn btn-light rounded-pill px-3 fw-bold" data-bs-dismiss="modal">Đóng</button>
                                                             <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold">
-                                                                ✓ Nhập nhanh (+)
+                                                                <i class="bi bi-check-lg me-1"></i> Nhập nhanh (+)
                                                             </button>
                                                         </div>
                                                     </div>

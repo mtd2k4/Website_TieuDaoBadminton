@@ -38,19 +38,19 @@
             <div class="category-chips-wrap p-0 m-0">
                 <a class="category-chip @(string.IsNullOrEmpty(currentCat) && string.IsNullOrEmpty(currentSearch) ? "active" : "")" 
                    asp-action="Index">
-                    <span>⚡ Tất cả</span>
+                    <span><i class="bi bi-grid-fill me-1"></i> Tất cả</span>
                 </a>
                 <a class="category-chip @(currentCat == "vot" ? "active" : "")" 
                    asp-action="Index" asp-route-category="vot">
-                    <span>🏸 Vợt Pro</span>
+                    <span><i class="bi bi-trophy-fill me-1"></i> Vợt Pro</span>
                 </a>
                 <a class="category-chip @(currentCat == "giay" ? "active" : "")" 
                    asp-action="Index" asp-route-category="giay">
-                    <span>👟 Giày Cushion</span>
+                    <span><i class="bi bi-lightning-charge-fill me-1"></i> Giày Cushion</span>
                 </a>
                 <a class="category-chip @(currentCat == "quan-ao" ? "active" : "")" 
                    asp-action="Index" asp-route-category="quan-ao">
-                    <span>👕 Trang phục</span>
+                    <span><i class="bi bi-handbag-fill me-1"></i> Trang phục</span>
                 </a>
             </div>
         </div>
@@ -60,7 +60,7 @@
     @if (Model.Count == 0)
     {
         <div class="text-center py-5 cart-surface my-4">
-            <div class="display-3 mb-3">🔍</div>
+            <div class="display-3 mb-3 text-muted"><i class="bi bi-search"></i></div>
             <h4 class="fw-bold">Không tìm thấy sản phẩm nào phù hợp</h4>
             <p class="text-muted mb-4" style="max-width: 420px; margin: 0 auto;">
                 Vui lòng thử tìm kiếm với từ khóa khác hoặc quay lại xem toàn bộ danh mục sản phẩm của shop.
@@ -109,7 +109,7 @@
                                     class="pro-wishlist-btn @(isFavorited ? "active" : "")" 
                                     onclick="toggleWishlist(@p.Id, this);" 
                                     title="@(isFavorited ? "Bỏ lưu yêu thích" : "Lưu vào yêu thích")">
-                                @(isFavorited ? "❤️" : "🤍")
+                                <i class="bi @(isFavorited ? "bi-heart-fill" : "bi-heart")"></i>
                             </button>
 
                             <div class="pro-quick-sizes">
@@ -120,7 +120,7 @@
                         <!-- Card Body -->
                         <div class="pro-card-body">
                             <div class="pro-rating-row">
-                                <span>★★★★★</span>
+                                <span><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></span>
                                 <span class="pro-rating-score">4.9</span>
                                 <span class="pro-rating-count">(95)</span>
                             </div>
