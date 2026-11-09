@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace tieudaobadminton.Models
@@ -13,6 +13,8 @@ namespace tieudaobadminton.Models
         public string Address { get; set; } = "";
 
         public decimal Total { get; set; }
+        public string? CouponCode { get; set; }
+        public decimal DiscountAmount { get; set; }
         public string Status { get; set; } = "Pending"; // Pending/Shipping/Done/Cancelled
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

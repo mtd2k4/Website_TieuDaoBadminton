@@ -1,0 +1,253 @@
+@model tieudaobadminton.Models.Coupon
+@{
+    ViewData["Title"] = "Quản lý Mã giảm giá (Voucher)";
+    var couponList = ViewBag.CouponList as List<tieudaobadminton.Models.Coupon> ?? new List<tieudaobadminton.Models.Coupon>();
+    var now = DateTime.UtcNow;
+}
+
+<div class="container-fluid py-2">
+
+    <!-- PAGE HEADER -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <div class="admin-header-icon">
+                <i class="bi bi-ticket-perforated-fill"></i>
+            </div>
+            <div>
+                <h4 class="fw-black text-dark m-0">Quản Lý Mã Giảm Giá & Voucher</h4>
+                <div class="text-muted small">Thiết lập chương trình khuyến mãi theo số tiền cố định (VNĐ) hoặc phần trăm (%) cho trang Thanh toán</div>
+            </div>
+        </div>
+        @if (Model.Id > 0)
+        {
+            <a asp-action="Index" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+                <i class="bi bi-plus-circle-fill me-1"></i> Tạo mã giảm giá mới
+            </a>
+        }
+    </div>
+
+    @if (TempData["Ok"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Ok"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row g-4 align-items-start">
+        <!-- LEFT: CREATE / EDIT FORM (5 COLS) -->
+        <div class="col-lg-5">
+            <div class="card border-0 p-4 bg-white shadow-sm rounded-4">
+                <h5 class="fw-bold text-dark pb-3 mb-3 border-bottom d-flex align-items-center gap-2">
+                    <i class="bi @(Model.Id == 0 ? "bi-plus-square-fill text-success" : "bi-pencil-square text-primary")"></i>
+                    <span>@(Model.Id == 0 ? "Tạo Mã Giảm Giá Mới" : $"Chỉnh Sửa Mã: {Model.Code}")</span>
+                </h5>
+
+                <form asp-action="Save" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="mb-3">
+                        <label asp-for="Code" class="form-label fw-bold small">Mã Voucher (In hoa, viết liền) <span class="text-danger">*</span></label>
+                        <input asp-for="Code" class="form-control rounded-3 py-2 text-uppercase font-monospace fw-bold" placeholder="VD: TIEUDAO50, YONEX10" />
+                        <span asp-validation-for="Code" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label fw-bold small">Mô tả ưu đãi hiển thị trên trang Thanh toán <span class="text-danger">*</span></label>
+                        <input asp-for="Description" class="form-control rounded-3 py-2" placeholder="VD: Giảm 50.000đ cho đơn từ 500.000đ" />
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="DiscountType" class="form-label fw-bold small">Loại giảm giá</label>
+                            <select asp-for="DiscountType" id="discountTypeSelect" class="form-select rounded-3 py-2 fw-semibold">
+                                <option value="Fixed">Giảm tiền mặt (VNĐ)</option>
+                                <option value="Percent">Giảm theo phần trăm (%)</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="DiscountValue" class="form-label fw-bold small" id="discountValueLabel">Mức giảm <span class="text-danger">*</span></label>
+                            <input asp-for="DiscountValue" type="number" step="1" class="form-control rounded-3 py-2 fw-bold text-danger" />
+                            <span asp-validation-for="DiscountValue" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6" id="maxDiscountGroup">
+                            <label asp-for="MaxDiscountAmount" class="form-label fw-bold small">Giảm tối đa (VNĐ)</label>
+                            <input asp-for="MaxDiscountAmount" type="number" step="1000" class="form-control rounded-3 py-2" placeholder="VD: 300000" />
+                            <small class="text-muted" style="font-size: 0.72rem;">Áp dụng cho mã giảm theo %</small>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="MinOrderValue" class="form-label fw-bold small">Đơn hàng tối thiểu (VNĐ)</label>
+                            <input asp-for="MinOrderValue" type="number" step="1000" class="form-control rounded-3 py-2" placeholder="VD: 500000" />
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="UsageLimit" class="form-label fw-bold small">Giới hạn lượt sử dụng</label>
+                            <input asp-for="UsageLimit" type="number" min="1" class="form-control rounded-3 py-2" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="ExpiryDate" class="form-label fw-bold small">Ngày hết hạn</label>
+                            <input asp-for="ExpiryDate" type="date" value="@Model.ExpiryDate.ToString("yyyy-MM-dd")" class="form-control rounded-3 py-2" />
+                        </div>
+                    </div>
+
+                    <div class="form-check form-switch mb-4 p-3 rounded-3 border bg-light d-flex align-items-center justify-content-between">
+                        <div>
+                            <label class="form-check-label fw-bold text-dark" for="couponActiveSwitch">Kích hoạt mã giảm giá</label>
+                            <div class="small text-muted">Cho phép khách hàng chọn và áp dụng mã này ở trang Thanh toán</div>
+                        </div>
+                        <input class="form-check-input ms-3 fs-4 mt-0" type="checkbox" asp-for="IsActive" id="couponActiveSwitch" />
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-dark rounded-pill px-4 py-2 fw-bold shadow-sm flex-grow-1">
+                            <i class="bi bi-floppy-fill me-1"></i> @(Model.Id == 0 ? "Tạo mã giảm giá" : "Lưu cập nhật")
+                        </button>
+                        @if (Model.Id > 0)
+                        {
+                            <a asp-action="Index" class="btn btn-light border rounded-pill px-3 py-2 fw-semibold">Hủy</a>
+                        }
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- RIGHT: COUPONS TABLE (7 COLS) -->
+        <div class="col-lg-7">
+            <div class="card border-0 p-4 bg-white shadow-sm rounded-4">
+                <h6 class="fw-bold text-dark mb-3 d-flex align-items-center justify-content-between">
+                    <span><i class="bi bi-tags-fill text-danger me-2"></i>Danh sách Mã giảm giá hiện có (@couponList.Count)</span>
+                </h6>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>MÃ VOUCHER</th>
+                                <th>MỨC GIẢM / ĐIỀU KIỆN</th>
+                                <th class="text-center">LƯỢT DÙNG</th>
+                                <th class="text-center">TRẠNG THÁI</th>
+                                <th class="text-end">THAO TÁC</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var c in couponList)
+                            {
+                                var isExpired = c.ExpiryDate <= now;
+                                var isOut = c.UsedCount >= c.UsageLimit;
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle font-monospace fs-6 px-2 py-1">@c.Code</span>
+                                        <div class="small text-muted mt-1">@c.Description</div>
+                                        <div class="text-muted" style="font-size: 0.72rem;">
+                                            <i class="bi bi-calendar-event me-1"></i>HSD: @c.ExpiryDate.ToLocalTime().ToString("dd/MM/yyyy")
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (c.DiscountType == "Percent")
+                                        {
+                                            <div class="fw-black text-danger">Giảm @c.DiscountValue.ToString("0")%</div>
+                                            @if (c.MaxDiscountAmount.HasValue && c.MaxDiscountAmount.Value > 0)
+                                            {
+                                                <div class="small text-muted">Tối đa: @c.MaxDiscountAmount.Value.ToString("n0")đ</div>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <div class="fw-black text-danger">Giảm @c.DiscountValue.ToString("n0")đ</div>
+                                        }
+                                        <div class="small text-dark fw-semibold">Đơn từ: @c.MinOrderValue.ToString("n0")đ</div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-light text-dark border rounded-pill px-2 py-1 font-monospace">
+                                            @c.UsedCount / @c.UsageLimit
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        @if (!c.IsActive)
+                                        {
+                                            <span class="badge bg-secondary-subtle text-secondary border rounded-pill px-2 py-1">Tạm khóa</span>
+                                        }
+                                        else if (isExpired)
+                                        {
+                                            <span class="badge bg-warning-subtle text-warning-emphasis border rounded-pill px-2 py-1">Hết hạn</span>
+                                        }
+                                        else if (isOut)
+                                        {
+                                            <span class="badge bg-danger-subtle text-danger border rounded-pill px-2 py-1">Hết lượt</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1">
+                                                <i class="bi bi-check-circle-fill me-1"></i>Đang chạy
+                                            </span>
+                                        }
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="d-inline-flex gap-1">
+                                            <a asp-action="Index" asp-route-editId="@c.Id" class="btn btn-sm btn-light border rounded-pill px-2" title="Chỉnh sửa">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </a>
+                                            <form asp-action="ToggleActive" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@c.Id" />
+                                                <button type="submit" class="btn btn-sm @(c.IsActive ? "btn-outline-warning" : "btn-outline-success") rounded-pill px-2"
+                                                        title="@(c.IsActive ? "Tạm khóa" : "Kích hoạt")">
+                                                    <i class="bi @(c.IsActive ? "bi-pause-circle" : "bi-play-circle")"></i>
+                                                </button>
+                                            </form>
+                                            <form asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Xóa mã giảm giá này?');">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@c.Id" />
+                                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2" title="Xóa">
+                                                    <i class="bi bi-trash3"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const typeSelect = document.getElementById('discountTypeSelect');
+            const maxGroup = document.getElementById('maxDiscountGroup');
+            const valLabel = document.getElementById('discountValueLabel');
+
+            function syncDiscountTypeUI() {
+                const isPercent = typeSelect?.value === 'Percent';
+                if (maxGroup) {
+                    maxGroup.style.opacity = isPercent ? '1' : '0.45';
+                }
+                if (valLabel) {
+                    valLabel.innerHTML = isPercent
+                        ? 'Phần trăm giảm (%) <span class="text-danger">*</span>'
+                        : 'Số tiền giảm (VNĐ) <span class="text-danger">*</span>';
+                }
+            }
+
+            typeSelect?.addEventListener('change', syncDiscountTypeUI);
+            syncDiscountTypeUI();
+        })();
+    </script>
+}
+

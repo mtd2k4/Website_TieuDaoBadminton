@@ -89,7 +89,150 @@ BEGIN
     IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'ProductVariants' AND COLUMN_NAME = 'ImageUrl')
         ALTER TABLE [ProductVariants] ADD [ImageUrl] nvarchar(max) NULL;
 END
+
+IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Orders')
+BEGIN
+    IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Orders' AND COLUMN_NAME = 'CouponCode')
+        ALTER TABLE [Orders] ADD [CouponCode] nvarchar(max) NULL;
+    IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Orders' AND COLUMN_NAME = 'DiscountAmount')
+        ALTER TABLE [Orders] ADD [DiscountAmount] decimal(18,2) NOT NULL DEFAULT 0;
+END
+
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Coupons')
+BEGIN
+    CREATE TABLE [Coupons] (
+        [Id] int NOT NULL IDENTITY,
+        [Code] nvarchar(30) NOT NULL,
+        [Description] nvarchar(200) NOT NULL,
+        [DiscountType] nvarchar(max) NOT NULL,
+        [DiscountValue] decimal(18,2) NOT NULL,
+        [MaxDiscountAmount] decimal(18,2) NULL,
+        [MinOrderValue] decimal(18,2) NOT NULL DEFAULT 0,
+        [UsageLimit] int NOT NULL DEFAULT 100,
+        [UsedCount] int NOT NULL DEFAULT 0,
+        [ExpiryDate] datetime2 NOT NULL,
+        [IsActive] bit NOT NULL DEFAULT 1,
+        [CreatedAt] datetime2 NOT NULL,
+        CONSTRAINT [PK_Coupons] PRIMARY KEY ([Id])
+    );
+END
+
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'BankSettings')
+BEGIN
+    CREATE TABLE [BankSettings] (
+        [Id] int NOT NULL IDENTITY,
+        [BankCode] nvarchar(30) NOT NULL,
+        [BankName] nvarchar(150) NOT NULL,
+        [AccountNumber] nvarchar(50) NOT NULL,
+        [AccountHolder] nvarchar(120) NOT NULL,
+        [Branch] nvarchar(150) NULL,
+        [QrTemplate] nvarchar(30) NOT NULL DEFAULT 'compact2',
+        [TransferPrefix] nvarchar(20) NOT NULL DEFAULT 'DH',
+        [Note] nvarchar(300) NULL,
+        [IsActive] bit NOT NULL DEFAULT 1,
+        [UpdatedAt] datetime2 NOT NULL,
+        CONSTRAINT [PK_BankSettings] PRIMARY KEY ([Id])
+    );
+END
 ");
+            }
+            catch { /* Không chặn luồng khởi động */ }
+
+            // Seed dữ liệu mẫu cho Mã giảm giá (Coupons) và Cấu hình ngân hàng (BankSettings)
+            try
+            {
+                if (!await db.Coupons.AnyAsync())
+                {
+                    db.Coupons.AddRange(
+                        new Coupon
+                        {
+                            Code = "TIEUDAO50",
+                            Description = "Giảm ngay 50.000đ cho mọi đơn hàng từ 500.000đ",
+                            DiscountType = "Fixed",
+                            DiscountValue = 50000,
+                            MinOrderValue = 500000,
+                            UsageLimit = 200,
+                            UsedCount = 18,
+                            ExpiryDate = DateTime.UtcNow.AddMonths(6),
+                            IsActive = true,
+                            CreatedAt = DateTime.UtcNow
+                        },
+                        new Coupon
+                        {
+                            Code = "YONEX10",
+                            Description = "Giảm 10% (tối đa 300.000đ) cho đơn từ 1.500.000đ",
+                            DiscountType = "Percent",
+                            DiscountValue = 10,
+                            MaxDiscountAmount = 300000,
+                            MinOrderValue = 1500000,
+                            UsageLimit = 100,
+                            UsedCount = 24,
+                            ExpiryDate = DateTime.UtcNow.AddMonths(6),
+                            IsActive = true,
+                            CreatedAt = DateTime.UtcNow
+                        },
+                        new Coupon
+                        {
+                            Code = "PRO200K",
+                            Description = "Giảm 200.000đ khi mua vợt/giày đơn từ 3.000.000đ",
+                            DiscountType = "Fixed",
+                            DiscountValue = 200000,
+                            MinOrderValue = 3000000,
+                            UsageLimit = 80,
+                            UsedCount = 12,
+                            ExpiryDate = DateTime.UtcNow.AddMonths(4),
+                            IsActive = true,
+                            CreatedAt = DateTime.UtcNow
+                        },
+                        new Coupon
+                        {
+                            Code = "VIP300K",
+                            Description = "Ưu đãi VIP giảm 300.000đ cho đơn từ 5.000.000đ",
+                            DiscountType = "Fixed",
+                            DiscountValue = 300000,
+                            MinOrderValue = 5000000,
+                            UsageLimit = 50,
+                            UsedCount = 5,
+                            ExpiryDate = DateTime.UtcNow.AddMonths(6),
+                            IsActive = true,
+                            CreatedAt = DateTime.UtcNow
+                        }
+                    );
+                    await db.SaveChangesAsync();
+                }
+
+                if (!await db.BankSettings.AnyAsync())
+                {
+                    db.BankSettings.AddRange(
+                        new BankSetting
+                        {
+                            BankCode = "MB",
+                            BankName = "MB Bank (Ngân hàng Quân Đội)",
+                            AccountNumber = "0900000000",
+                            AccountHolder = "TIEU DAO BADMINTON",
+                            Branch = "Chi nhánh Quận 7 - TP. Hồ Chí Minh",
+                            QrTemplate = "compact2",
+                            TransferPrefix = "DH",
+                            Note = "Quét mã VietQR để tự động điền chính xác số tiền và nội dung mã đơn hàng.",
+                            IsActive = true,
+                            UpdatedAt = DateTime.UtcNow
+                        },
+                        new BankSetting
+                        {
+                            BankCode = "VCB",
+                            BankName = "Vietcombank (Ngân hàng Ngoại Thương)",
+                            AccountNumber = "1028889999",
+                            AccountHolder = "CONG TY TNHH TIEU DAO SPORT",
+                            Branch = "Chi nhánh Nam Sài Gòn",
+                            QrTemplate = "compact2",
+                            TransferPrefix = "TD",
+                            Note = "Tài khoản doanh nghiệp nhận thanh toán đơn hàng sỉ & lẻ.",
+                            IsActive = false,
+                            UpdatedAt = DateTime.UtcNow
+                        }
+                    );
+                    await db.SaveChangesAsync();
+                }
             }
             catch { /* Không chặn luồng khởi động */ }
 

@@ -23,5 +23,7 @@ namespace tieudaobadminton.Data
         public DbSet<ContactMessage> ContactMessages { get; set; }
         public DbSet<StockReceipt> StockReceipts { get; set; }
         public DbSet<ProductReview> ProductReviews { get; set; }
+        public DbSet<Coupon> Coupons { get; set; }
+        public DbSet<BankSetting> BankSettings { get; set; }
     }
 }

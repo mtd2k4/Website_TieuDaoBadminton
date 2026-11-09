@@ -1,0 +1,345 @@
+@model tieudaobadminton.Models.BankSetting
+@{
+    ViewData["Title"] = "Cấu hình Ngân hàng & VietQR";
+    var bankList = ViewBag.BankList as List<tieudaobadminton.Models.BankSetting> ?? new List<tieudaobadminton.Models.BankSetting>();
+    var isCreatingNew = ViewBag.IsCreatingNew as bool? ?? false;
+
+    var cleanAcc = (string.IsNullOrWhiteSpace(Model.AccountNumber) ? "0900000000" : Model.AccountNumber).Replace(" ", "").Trim();
+    var bankCode = string.IsNullOrWhiteSpace(Model.BankCode) ? "MB" : Model.BankCode.Trim();
+    var tpl = string.IsNullOrWhiteSpace(Model.QrTemplate) ? "compact2" : Model.QrTemplate.Trim();
+    var prefix = string.IsNullOrWhiteSpace(Model.TransferPrefix) ? "DH" : Model.TransferPrefix.Trim().ToUpperInvariant();
+    var holderEncoded = Uri.EscapeDataString(string.IsNullOrWhiteSpace(Model.AccountHolder) ? "TIEU DAO BADMINTON" : Model.AccountHolder);
+    var previewQrUrl = $"https://img.vietqr.io/image/{bankCode}-{cleanAcc}-{tpl}.png?amount=1500000&addInfo={prefix}00128&accountName={holderEncoded}";
+}
+
+<div class="container-fluid py-2">
+
+    <!-- PAGE HEADER -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <div class="admin-header-icon">
+                <i class="bi bi-bank2"></i>
+            </div>
+            <div>
+                <h4 class="fw-black text-dark m-0">Cấu Hình Ngân Hàng & Cổng VietQR</h4>
+                <div class="text-muted small">Thiết lập tài khoản nhận chuyển khoản, mẫu mã QR động và tiền tố nội dung thanh toán đơn hàng</div>
+            </div>
+        </div>
+        <a asp-action="Index" asp-route-editId="0" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+            <i class="bi bi-plus-circle-fill me-1"></i> Thêm tài khoản ngân hàng
+        </a>
+    </div>
+
+    @if (TempData["Ok"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Ok"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Err"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Err"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row g-4 align-items-start">
+        <!-- LEFT: FORM CONFIGURATION (7 COLS) -->
+        <div class="col-lg-7">
+            <div class="card border-0 p-4 bg-white shadow-sm rounded-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center pb-3 mb-3 border-bottom">
+                    <h5 class="fw-bold text-dark m-0 d-flex align-items-center gap-2">
+                        <i class="bi @(Model.Id == 0 ? "bi-plus-square-fill text-success" : "bi-sliders2 text-primary")"></i>
+                        <span>@(Model.Id == 0 ? "Thêm Tài Khoản Ngân Hàng Mới" : $"Chỉnh Sửa Tài Khoản #{Model.Id} ({Model.BankCode})")</span>
+                    </h5>
+                    @if (Model.IsActive && Model.Id > 0)
+                    {
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill">
+                            <i class="bi bi-check-circle-fill me-1"></i>Đang nhận tiền mặc định
+                        </span>
+                    }
+                </div>
+
+                <form asp-action="Save" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-5">
+                            <label asp-for="BankCode" class="form-label fw-bold small">Ngân hàng (Chuẩn Napas / VietQR) <span class="text-danger">*</span></label>
+                            <select asp-for="BankCode" id="bankCodeSelect" class="form-select rounded-3 py-2 fw-semibold">
+                                <option value="MB" data-name="MB Bank (Ngân hàng Quân Đội)">MB - MB Bank (Quân Đội)</option>
+                                <option value="VCB" data-name="Vietcombank (Ngân hàng Ngoại Thương)">VCB - Vietcombank</option>
+                                <option value="TCB" data-name="Techcombank (Ngân hàng Kỹ Thương)">TCB - Techcombank</option>
+                                <option value="ACB" data-name="ACB (Ngân hàng Á Châu)">ACB - Ngân hàng Á Châu</option>
+                                <option value="BIDV" data-name="BIDV (Đầu tư & Phát triển VN)">BIDV - Ngân hàng BIDV</option>
+                                <option value="CTG" data-name="VietinBank (Ngân hàng Công Thương)">CTG - VietinBank</option>
+                                <option value="VPB" data-name="VPBank (Việt Nam Thịnh Vượng)">VPB - VPBank</option>
+                                <option value="TPB" data-name="TPBank (Ngân hàng Tiên Phong)">TPB - TPBank</option>
+                                <option value="STB" data-name="Sacombank (Sài Gòn Thương Tín)">STB - Sacombank</option>
+                                <option value="VIB" data-name="VIB (Ngân hàng Quốc Tế)">VIB - Ngân hàng Quốc Tế</option>
+                                <option value="MSB" data-name="MSB (Ngân hàng Hàng Hải)">MSB - Ngân hàng Hàng Hải</option>
+                                <option value="SHB" data-name="SHB (Sài Gòn - Hà Nội)">SHB - Ngân hàng SHB</option>
+                                <option value="HDB" data-name="HDBank (Phát triển TP.HCM)">HDB - HDBank</option>
+                                <option value="OCB" data-name="OCB (Ngân hàng Phương Đông)">OCB - Ngân hàng Phương Đông</option>
+                                <option value="VBA" data-name="Agribank (NN & PT Nông Thôn)">VBA - Agribank</option>
+                            </select>
+                            <span asp-validation-for="BankCode" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-7">
+                            <label asp-for="BankName" class="form-label fw-bold small">Tên hiển thị Ngân hàng trên trang Thanh toán <span class="text-danger">*</span></label>
+                            <input asp-for="BankName" id="bankNameInput" class="form-control rounded-3 py-2" placeholder="VD: MB Bank (Ngân hàng Quân Đội)" />
+                            <span asp-validation-for="BankName" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="AccountNumber" class="form-label fw-bold small">Số tài khoản nhận tiền <span class="text-danger">*</span></label>
+                            <input asp-for="AccountNumber" id="accountNumberInput" class="form-control rounded-3 py-2 font-monospace fw-bold text-primary" placeholder="VD: 0900000000" />
+                            <span asp-validation-for="AccountNumber" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="AccountHolder" class="form-label fw-bold small">Tên chủ tài khoản (Không dấu, in hoa) <span class="text-danger">*</span></label>
+                            <input asp-for="AccountHolder" id="accountHolderInput" class="form-control rounded-3 py-2 text-uppercase fw-bold" placeholder="VD: TIEU DAO BADMINTON" />
+                            <span asp-validation-for="AccountHolder" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-5">
+                            <label asp-for="Branch" class="form-label fw-bold small">Chi nhánh / Phòng giao dịch</label>
+                            <input asp-for="Branch" id="branchInput" class="form-control rounded-3 py-2" placeholder="VD: Chi nhánh Quận 7 - TP.HCM" />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label asp-for="QrTemplate" class="form-label fw-bold small">Giao diện khung VietQR</label>
+                            <select asp-for="QrTemplate" id="qrTemplateSelect" class="form-select rounded-3 py-2">
+                                <option value="compact2">Compact 2 (Kèm Logo + Số tiền)</option>
+                                <option value="compact">Compact (Gọn nhẹ)</option>
+                                <option value="print">Print (Bản in đầy đủ thông tin)</option>
+                                <option value="qr_only">QR Only (Chỉ hiển thị mã vuông)</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label asp-for="TransferPrefix" class="form-label fw-bold small">Tiền tố mã đơn</label>
+                            <input asp-for="TransferPrefix" id="prefixInput" class="form-control rounded-3 py-2 text-uppercase font-monospace fw-bold" placeholder="DH" maxlength="10" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Note" class="form-label fw-bold small">Ghi chú hướng dẫn khách hàng khi quét QR</label>
+                        <textarea asp-for="Note" id="noteInput" class="form-control rounded-3" rows="2" placeholder="VD: Quét mã VietQR để tự động điền chính xác số tiền và nội dung mã đơn hàng."></textarea>
+                    </div>
+
+                    <div class="form-check form-switch mb-4 p-3 rounded-3 border bg-light d-flex align-items-center justify-content-between">
+                        <div>
+                            <label class="form-check-label fw-bold text-dark" for="isActiveSwitch">
+                                Kích hoạt làm tài khoản nhận thanh toán mặc định trên Checkout
+                            </label>
+                            <div class="small text-muted">Khi bật, khách hàng chọn Chuyển khoản Ngân hàng sẽ quét VietQR của tài khoản này.</div>
+                        </div>
+                        <input class="form-check-input ms-3 fs-4 mt-0" type="checkbox" asp-for="IsActive" id="isActiveSwitch" />
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        <button type="submit" class="btn btn-dark rounded-pill px-4 py-2 fw-bold shadow-sm">
+                            <i class="bi bi-floppy-fill me-1"></i> Lưu cấu hình ngân hàng
+                        </button>
+                        @if (isCreatingNew)
+                        {
+                            <a asp-action="Index" class="btn btn-light border rounded-pill px-4 py-2 fw-semibold">Hủy thêm mới</a>
+                        }
+                    </div>
+                </form>
+            </div>
+
+            <!-- SAVED BANK ACCOUNTS LIST -->
+            <div class="card border-0 p-4 bg-white shadow-sm rounded-4">
+                <h6 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-collection-fill text-primary"></i>
+                    <span>Danh sách tài khoản ngân hàng đã cấu hình (@bankList.Count)</span>
+                </h6>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>NGÂN HÀNG</th>
+                                <th>SỐ TÀI KHOẢN / CHỦ TK</th>
+                                <th>TIỀN TỐ</th>
+                                <th class="text-center">TRẠNG THÁI</th>
+                                <th class="text-end">THAO TÁC</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var b in bankList)
+                            {
+                                <tr class="@(b.IsActive ? "table-primary bg-opacity-10" : "")">
+                                    <td>
+                                        <span class="badge bg-dark text-white font-monospace me-1">@b.BankCode</span>
+                                        <div class="fw-bold text-dark small mt-1">@b.BankName</div>
+                                        @if (!string.IsNullOrWhiteSpace(b.Branch))
+                                        {
+                                            <div class="text-muted" style="font-size: 0.72rem;">@b.Branch</div>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="fw-black text-primary font-monospace">@b.AccountNumber</div>
+                                        <div class="small fw-semibold text-dark">@b.AccountHolder</div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark border font-monospace">@(b.TransferPrefix)00001</span>
+                                    </td>
+                                    <td class="text-center">
+                                        @if (b.IsActive)
+                                        {
+                                            <span class="badge bg-success text-white rounded-pill px-3 py-1">
+                                                <i class="bi bi-check-circle-fill me-1"></i>Đang dùng
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <form asp-action="SetActive" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@b.Id" />
+                                                <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-3 py-1 fw-semibold">
+                                                    Chọn dùng
+                                                </button>
+                                            </form>
+                                        }
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="d-inline-flex gap-1">
+                                            <a asp-action="Index" asp-route-editId="@b.Id" class="btn btn-sm btn-light border rounded-pill px-3 fw-semibold">
+                                                <i class="bi bi-pencil-square me-1"></i>Sửa
+                                            </a>
+                                            @if (bankList.Count > 1)
+                                            {
+                                                <form asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa tài khoản ngân hàng này?');">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@b.Id" />
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2" title="Xóa">
+                                                        <i class="bi bi-trash3"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: LIVE VIETQR PREVIEW (5 COLS) -->
+        <div class="col-lg-5">
+            <div class="card border-0 p-4 bg-white shadow-sm rounded-4 sticky-top" style="top: 88px;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold text-dark m-0 d-flex align-items-center gap-2">
+                        <i class="bi bi-qr-code-scan text-primary fs-5"></i>
+                        <span>Xem trước VietQR Thanh Toán</span>
+                    </h6>
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Live Preview</span>
+                </div>
+
+                <div class="p-4 rounded-4 border border-primary border-opacity-25 text-center mb-3" style="background: #f0f9ff;">
+                    <img id="liveQrImg"
+                         src="@previewQrUrl"
+                         class="img-fluid rounded-4 shadow-sm border bg-white p-2 mb-3"
+                         style="max-width: 240px;"
+                         alt="VietQR Preview" />
+
+                    <div class="text-start bg-white p-3 rounded-3 border shadow-sm small">
+                        <div class="d-flex justify-content-between py-1 border-bottom">
+                            <span class="text-muted">Ngân hàng:</span>
+                            <strong class="text-dark text-end" id="previewBankName">@Model.BankName</strong>
+                        </div>
+                        <div class="d-flex justify-content-between py-1 border-bottom">
+                            <span class="text-muted">Số tài khoản:</span>
+                            <strong class="text-primary font-monospace fs-6" id="previewAccountNo">@Model.AccountNumber</strong>
+                        </div>
+                        <div class="d-flex justify-content-between py-1 border-bottom">
+                            <span class="text-muted">Chủ tài khoản:</span>
+                            <strong class="text-dark" id="previewHolder">@Model.AccountHolder</strong>
+                        </div>
+                        <div class="d-flex justify-content-between py-1 border-bottom">
+                            <span class="text-muted">Số tiền mẫu:</span>
+                            <strong class="text-danger">1.500.000 đ</strong>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pt-2">
+                            <span class="text-muted">Nội dung CK mẫu:</span>
+                            <span class="badge bg-dark text-white font-monospace" id="previewPrefix">@(prefix)00128</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="small text-muted">
+                    <i class="bi bi-shield-check text-success me-1"></i>
+                    Hình ảnh mã VietQR sẽ tự động cập nhật theo đúng số tiền sau giảm giá của từng đơn hàng khi khách đặt mua.
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const bankSelect = document.getElementById('bankCodeSelect');
+            const bankNameInput = document.getElementById('bankNameInput');
+            const accNoInput = document.getElementById('accountNumberInput');
+            const holderInput = document.getElementById('accountHolderInput');
+            const tplSelect = document.getElementById('qrTemplateSelect');
+            const prefixInput = document.getElementById('prefixInput');
+
+            const liveQrImg = document.getElementById('liveQrImg');
+            const previewBankName = document.getElementById('previewBankName');
+            const previewAccountNo = document.getElementById('previewAccountNo');
+            const previewHolder = document.getElementById('previewHolder');
+            const previewPrefix = document.getElementById('previewPrefix');
+
+            function updateQrPreview() {
+                const code = (bankSelect?.value || 'MB').trim();
+                const acc = (accNoInput?.value || '0900000000').replace(/\s+/g, '');
+                const holder = (holderInput?.value || 'TIEU DAO BADMINTON').trim().toUpperCase();
+                const tpl = (tplSelect?.value || 'compact2').trim();
+                const pfx = (prefixInput?.value || 'DH').trim().toUpperCase();
+                const orderSample = pfx + '00128';
+
+                if (previewBankName && bankNameInput) previewBankName.textContent = bankNameInput.value;
+                if (previewAccountNo) previewAccountNo.textContent = accNoInput?.value || '0900000000';
+                if (previewHolder) previewHolder.textContent = holder;
+                if (previewPrefix) previewPrefix.textContent = orderSample;
+
+                if (liveQrImg) {
+                    liveQrImg.src = `https://img.vietqr.io/image/${encodeURIComponent(code)}-${encodeURIComponent(acc)}-${encodeURIComponent(tpl)}.png?amount=1500000&addInfo=${encodeURIComponent(orderSample)}&accountName=${encodeURIComponent(holder)}`;
+                }
+            }
+
+            bankSelect?.addEventListener('change', function () {
+                const opt = this.options[this.selectedIndex];
+                const suggestedName = opt?.getAttribute('data-name');
+                if (suggestedName && bankNameInput) {
+                    bankNameInput.value = suggestedName;
+                }
+                updateQrPreview();
+            });
+
+            [bankNameInput, accNoInput, holderInput, tplSelect, prefixInput].forEach(el => {
+                el?.addEventListener('input', updateQrPreview);
+                el?.addEventListener('change', updateQrPreview);
+            });
+        })();
+    </script>
+}
+

@@ -2,7 +2,14 @@
 @{
     ViewData["Title"] = $"Đặt hàng thành công #{Model.Id:D5}";
     var method = ViewBag.PaymentMethod as string ?? "COD";
-    var orderCode = $"DH{Model.Id:D5}";
+    var bank = ViewBag.BankSetting as tieudaobadminton.Models.BankSetting ?? new tieudaobadminton.Models.BankSetting();
+    var prefix = string.IsNullOrWhiteSpace(bank.TransferPrefix) ? "DH" : bank.TransferPrefix.Trim().ToUpperInvariant();
+    var orderCode = $"{prefix}{Model.Id:D5}";
+    var cleanAccountNo = (bank.AccountNumber ?? "0900000000").Replace(" ", "").Trim();
+    var template = string.IsNullOrWhiteSpace(bank.QrTemplate) ? "compact2" : bank.QrTemplate.Trim();
+    var encodedAccountName = Uri.EscapeDataString(bank.AccountHolder ?? "TIEU DAO BADMINTON");
+    var encodedOrderCode = Uri.EscapeDataString(orderCode);
+    var vietQrUrl = $"https://img.vietqr.io/image/{bank.BankCode}-{cleanAccountNo}-{template}.png?amount={(long)Model.Total}&addInfo={encodedOrderCode}&accountName={encodedAccountName}";
 }
 
 <div class="container py-5">
@@ -51,35 +58,51 @@
                 @if (method == "BankTransfer")
                 {
                     <div class="p-4 rounded-4 mb-4 text-start border border-primary border-opacity-25" style="background: #f0f9ff;">
-                        <div class="d-flex align-items-center gap-2 mb-3">
-                            <span class="fs-4 text-primary"><i class="bi bi-qr-code-scan"></i></span>
-                            <h5 class="fw-bold text-primary mb-0">Quét mã VietQR thanh toán nhanh</h5>
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="fs-4 text-primary"><i class="bi bi-qr-code-scan"></i></span>
+                                <h5 class="fw-bold text-primary mb-0">Quét mã VietQR thanh toán nhanh</h5>
+                            </div>
+                            <span class="badge bg-primary text-white"><i class="bi bi-shield-lock-fill me-1"></i>Cấu hình Ngân hàng Chính thức</span>
                         </div>
 
                         <div class="row align-items-center g-4">
                             <div class="col-md-5 text-center">
-                                <img src="https://img.vietqr.io/image/MB-0900000000-compact2.png?amount=@((long)Model.Total)&addInfo=@orderCode&accountName=TIEU%20DAO%20BADMINTON"
+                                <img src="@vietQrUrl"
                                      class="img-fluid rounded-3 shadow-sm border bg-white p-2"
                                      alt="Mã VietQR Đơn hàng #@orderCode"
-                                     style="max-width: 220px;" />
-                                <div class="text-muted small mt-2">Mở App Ngân hàng bất kỳ để quét</div>
+                                     style="max-width: 230px;" />
+                                <div class="text-muted small mt-2"><i class="bi bi-phone me-1"></i>Mở App Ngân hàng bất kỳ để quét</div>
                             </div>
 
                             <div class="col-md-7">
                                 <div class="small text-muted mb-1">Ngân hàng thụ hưởng:</div>
-                                <div class="fw-bold text-dark mb-2">MB Bank (Ngân hàng Quân Đội)</div>
+                                <div class="fw-bold text-dark mb-2">@bank.BankName</div>
 
                                 <div class="small text-muted mb-1">Số tài khoản:</div>
-                                <div class="fw-bold text-primary fs-5 mb-2">0900 000 000</div>
+                                <div class="fw-bold text-primary fs-5 mb-2 font-monospace">@bank.AccountNumber</div>
 
                                 <div class="small text-muted mb-1">Chủ tài khoản:</div>
-                                <div class="fw-bold text-dark mb-2">TIEU DAO BADMINTON</div>
+                                <div class="fw-bold text-dark mb-2">@bank.AccountHolder</div>
+
+                                @if (!string.IsNullOrWhiteSpace(bank.Branch))
+                                {
+                                    <div class="small text-muted mb-1">Chi nhánh:</div>
+                                    <div class="fw-semibold text-dark mb-2">@bank.Branch</div>
+                                }
 
                                 <div class="small text-muted mb-1">Số tiền thanh toán:</div>
                                 <div class="fw-bold text-danger fs-5 mb-2">@Model.Total.ToString("n0") đ</div>
 
                                 <div class="small text-muted mb-1">Nội dung chuyển khoản (bắt buộc):</div>
                                 <span class="badge bg-dark text-white p-2 font-monospace fs-6">@orderCode</span>
+
+                                @if (!string.IsNullOrWhiteSpace(bank.Note))
+                                {
+                                    <div class="text-muted small mt-2 pt-2 border-top">
+                                        <i class="bi bi-info-circle me-1 text-primary"></i>@bank.Note
+                                    </div>
+                                }
                             </div>
                         </div>
                     </div>
@@ -136,6 +159,15 @@
                                 }
                             </tbody>
                             <tfoot>
+                                @if (Model.DiscountAmount > 0)
+                                {
+                                    <tr>
+                                        <th colspan="4" class="text-end text-success">
+                                            <i class="bi bi-ticket-perforated-fill me-1"></i>Voucher giảm giá (@Model.CouponCode):
+                                        </th>
+                                        <th class="text-end text-success fw-bold">-@Model.DiscountAmount.ToString("n0") đ</th>
+                                    </tr>
+                                }
                                 <tr>
                                     <th colspan="4" class="text-end">Tổng thanh toán:</th>
                                     <th class="text-end text-danger fs-6 fw-bold">@Model.Total.ToString("n0") đ</th>

@@ -150,6 +150,12 @@ namespace tieudaobadminton.Helpers
         {
             var rowsHtml = BuildItemsTableRowsHtml(items);
             var shippingText = shippingFee == 0 ? "Miễn phí (0 đ)" : $"{shippingFee:n0} đ";
+            var discountRowHtml = order.DiscountAmount > 0
+                ? $@"<tr>
+                        <td colspan='4' style='padding:10px 12px; text-align:right; color:#15803d; font-weight:600;'>Mã giảm giá ({WebUtility.HtmlEncode(order.CouponCode ?? "")}):</td>
+                        <td style='padding:10px 12px; text-align:right; font-weight:700; color:#15803d;'>-{order.DiscountAmount:n0} đ</td>
+                    </tr>"
+                : "";
 
             return $@"
 <!DOCTYPE html>
@@ -205,6 +211,7 @@ namespace tieudaobadminton.Helpers
                         <td colspan='4' style='padding:10px 12px; text-align:right; color:#64748b;'>Phí vận chuyển:</td>
                         <td style='padding:10px 12px; text-align:right; font-weight:600;'>{shippingText}</td>
                     </tr>
+                    {discountRowHtml}
                     <tr style='background:#fef2f2;'>
                         <td colspan='4' style='padding:12px; text-align:right; font-weight:800; color:#0f172a; font-size:15px;'>TỔNG THANH TOÁN:</td>
                         <td style='padding:12px; text-align:right; font-weight:800; color:#dc2626; font-size:16px;'>{order.Total:n0} đ</td>
@@ -237,6 +244,12 @@ namespace tieudaobadminton.Helpers
         {
             var rowsHtml = BuildItemsTableRowsHtml(items);
             var shippingText = shippingFee == 0 ? "Miễn phí (0 đ)" : $"{shippingFee:n0} đ";
+            var discountRowHtml = order.DiscountAmount > 0
+                ? $@"<tr>
+                        <td colspan='4' style='padding:10px 12px; text-align:right; color:#15803d; font-weight:600;'>Mã giảm giá ({WebUtility.HtmlEncode(order.CouponCode ?? "")}):</td>
+                        <td style='padding:10px 12px; text-align:right; font-weight:700; color:#15803d;'>-{order.DiscountAmount:n0} đ</td>
+                    </tr>"
+                : "";
 
             return $@"
 <!DOCTYPE html>
@@ -281,6 +294,7 @@ namespace tieudaobadminton.Helpers
                         <td colspan='4' style='padding:10px 12px; text-align:right; color:#64748b;'>Phí vận chuyển:</td>
                         <td style='padding:10px 12px; text-align:right; font-weight:600;'>{shippingText}</td>
                     </tr>
+                    {discountRowHtml}
                     <tr style='background:#f0fdf4;'>
                         <td colspan='4' style='padding:12px; text-align:right; font-weight:800; color:#0f172a; font-size:15px;'>TỔNG GIÁ TRỊ ĐƠN HÀNG:</td>
                         <td style='padding:12px; text-align:right; font-weight:800; color:#15803d; font-size:16px;'>{order.Total:n0} đ</td>

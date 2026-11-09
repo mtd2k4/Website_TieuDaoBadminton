@@ -9,7 +9,7 @@
 [![CKEditor 5](https://img.shields.io/badge/WYSIWYG-CKEditor%205-orange.svg)](https://ckeditor.com/)
 [![SMTP Email](https://img.shields.io/badge/Notification-SMTP%20Email-teal.svg)](https://learn.microsoft.com/en-us/dotnet/api/system.net.mail.smtpclient)
 
-> **Tiêu Đao Badminton** là nền tảng thương mại điện tử và giải pháp quản lý chuỗi bán lẻ thiết bị cầu lông (vợt, giày, quần áo, phụ kiện), kết hợp học viện đào tạo cầu lông và dịch vụ căng cước chuẩn thi đấu quốc tế BWF. Hệ thống được xây dựng trên nền tảng **ASP.NET Core 8.0 MVC**, tích hợp đồng bộ kho hàng theo biến thể, ảnh preview tự động đổi theo màu sắc sản phẩm, Bảng xếp hạng VĐV Việt Nam & Thế giới kèm hồ sơ lịch sử dùng vợt, Đăng ký khóa học trực tuyến gửi thẳng về Email Admin, Trợ lý tư vấn chọn vợt AI, Chatbot tra cứu tồn kho thực tế và phân hệ Quản trị Enterprise Admin Pro.
+> **Tiêu Đao Badminton** là nền tảng thương mại điện tử và giải pháp quản lý chuỗi bán lẻ thiết bị cầu lông (vợt, giày, quần áo, phụ kiện), kết hợp học viện đào tạo cầu lông và dịch vụ căng cước chuẩn thi đấu quốc tế BWF. Hệ thống được xây dựng trên nền tảng **ASP.NET Core 8.0 MVC**, tích hợp đồng bộ kho hàng theo biến thể, ảnh preview tự động đổi theo màu sắc sản phẩm, áp dụng Mã giảm giá (Voucher) trực tiếp tại trang Thanh toán, Cấu hình Ngân hàng & mã VietQR động trong Admin, Bảng xếp hạng VĐV Việt Nam & Thế giới kèm hồ sơ lịch sử dùng vợt, Đăng ký khóa học trực tuyến gửi thẳng về Email Admin, Trợ lý tư vấn chọn vợt AI, Chatbot tra cứu tồn kho thực tế và phân hệ Quản trị Enterprise Admin Pro.
 
 ---
 
@@ -36,6 +36,7 @@ Dự án giải quyết trọn vẹn bài toán đặc thù của hệ sinh thá
 - **Quản lý phân loại đa chiều (Màu sắc & Kích cỡ) kèm Ảnh Preview theo màu:** Mỗi cây vợt, đôi giày hoặc bộ trang phục có đồng thời thông số Màu sắc, Ảnh đại diện theo đúng màu (`ProductVariant.ImageUrl`) và Kích cỡ/Trọng lượng (`3U-G5`, `4U-G5`, size giày `38`–`44`, size áo `S`/`M`/`L`/`XL`/`XXL`).
 - **Bảng xếp hạng VĐV Việt Nam & Thế giới gắn liền với Vũ khí thi đấu (`/Bang-Xep-Hang`):** Tra cứu thứ hạng BWF, điểm tích lũy, mức căng cước thực tế và toàn bộ lịch sử từng thời kỳ sử dụng vợt của các tuyển thủ Việt Nam (*Nguyễn Thùy Linh, Nguyễn Tiến Minh, Lê Đức Phát...*) và siêu sao thế giới (*Viktor Axelsen, Shi Yu Qi, An Se Young, Lin Dan, Lee Chong Wei...*), kết nối trực tiếp tới sản phẩm đang bán tại cửa hàng.
 - **Học viện Đào tạo Cầu lông Cơ bản & Nâng cao (`/Dang-Ky-Khoa-Hoc`):** Cung cấp lộ trình học bài bản (Gói Cơ Bản & Gói Nâng Cao); khi học viên đăng ký sẽ tự động bắn Email HTML về hộp thư của Admin và lưu hồ sơ vào hệ thống quản trị.
+- **Hệ thống Voucher Giảm Giá & Cổng VietQR Động theo Cấu hình Ngân hàng Admin:** Khách hàng áp dụng mã giảm giá theo số tiền cố định (`Fixed`) hoặc phần trăm (`Percent`) ngay trên trang Thanh toán qua AJAX; mã VietQR chuyển khoản tự động sinh theo tài khoản ngân hàng đang kích hoạt trong `/Admin/BankSettings`.
 - **Tính toán lãi suất & đối chiếu tài chính thực tế:** Quản lý phiếu nhập kho riêng biệt, tính toán tỷ suất lợi nhuận gộp (**Profit Margin %**) và chênh lệch giá vốn (**Markup %**) dựa trên giá nhập và giá bán.
 - **Giao diện chuẩn hóa 100% Bootstrap Icons:** Toàn bộ giao diện khách hàng và trang quản trị sử dụng hệ thống biểu tượng vector **Bootstrap Icons 1.11** sắc nét, hoàn toàn không sử dụng emoji.
 
@@ -82,9 +83,11 @@ Dự án giải quyết trọn vẹn bài toán đặc thù của hệ sinh thá
   - Tích hợp nút Lên đầu trang, nút Gọi Hotline và cửa sổ Chatbot trực tuyến.
   - Chatbot truy vấn trực tiếp cơ sở dữ liệu SQL Server để báo giá khuyến mãi, màu sắc/size và số lượng tồn kho thực tế.
 
-* **Giỏ Hàng, Địa Chỉ Hành Chính 2 Cấp & Thanh Toán SMTP Email (`/Checkout`):**
-  - Tích hợp API hành chính Việt Nam mới (`https://provinces.open-api.vn/api/v2`) gồm 2 cấp: **Tỉnh / Thành phố** -> **Phường / Xã / Đặc khu**.
-  - Tự động trừ tồn kho biến thể và gửi Email HTML xác nhận đơn hàng cho cả Khách hàng và Admin.
+* **Giỏ Hàng, Mã Giảm Giá (Voucher), VietQR Động & Thanh Toán SMTP Email (`/Checkout`):**
+  - **Áp dụng Mã giảm giá / Voucher tức thì (AJAX - `/Checkout/CheckCoupon`):** Cho phép khách hàng nhập mã giảm giá hoặc bấm chọn trực tiếp từ danh sách Voucher đang có sẵn (`TIEUDAO50`, `YONEX10`, `PRO200K`, `VIP300K`), tự động kiểm tra giá trị đơn tối thiểu, hạn sử dụng, số lượt còn lại và khấu trừ trực tiếp vào tổng thanh toán.
+  - **Chuyển khoản Ngân hàng VietQR Động:** Hiển thị thông tin tài khoản thụ hưởng ngay khi chọn phương thức chuyển khoản và tự động sinh mã QR chuẩn Napas (`img.vietqr.io`) theo đúng số tiền sau giảm giá cùng cấu hình ngân hàng mà Admin thiết lập.
+  - **Địa chỉ hành chính 2 cấp sau sáp nhập:** Tích hợp API hành chính Việt Nam mới (`https://provinces.open-api.vn/api/v2`) gồm 2 cấp: **Tỉnh / Thành phố** -> **Phường / Xã / Đặc khu**.
+  - Tự động trừ tồn kho biến thể, cập nhật lượt dùng Voucher và gửi Email HTML xác nhận đơn hàng (kèm thông tin giảm giá) cho cả Khách hàng và Admin.
 
 ---
 
@@ -106,8 +109,17 @@ Dự án giải quyết trọn vẹn bài toán đặc thù của hệ sinh thá
     $$\text{Profit Margin (\%)} = \frac{\text{Giá bán} - \text{Giá nhập}}{\text{Giá bán}} \times 100\%$$
     $$\text{Markup (\%)} = \frac{\text{Giá bán} - \text{Giá nhập}}{\text{Giá nhập}} \times 100\%$$
 
+* **Quản Lý Mã Giảm Giá / Voucher (`/Admin/Coupons`):**
+  - Tạo mới, chỉnh sửa, tạm khóa/kích hoạt hoặc xóa mã giảm giá.
+  - Hỗ trợ 2 hình thức khuyến mãi: **Giảm tiền mặt cố định (`Fixed` - VNĐ)** và **Giảm theo phần trăm (`Percent` - %)** kèm trần giảm tối đa (`MaxDiscountAmount`), điều kiện đơn hàng tối thiểu (`MinOrderValue`), giới hạn tổng lượt dùng (`UsageLimit`) và ngày hết hạn (`ExpiryDate`).
+
+* **Cấu Hình Ngân Hàng & Cổng VietQR (`/Admin/BankSettings`):**
+  - Quản lý danh sách tài khoản ngân hàng nhận thanh toán của cửa hàng (hỗ trợ đầy đủ ngân hàng Napas/VietQR: `MB`, `VCB`, `TCB`, `ACB`, `BIDV`, `CTG`, `VPB`, `TPB`, `STB`, `VIB`, `MSB`, `SHB`, `HDB`, `OCB`, `VBA`).
+  - Cho phép tùy chỉnh Số tài khoản, Chủ tài khoản, Chi nhánh, Giao diện khung VietQR (`compact2`, `compact`, `print`, `qr_only`), Tiền tố nội dung chuyển khoản (`DH`, `TD`...) và **Xem trước mã VietQR trực tiếp (Live Preview)** ngay khi nhập liệu.
+  - Chuyển đổi tài khoản ngân hàng nhận tiền mặc định chỉ với 1 cú nhấp chuột; tài khoản đang kích hoạt (`IsActive`) sẽ tự động áp dụng ngay trên trang Thanh toán và Đặt hàng thành công của khách hàng.
+
 * **Quản Lý Đơn Hàng, Tin Tức (CKEditor 5), Hộp Thư Liên Hệ & Tài Khoản:**
-  - Duyệt đơn hàng theo quy trình chuẩn (*Pending -> Confirmed -> Shipping -> Done / Cancelled*), tự động hoàn trả tồn kho nếu hủy đơn.
+  - Duyệt đơn hàng theo quy trình chuẩn (*Pending -> Confirmed -> Shipping -> Done / Cancelled*), hiển thị rõ mã Voucher và số tiền giảm giá trên từng đơn hàng, tự động hoàn trả tồn kho nếu hủy đơn.
   - Soạn thảo bài viết cẩm nang với **CKEditor 5 Classic** hỗ trợ dán/kéo thả ảnh trực tiếp.
   - Quản lý hộp thư liên hệ & hồ sơ đăng ký khóa học tại `/Admin/Contacts`.
   - Quản lý tài khoản, khóa/mở khóa và cấp lại mật khẩu khẩn cấp tại `/Admin/Accounts`.
@@ -124,6 +136,7 @@ Dự án giải quyết trọn vẹn bài toán đặc thù của hệ sinh thá
 | **Giao diện & Icon** | Razor Views + Bootstrap 5.3 + Bootstrap Icons 1.11 | 100% Vector Icons, Enterprise Admin Pro UI |
 | **Biểu đồ & Trực quan hóa** | Chart.js 4.4 | Biểu đồ doanh thu kép & thị phần thương hiệu |
 | **Trình soạn thảo WYSIWYG** | CKEditor 5 Classic (Tiếng Việt) | Tích hợp API tải ảnh trực tiếp lên máy chủ |
+| **Thanh toán & Khuyến mãi** | VietQR Dynamic API (`img.vietqr.io`) + AJAX Coupon Engine | Cấu hình ngân hàng trong Admin & áp mã giảm giá thời gian thực |
 | **Dịch vụ Email** | `System.Net.Mail.SmtpClient` | Gửi email HTML cho Đơn hàng mới & Đăng ký khóa học |
 | **API Địa chỉ hành chính** | Provinces Open API v2 (`provinces.open-api.vn/api/v2`) | Địa chỉ Việt Nam 2 cấp sau sáp nhập (Tỉnh/TP -> Phường/Xã) |
 
@@ -135,15 +148,26 @@ Dự án giải quyết trọn vẹn bài toán đặc thù của hệ sinh thá
 tieudaobadminton/
 ├── Areas/
 │   └── Admin/                              # Phân hệ Quản trị (Enterprise Admin Pro)
-│       ├── Controllers/                    # Controllers quản trị (Home, Orders, Products, StockReceipts, News, Accounts, Contacts...)
+│       ├── Controllers/                    # Controllers quản trị
+│       │   ├── AccountsController.cs       # Quản lý tài khoản & phân quyền
+│       │   ├── BankSettingsController.cs   # Cấu hình ngân hàng nhận tiền & VietQR động
+│       │   ├── BrandsController.cs         # Quản lý thương hiệu
+│       │   ├── CategoriesController.cs     # Quản lý danh mục
+│       │   ├── ContactsController.cs       # Quản lý hộp thư liên hệ & đăng ký khóa học
+│       │   ├── CouponsController.cs        # Quản lý mã giảm giá / Voucher
+│       │   ├── HomeController.cs           # Dashboard trung tâm & thống kê tài chính
+│       │   ├── NewsController.cs           # Quản lý bài viết cẩm nang (CKEditor 5)
+│       │   ├── OrdersController.cs         # Quản lý đơn hàng & in phiếu giao hàng
+│       │   ├── ProductsController.cs       # Quản lý sản phẩm, biến thể & ảnh theo màu
+│       │   └── StockReceiptsController.cs  # Quản lý phiếu nhập kho & báo cáo lãi suất (%)
 │       ├── ViewModels/                     # ViewModels thống kê Dashboard & Quản trị
-│       └── Views/                          # Giao diện Admin đồng bộ KPI Cards, Avatar Table & Chart.js
+│       └── Views/                          # Giao diện Admin (Home, Orders, Products, Coupons, BankSettings...)
 ├── Controllers/                            # Controllers phân hệ Khách hàng (Storefront)
 │   ├── AccountController.cs                # Đăng ký, đăng nhập, đơn hàng cá nhân
 │   ├── CartController.cs                   # Giỏ hàng Session
 │   ├── CatalogController.cs                # Danh mục sản phẩm & bộ lọc đa tiêu chí (/Danh-Muc)
 │   ├── ChatbotController.cs                # API Chatbot tra cứu sản phẩm & tồn kho (/api/Chatbot/Ask)
-│   ├── CheckoutController.cs               # Đặt hàng, thanh toán & gửi email xác nhận đơn
+│   ├── CheckoutController.cs               # Đặt hàng, kiểm tra mã giảm giá (/Checkout/CheckCoupon), VietQR & gửi email
 │   ├── ContactController.cs                # Trang liên hệ & hỗ trợ (/Lien-He)
 │   ├── CourseController.cs                 # Trang đăng ký khóa học Cơ bản & Nâng cao (/Dang-Ky-Khoa-Hoc)
 │   ├── GuideController.cs                  # Hướng dẫn chọn size vợt, giày & quần áo (/Huong-Dan-Size)
@@ -157,14 +181,16 @@ tieudaobadminton/
 │   └── WishlistController.cs               # Danh sách sản phẩm yêu thích (/Yeu-Thich)
 ├── Data/                                   # Cấu hình Database & Tự động khởi tạo dữ liệu mẫu
 │   ├── ApplicationDbContext.cs             # DbContext chính của hệ thống
-│   ├── DbSeeder.cs                         # Seed sản phẩm, biến thể màu/ảnh, đơn hàng, đánh giá mẫu
+│   ├── DbSeeder.cs                         # Seed sản phẩm, biến thể màu/ảnh, mã giảm giá, cấu hình ngân hàng, đánh giá mẫu
 │   └── IdentitySeeder.cs                   # Seed tài khoản Admin & phân quyền mặc định
 ├── Helpers/                                # Các dịch vụ tiện ích
 │   ├── OrderNotificationEmailService.cs    # Dịch vụ gửi Email SMTP cho Đơn hàng mới & Đăng ký khóa học
 │   └── SessionExtensions.cs                # Tiện ích lưu/đọc Object JSON trong Session
-├── Models/                                 # Thực thể cơ sở dữ liệu (Product, ProductVariant, Order, StockReceipt, ContactMessage...)
+├── Models/                                 # Thực thể cơ sở dữ liệu (Product, ProductVariant, Order, Coupon, BankSetting...)
 ├── ViewModels/                             # ViewModels (CourseRegistrationVM, PlayerRankingVM, CheckoutVM, ContactVM...)
 ├── Views/                                  # Giao diện khách hàng (Razor Views)
+│   ├── Checkout/Index.cshtml               # Giao diện Thanh toán tích hợp chọn Voucher & hiển thị ngân hàng VietQR
+│   ├── Checkout/Success.cshtml             # Giao diện Đặt hàng thành công sinh mã VietQR động theo cấu hình Admin
 │   ├── Course/Index.cshtml                 # Giao diện Đăng ký khóa học (Gói Cơ bản & Nâng cao)
 │   ├── Ranking/Index.cshtml                # Giao diện Bảng xếp hạng VĐV & Timeline lịch sử dùng vợt
 │   ├── Products/Detail.cshtml              # Chi tiết sản phẩm tự động đổi ảnh preview theo màu
@@ -230,9 +256,38 @@ erDiagram
         string FullName
         string Phone
         string Address
+        string CouponCode
+        decimal DiscountAmount
         decimal Total
         string Status
         DateTime CreatedAt
+    }
+
+    COUPON {
+        int Id PK
+        string Code
+        string Description
+        string DiscountType
+        decimal DiscountValue
+        decimal MaxDiscountAmount
+        decimal MinOrderValue
+        int UsageLimit
+        int UsedCount
+        DateTime ExpiryDate
+        bool IsActive
+    }
+
+    BANK_SETTING {
+        int Id PK
+        string BankCode
+        string BankName
+        string AccountNumber
+        string AccountHolder
+        string Branch
+        string QrTemplate
+        string TransferPrefix
+        bool IsActive
+        DateTime UpdatedAt
     }
 
     CONTACT_MESSAGE {
@@ -311,10 +366,13 @@ dotnet run
 Sau khi khởi động, truy cập các phân hệ chính:
 - **Trang chủ Khách hàng:** `https://localhost:7085`
 - **Danh mục Sản phẩm:** `https://localhost:7085/Danh-Muc`
+- **Thanh toán & Áp dụng Voucher:** `https://localhost:7085/Checkout`
 - **Đăng ký Khóa học (Cơ bản & Nâng cao):** `https://localhost:7085/Dang-Ky-Khoa-Hoc`
 - **Bảng xếp hạng VĐV & Hồ sơ Vợt thi đấu:** `https://localhost:7085/Bang-Xep-Hang`
 - **Tư vấn chọn vợt thông minh (AI):** `https://localhost:7085/Tu-Van-Chon-Vot`
 - **Trang Quản trị Enterprise Admin Pro:** `https://localhost:7085/Admin`
+- **Quản lý Mã giảm giá (Voucher):** `https://localhost:7085/Admin/Coupons`
+- **Cấu hình Ngân hàng & VietQR:** `https://localhost:7085/Admin/BankSettings`
 
 ---
 
@@ -357,6 +415,15 @@ Khi sao chép hoặc clone dự án sang một máy tính mới, chỉ cần th�
 ### 3. Bảng Xếp Hạng VĐV & Ánh Xạ Sản Phẩm Tự Động (`/Bang-Xep-Hang`)
 - `RankingController` tổng hợp dữ liệu 16 VĐV và cặp đôi hàng đầu Việt Nam, Thế giới và Huyền thoại BWF cùng lịch sử các đời vợt từng sử dụng.
 - Hệ thống tự động đối chiếu tên vợt của từng VĐV với bảng `Products` trong cơ sở dữ liệu để hiển thị giá bán thực tế và tạo liên kết mua hàng trực tiếp tới đúng mẫu vợt đó tại cửa hàng.
+
+### 4. Cơ Chế Áp Dụng Mã Giảm Giá (Voucher) & Cổng VietQR Động (`/Checkout`, `/Admin/Coupons`, `/Admin/BankSettings`)
+- **Mã giảm giá mẫu được khởi tạo tự động:**
+  - `TIEUDAO50`: Giảm 50.000đ cho đơn từ 500.000đ.
+  - `YONEX10`: Giảm 10% (tối đa 300.000đ) cho đơn từ 1.500.000đ.
+  - `PRO200K`: Giảm 200.000đ cho đơn từ 3.000.000đ.
+  - `VIP300K`: Giảm 300.000đ cho đơn từ 5.000.000đ.
+- Khi khách hàng chọn hoặc nhập mã tại `/Checkout`, hệ thống gọi `/Checkout/CheckCoupon` để kiểm tra điều kiện và cập nhật ngay số tiền được giảm. Khi đặt hàng thành công, `UsedCount` của mã sẽ tự động tăng lên và lưu vết `CouponCode` + `DiscountAmount` vào đơn hàng.
+- Khi khách hàng chọn **Chuyển khoản Ngân hàng (VietQR)**, hệ thống tự động lấy tài khoản ngân hàng đang được kích hoạt (`IsActive = true`) trong `/Admin/BankSettings` để sinh mã QR động (`https://img.vietqr.io/image/{BankCode}-{AccountNumber}-{QrTemplate}.png?amount=...&addInfo=...`) khớp chính xác với số tiền thanh toán sau giảm giá.
 
 ---
 

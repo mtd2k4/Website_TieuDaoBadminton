@@ -93,6 +93,18 @@
                         <span>Báo cáo Lãi suất (%)</span>
                     </a>
 
+                    <a class="admin-nav-item @(currentCtrl == "Coupons" ? "active" : "")"
+                       asp-area="Admin" asp-controller="Coupons" asp-action="Index">
+                        <span class="nav-icon-box"><i class="bi bi-ticket-perforated-fill"></i></span>
+                        <span>Mã giảm giá (Voucher)</span>
+                    </a>
+
+                    <a class="admin-nav-item @(currentCtrl == "BankSettings" ? "active" : "")"
+                       asp-area="Admin" asp-controller="BankSettings" asp-action="Index">
+                        <span class="nav-icon-box"><i class="bi bi-bank2"></i></span>
+                        <span>Cấu hình Ngân hàng</span>
+                    </a>
+
                     <div class="admin-nav-group-title">DANH MỤC & ĐỐI TÁC</div>
 
                     <a class="admin-nav-item @(currentCtrl == "Categories" ? "active" : "")"
@@ -220,6 +232,17 @@
                             <li>
                                 <a class="dropdown-item rounded-3 py-2 fw-semibold d-flex align-items-center gap-2" asp-area="Admin" asp-controller="Brands" asp-action="Create">
                                     <i class="bi bi-tag-fill text-danger"></i> Thêm thương hiệu
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider my-1" /></li>
+                            <li>
+                                <a class="dropdown-item rounded-3 py-2 fw-semibold d-flex align-items-center gap-2" asp-area="Admin" asp-controller="Coupons" asp-action="Index">
+                                    <i class="bi bi-ticket-perforated-fill text-danger"></i> Quản lý Mã giảm giá
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item rounded-3 py-2 fw-semibold d-flex align-items-center gap-2" asp-area="Admin" asp-controller="BankSettings" asp-action="Index">
+                                    <i class="bi bi-bank2 text-primary"></i> Cấu hình Ngân hàng VietQR
                                 </a>
                             </li>
                         </ul>

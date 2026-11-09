@@ -89,6 +89,15 @@
                             }
                         </tbody>
                         <tfoot>
+                            @if (Model.DiscountAmount > 0)
+                            {
+                                <tr>
+                                    <th colspan="4" class="text-end text-success">
+                                        <i class="bi bi-ticket-perforated-fill me-1"></i>Voucher giảm giá (@Model.CouponCode):
+                                    </th>
+                                    <th class="text-end text-success fw-bold">-@Model.DiscountAmount.ToString("n0") đ</th>
+                                </tr>
+                            }
                             <tr class="table-light">
                                 <th colspan="4" class="text-end fs-6">TỔNG TIỀN ĐƠN HÀNG:</th>
                                 <th class="text-end text-danger fs-5 fw-bold">@Model.Total.ToString("n0") đ</th>

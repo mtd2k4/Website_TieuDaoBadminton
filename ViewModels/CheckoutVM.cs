@@ -29,10 +29,19 @@ namespace tieudaobadminton.ViewModels
         [Display(Name = "Phương thức thanh toán")]
         public string PaymentMethod { get; set; } = "COD"; // COD hoặc BankTransfer
 
+        [Display(Name = "Mã giảm giá")]
+        public string? CouponCode { get; set; }
+
+        public decimal DiscountAmount { get; set; }
+
+        public List<Coupon> AvailableCoupons { get; set; } = new();
+
+        public BankSetting? BankSetting { get; set; }
+
         public List<CartItem> Items { get; set; } = new();
 
         public decimal TotalAmount { get; set; }
         public decimal ShippingFee { get; set; }
-        public decimal GrandTotal => TotalAmount + ShippingFee;
+        public decimal GrandTotal => Math.Max(0, TotalAmount + ShippingFee - DiscountAmount);
     }
 }

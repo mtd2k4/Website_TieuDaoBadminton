@@ -135,6 +135,42 @@
                             </div>
                             <span class="fs-4 text-primary"><i class="bi bi-qr-code-scan"></i></span>
                         </label>
+
+                        @if (Model.BankSetting != null)
+                        {
+                            <div id="bankPreviewBox" class="p-3 rounded-4 border border-primary border-opacity-25 d-none" style="background: #f0f9ff;">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="fw-bold text-primary small">
+                                        <i class="bi bi-bank2 me-1"></i>Tài khoản nhận thanh toán chính thức
+                                    </span>
+                                    <span class="badge bg-primary text-white">VietQR Tự Động</span>
+                                </div>
+                                <div class="row g-2 small">
+                                    <div class="col-sm-6">
+                                        <span class="text-muted">Ngân hàng:</span>
+                                        <div class="fw-bold text-dark">@Model.BankSetting.BankName</div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <span class="text-muted">Số tài khoản:</span>
+                                        <div class="fw-bold text-primary font-monospace fs-6">@Model.BankSetting.AccountNumber</div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <span class="text-muted">Chủ tài khoản:</span>
+                                        <div class="fw-bold text-dark">@Model.BankSetting.AccountHolder</div>
+                                    </div>
+                                    @if (!string.IsNullOrWhiteSpace(Model.BankSetting.Branch))
+                                    {
+                                        <div class="col-sm-6">
+                                            <span class="text-muted">Chi nhánh:</span>
+                                            <div class="fw-semibold text-dark">@Model.BankSetting.Branch</div>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="text-muted small mt-2 pt-2 border-top border-primary border-opacity-10">
+                                    <i class="bi bi-info-circle me-1 text-primary"></i>@(string.IsNullOrWhiteSpace(Model.BankSetting.Note) ? "Mã QR thanh toán kèm số tiền chính xác sẽ hiển thị ngay sau khi bạn bấm Xác nhận đặt hàng." : Model.BankSetting.Note)
+                                </div>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
@@ -176,13 +212,80 @@
                         }
                     </div>
 
+                    <!-- MÃ GIẢM GIÁ / VOUCHER -->
+                    <div class="p-3 rounded-4 border mb-3" style="background: #f8fafc;">
+                        <label for="couponCodeInput" class="form-label fw-bold small text-dark mb-2 d-flex align-items-center justify-content-between">
+                            <span><i class="bi bi-ticket-perforated-fill text-danger me-1"></i>Mã giảm giá / Voucher</span>
+                            <span class="text-muted fw-normal" style="font-size: 0.75rem;">Áp dụng 1 mã / đơn</span>
+                        </label>
+
+                        <div class="input-group input-group-sm mb-2">
+                            <input asp-for="CouponCode" id="couponCodeInput" class="form-control fw-bold text-uppercase"
+                                   placeholder="Nhập mã (VD: TIEUDAO50)" autocomplete="off" />
+                            <button type="button" id="applyCouponBtn" class="btn btn-dark fw-bold px-3">
+                                <i class="bi bi-check2-circle me-1"></i>Áp dụng
+                            </button>
+                            <button type="button" id="clearCouponBtn" class="btn btn-outline-secondary d-none" title="Gỡ mã giảm giá">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+
+                        <span asp-validation-for="CouponCode" class="text-danger small d-block"></span>
+                        <div id="couponFeedback" class="small mt-1 d-none"></div>
+
+                        @if (Model.AvailableCoupons != null && Model.AvailableCoupons.Any())
+                        {
+                            <div class="mt-2 pt-2 border-top">
+                                <div class="text-muted fw-semibold mb-2" style="font-size: 0.74rem;">
+                                    <i class="bi bi-tags-fill text-primary me-1"></i>Voucher đang có sẵn (Bấm để chọn):
+                                </div>
+                                <div class="d-flex flex-column gap-2" style="max-height: 175px; overflow-y: auto;">
+                                    @foreach (var c in Model.AvailableCoupons)
+                                    {
+                                        var isEligible = Model.TotalAmount >= c.MinOrderValue;
+                                        <div class="d-flex align-items-center justify-content-between p-2 rounded-3 border bg-white @(isEligible ? "border-primary border-opacity-25" : "opacity-75")"
+                                             style="font-size: 0.78rem;">
+                                            <div class="me-2">
+                                                <div class="d-flex align-items-center gap-1">
+                                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle font-monospace fw-bold">@c.Code</span>
+                                                    @if (c.DiscountType == "Percent")
+                                                    {
+                                                        <span class="fw-bold text-dark">Giảm @c.DiscountValue.ToString("0")%</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="fw-bold text-dark">Giảm @c.DiscountValue.ToString("n0")đ</span>
+                                                    }
+                                                </div>
+                                                <div class="text-muted mt-1" style="font-size: 0.72rem;">@c.Description</div>
+                                            </div>
+                                            @if (isEligible)
+                                            {
+                                                <button type="button" class="btn btn-sm btn-outline-primary fw-bold py-1 px-2 text-nowrap js-pick-coupon"
+                                                        data-code="@c.Code" style="font-size: 0.72rem;">
+                                                    Dùng ngay
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-light text-muted border text-nowrap" style="font-size: 0.68rem;">
+                                                    Đơn từ @(c.MinOrderValue.ToString("n0"))đ
+                                                </span>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+
                     <!-- Price Calculations -->
                     <div class="d-flex justify-content-between text-muted small mb-2">
                         <span>Tạm tính tiền hàng:</span>
                         <span class="fw-semibold text-dark">@Model.TotalAmount.ToString("n0") đ</span>
                     </div>
 
-                    <div class="d-flex justify-content-between text-muted small mb-3">
+                    <div class="d-flex justify-content-between text-muted small mb-2">
                         <span>Phí vận chuyển:</span>
                         @if (Model.ShippingFee == 0)
                         {
@@ -194,11 +297,16 @@
                         }
                     </div>
 
+                    <div id="discountRow" class="d-flex justify-content-between text-success small mb-2 @(Model.DiscountAmount > 0 ? "" : "d-none")">
+                        <span><i class="bi bi-patch-check-fill me-1"></i>Voucher giảm giá (<strong id="appliedCouponBadge">@Model.CouponCode</strong>):</span>
+                        <span class="fw-bold" id="discountAmountText">-@Model.DiscountAmount.ToString("n0") đ</span>
+                    </div>
+
                     <hr class="my-3" />
 
                     <div class="d-flex justify-content-between align-items-baseline mb-4">
                         <span class="fw-bold fs-6 text-dark">Tổng thanh toán:</span>
-                        <span class="fs-4 fw-bold text-danger">@Model.GrandTotal.ToString("n0") đ</span>
+                        <span class="fs-4 fw-bold text-danger" id="grandTotalText">@Model.GrandTotal.ToString("n0") đ</span>
                     </div>
 
                     <!-- Submit Button -->
@@ -374,6 +482,104 @@
             streetDetailInput?.addEventListener('input', composeFullAddress);
 
             loadProvinces();
+
+            // 3. Hiển thị thông tin ngân hàng khi chọn Chuyển khoản VietQR
+            const payCOD = document.getElementById('payCOD');
+            const payBank = document.getElementById('payBank');
+            const bankPreviewBox = document.getElementById('bankPreviewBox');
+
+            function toggleBankPreview() {
+                if (!bankPreviewBox) return;
+                if (payBank && payBank.checked) {
+                    bankPreviewBox.classList.remove('d-none');
+                } else {
+                    bankPreviewBox.classList.add('d-none');
+                }
+            }
+            payCOD?.addEventListener('change', toggleBankPreview);
+            payBank?.addEventListener('change', toggleBankPreview);
+            toggleBankPreview();
+
+            // 4. Xử lý kiểm tra và áp dụng Mã giảm giá (Voucher) qua AJAX
+            const couponInput = document.getElementById('couponCodeInput');
+            const applyBtn = document.getElementById('applyCouponBtn');
+            const clearBtn = document.getElementById('clearCouponBtn');
+            const feedbackEl = document.getElementById('couponFeedback');
+            const discountRow = document.getElementById('discountRow');
+            const appliedBadge = document.getElementById('appliedCouponBadge');
+            const discountAmountText = document.getElementById('discountAmountText');
+            const grandTotalText = document.getElementById('grandTotalText');
+            const baseGrandTotal = @((long)(Model.TotalAmount + Model.ShippingFee));
+
+            function formatVnd(num) {
+                return Number(num || 0).toLocaleString('vi-VN') + ' đ';
+            }
+
+            async function applyCouponCode(codeToApply) {
+                const code = (codeToApply ?? couponInput?.value ?? '').trim();
+                if (!code) {
+                    if (feedbackEl) {
+                        feedbackEl.className = 'small mt-1 text-danger fw-semibold';
+                        feedbackEl.innerHTML = '<i class="bi bi-exclamation-circle me-1"></i>Vui lòng nhập hoặc chọn một mã giảm giá.';
+                    }
+                    return;
+                }
+
+                if (couponInput) couponInput.value = code.toUpperCase();
+                if (applyBtn) applyBtn.disabled = true;
+
+                try {
+                    const res = await fetch(`/Checkout/CheckCoupon?code=${encodeURIComponent(code)}`);
+                    const data = await res.json();
+
+                    if (data.valid) {
+                        if (feedbackEl) {
+                            feedbackEl.className = 'small mt-1 text-success fw-semibold';
+                            feedbackEl.innerHTML = `<i class="bi bi-check-circle-fill me-1"></i>${data.message}`;
+                        }
+                        if (discountRow) discountRow.classList.remove('d-none');
+                        if (appliedBadge) appliedBadge.textContent = data.code;
+                        if (discountAmountText) discountAmountText.textContent = '-' + formatVnd(data.discountAmount);
+                        if (grandTotalText) grandTotalText.textContent = formatVnd(data.grandTotal);
+                        if (clearBtn) clearBtn.classList.remove('d-none');
+                    } else {
+                        if (feedbackEl) {
+                            feedbackEl.className = 'small mt-1 text-danger fw-semibold';
+                            feedbackEl.innerHTML = `<i class="bi bi-x-circle-fill me-1"></i>${data.message}`;
+                        }
+                        if (discountRow) discountRow.classList.add('d-none');
+                        if (grandTotalText) grandTotalText.textContent = formatVnd(baseGrandTotal);
+                        if (clearBtn) clearBtn.classList.add('d-none');
+                    }
+                } catch (e) {
+                    console.error('Lỗi kiểm tra mã giảm giá:', e);
+                } finally {
+                    if (applyBtn) applyBtn.disabled = false;
+                }
+            }
+
+            applyBtn?.addEventListener('click', () => applyCouponCode());
+            couponInput?.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    applyCouponCode();
+                }
+            });
+
+            clearBtn?.addEventListener('click', function () {
+                if (couponInput) couponInput.value = '';
+                if (feedbackEl) feedbackEl.className = 'small mt-1 d-none';
+                if (discountRow) discountRow.classList.add('d-none');
+                if (grandTotalText) grandTotalText.textContent = formatVnd(baseGrandTotal);
+                clearBtn.classList.add('d-none');
+            });
+
+            document.querySelectorAll('.js-pick-coupon').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const code = this.getAttribute('data-code');
+                    if (code) applyCouponCode(code);
+                });
+            });
         })();
     </script>
 }
