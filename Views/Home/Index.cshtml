@@ -2,118 +2,192 @@
 @using tieudaobadminton.Helpers
 @{
     var wishlistIds = Context.Session.GetObject<List<int>>("WISHLIST") ?? new List<int>();
-    ViewData["Title"] = "Tiêu Đao Badminton - Hệ Thống Cầu Lông Chuyên Nghiệp";
+    ViewData["Title"] = "Tổ Buôn Badminton - Hệ Thống Cầu Lông Chuyên Nghiệp";
+
+    string GetVariantSummary(tieudaobadminton.Models.Product p)
+    {
+        if (p.Variants != null && p.Variants.Count > 0)
+        {
+            var sizes = p.Variants
+                .Where(v => v.Stock > 0 && !string.IsNullOrWhiteSpace(v.Size) && v.Size.Trim() != "-")
+                .Select(v => v.Size!.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Take(4)
+                .ToList();
+            if (sizes.Count > 0)
+                return string.Join(" | ", sizes) + " • SẴN HÀNG";
+        }
+        return "CHÍNH HÃNG • SẴN HÀNG";
+    }
+
+    int GetTotalStock(tieudaobadminton.Models.Product p)
+    {
+        return p.Variants?.Sum(v => v.Stock) ?? 0;
+    }
+
+    string GetColorHexDot(string? colorName)
+    {
+        var c = (colorName ?? "").ToLower().Trim();
+        if (c.Contains("trắng") || c.Contains("white") || c.Contains("bạch")) return "#f8fafc";
+        if (c.Contains("đen") || c.Contains("black") || c.Contains("huyền")) return "#0f172a";
+        if (c.Contains("đỏ") || c.Contains("red") || c.Contains("cherry")) return "#ef4444";
+        if (c.Contains("xanh navy") || c.Contains("navy") || c.Contains("đậm")) return "#1e3a8a";
+        if (c.Contains("xanh dương") || c.Contains("cyan") || c.Contains("blue") || c.Contains("lam")) return "#0284c7";
+        if (c.Contains("xanh lá") || c.Contains("lục") || c.Contains("chuối") || c.Contains("ngọc")) return "#10b981";
+        if (c.Contains("vàng") || c.Contains("gold") || c.Contains("chớp")) return "#f59e0b";
+        if (c.Contains("cam") || c.Contains("orange")) return "#f97316";
+        if (c.Contains("hồng") || c.Contains("pink")) return "#ec4899";
+        if (c.Contains("tím") || c.Contains("purple")) return "#8b5cf6";
+        return "#64748b";
+    }
 }
 
 <div class="container py-4">
 
-    <!-- 1. BENTO GRID HERO SECTION (SPACIOUS & BALANCED) -->
+    <!-- 1. PRO CHAMPIONSHIP BENTO HERO SECTION -->
     <section class="bento-hero-wrap">
         <div class="row g-4 align-items-stretch">
-            <!-- Left Main Bento Card (Spacious 7 Columns) -->
+            <!-- Left Main Hero Card -->
             <div class="col-lg-7 col-xl-8">
                 <div class="bento-hero-main">
-                    <div>
-                        <span class="bento-tag"><i class="bi bi-lightning-charge-fill me-1"></i>THẾ HỆ DỤNG CỤ THI ĐẤU 2026</span>
-                        <h1 class="bento-hero-title">
-                            Đẳng Cấp Sân Cầu<br />
-                            <span class="hero-gradient-text">Làm Chủ Từng Cú Smash</span>
-                        </h1>
-                        <p class="bento-hero-desc">
-                            Trải nghiệm các dòng vợt công thủ toàn diện cao cấp, giày thi đấu đệm êm Power Cushion và trang phục thể thao chính hãng từ Yonex, Victor, Li-Ning.
-                        </p>
-                        <div class="d-flex gap-3 flex-wrap mb-4">
-                            <a class="btn btn-primary btn-lg rounded-pill px-4 py-3 fw-bold shadow-lg" href="/Danh-Muc">
-                                <i class="bi bi-bag-check-fill me-1"></i>Khám phá bộ sưu tập →
-                            </a>
-                            <a class="btn btn-outline-light btn-lg rounded-pill px-4 py-3 fw-bold" href="/Danh-Muc?cat=vot">
-                                <i class="bi bi-trophy-fill me-1"></i>Dòng vợt Pro
-                            </a>
+                    <div class="hero-court-grid" aria-hidden="true"></div>
+
+                    <div class="row align-items-center g-4 position-relative" style="z-index: 2;">
+                        <div class="col-xl-7">
+                            <span class="bento-tag">
+                                <i class="bi bi-trophy-fill text-warning me-1"></i>TỔ BUÔN BADMINTON • PRO SERIES 2026
+                            </span>
+                            <h1 class="bento-hero-title">
+                                Đẳng Cấp Sân Cầu<br />
+                                <span class="hero-gradient-text">Làm Chủ Từng Cú Smash</span>
+                            </h1>
+                            <p class="bento-hero-desc">
+                                Hệ thống phân phối vợt công thủ toàn diện cao cấp, giày thi đấu bám sân Power Cushion và trang phục chính hãng Yonex, Victor, Li-Ning chuẩn bảo hành.
+                            </p>
+                            <div class="d-flex gap-3 flex-wrap mb-4">
+                                <a class="btn hero-btn-gold rounded-pill px-4 py-3 fw-bold shadow-lg" href="/Danh-Muc">
+                                    <i class="bi bi-bag-check-fill me-2"></i>Khám phá bộ sưu tập
+                                    <i class="bi bi-arrow-right ms-1"></i>
+                                </a>
+                                <a class="btn btn-outline-light rounded-pill px-4 py-3 fw-bold hero-btn-glass" href="/Tu-Van-Chon-Vot">
+                                    <i class="bi bi-cpu-fill text-info me-2"></i>Chọn vợt AI
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Right Interactive Emblem Showcase inside Hero (Desktop XL+) -->
+                        <div class="col-xl-5 d-none d-xl-flex justify-content-center align-items-center">
+                            <div class="hero-crest-stage">
+                                <div class="hero-crest-glow"></div>
+                                <div class="hero-crest-ring">
+                                    <img src="~/img/tobuon-logo.jpg" alt="Tổ Buôn Badminton Official Crest" class="hero-crest-img" />
+                                </div>
+                                <div class="hero-float-chip chip-top">
+                                    <i class="bi bi-shield-fill-check text-success"></i>
+                                    <span>100% Chính Hãng</span>
+                                </div>
+                                <div class="hero-float-chip chip-bottom">
+                                    <i class="bi bi-lightning-charge-fill text-warning"></i>
+                                    <span>Căng 4 Nút BWF</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Stats Row with Guaranteed Min-Widths -->
-                    <div class="bento-stats-row">
+                    <!-- Stats Row -->
+                    <div class="bento-stats-row position-relative" style="z-index: 2;">
                         <div class="stat-pill">
                             <span class="stat-number">10K+</span>
-                            <div class="stat-label">Khách hàng<br />tin dùng</div>
+                            <div class="stat-label">Tay vợt<br />tin dùng</div>
                         </div>
                         <div class="stat-pill">
                             <span class="stat-number">100%</span>
-                            <div class="stat-label">Chính hãng<br />chuẩn bảo hành</div>
+                            <div class="stat-label">Chính hãng<br />tem bảo hành</div>
                         </div>
                         <div class="stat-pill">
                             <span class="stat-number">4.9 <i class="bi bi-star-fill text-warning"></i></span>
-                            <div class="stat-label">Hài lòng<br />(2,500+ vote)</div>
+                            <div class="stat-label">Đánh giá<br />(2,500+ vote)</div>
+                        </div>
+                        <div class="stat-pill d-none d-sm-flex">
+                            <span class="stat-number text-warning">15p</span>
+                            <div class="stat-label">Căng điện tử<br />4 nút lấy liền</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Right 2 Sub Bento Cards (Generous 5 Columns) -->
+            <!-- Right 2 Sub Bento Cards -->
             <div class="col-lg-5 col-xl-4 bento-side-col">
                 <!-- Sub Card 1: Vợt Công Kích -->
-                <div class="bento-card-sub">
+                <a href="/Danh-Muc?cat=vot" class="bento-card-sub bento-card-crimson text-decoration-none">
                     <div class="bento-sub-info">
-                        <span class="badge bg-danger bg-opacity-10 text-danger fw-bold px-2 py-1 mb-2">HOT TREND</span>
+                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 fw-bold px-2 py-1 mb-2 rounded-pill">
+                            <i class="bi bi-fire me-1"></i>HOT TREND
+                        </span>
                         <h4 class="fw-bold mb-1 text-dark fs-5">Vợt Công Kích Tốc Độ</h4>
-                        <p class="text-muted small mb-3">Uy lực smash cực đỉnh</p>
-                        <a class="fw-bold text-primary text-decoration-none small" href="/Danh-Muc?cat=vot">
-                            Xem bộ sưu tập →
-                        </a>
+                        <p class="text-muted small mb-3">Tùy chọn 3U/4U &amp; màu sắc thực tế</p>
+                        <span class="bento-sub-cta text-danger">
+                            Xem bộ sưu tập <i class="bi bi-arrow-right ms-1"></i>
+                        </span>
                     </div>
                     <img src="~/img/banners/banner1.jfif" class="bento-sub-img" alt="Vợt cầu lông" />
-                </div>
+                </a>
 
                 <!-- Sub Card 2: Giày Bám Sân -->
-                <div class="bento-card-sub">
+                <a href="/Danh-Muc?cat=giay" class="bento-card-sub bento-card-emerald text-decoration-none">
                     <div class="bento-sub-info">
-                        <span class="badge bg-success bg-opacity-10 text-success fw-bold px-2 py-1 mb-2">CUSHION PRO</span>
+                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 fw-bold px-2 py-1 mb-2 rounded-pill">
+                            <i class="bi bi-lightning-charge-fill me-1"></i>CUSHION PRO
+                        </span>
                         <h4 class="fw-bold mb-1 text-dark fs-5">Giày Êm Bám Sân</h4>
-                        <p class="text-muted small mb-3">Chống lật cổ chân tuyệt đối</p>
-                        <a class="fw-bold text-success text-decoration-none small" href="/Danh-Muc?cat=giay">
-                            Khám phá ngay →
-                        </a>
+                        <p class="text-muted small mb-3">Đế cao su tự nhiên, size 38–44 chuẩn</p>
+                        <span class="bento-sub-cta text-success">
+                            Khám phá ngay <i class="bi bi-arrow-right ms-1"></i>
+                        </span>
                     </div>
                     <img src="~/img/banners/banner2.jfif" class="bento-sub-img" alt="Giày cầu lông" />
-                </div>
+                </a>
             </div>
         </div>
     </section>
 
-    <!-- 2. QUICK CATEGORY CHIPS (APP-LIKE 1-TAP FILTER) -->
+    <!-- 2. QUICK CATEGORY CHIPS (APP-LIKE 1-TAP ACCESS) -->
     <section class="mb-5">
         <div class="category-chips-wrap">
             <a class="category-chip active" href="/Danh-Muc">
-                <span class="chip-icon"><i class="bi bi-lightning-charge-fill"></i></span>
-                <span>Tất cả</span>
+                <span class="chip-icon-circle bg-white bg-opacity-25"><i class="bi bi-grid-fill"></i></span>
+                <span>Tất cả sản phẩm</span>
             </a>
             <a class="category-chip" href="/Danh-Muc?cat=vot">
-                <span class="chip-icon"><i class="bi bi-trophy-fill"></i></span>
+                <span class="chip-icon-circle text-danger bg-danger bg-opacity-10"><i class="bi bi-trophy-fill"></i></span>
                 <span>Vợt thi đấu Pro</span>
             </a>
             <a class="category-chip" href="/Danh-Muc?cat=giay">
-                <span class="chip-icon"><i class="bi bi-lightning-fill"></i></span>
+                <span class="chip-icon-circle text-warning bg-warning bg-opacity-15"><i class="bi bi-lightning-fill"></i></span>
                 <span>Giày bám sân</span>
             </a>
             <a class="category-chip" href="/Danh-Muc?cat=quan-ao">
-                <span class="chip-icon"><i class="bi bi-handbag-fill"></i></span>
-                <span>Trang phục & Phụ kiện</span>
+                <span class="chip-icon-circle text-primary bg-primary bg-opacity-10"><i class="bi bi-handbag-fill"></i></span>
+                <span>Trang phục</span>
             </a>
-            <a class="category-chip border border-danger border-opacity-50" href="/Tu-Van-Chon-Vot">
-                <span class="chip-icon"><i class="bi bi-bullseye"></i></span>
-                <span class="fw-bold text-danger">Tư vấn chọn vợt AI</span>
+            <a class="category-chip" href="/Tu-Van-Chon-Vot">
+                <span class="chip-icon-circle text-danger bg-danger bg-opacity-10"><i class="bi bi-cpu-fill"></i></span>
+                <span class="fw-bold">Tư vấn vợt AI</span>
+            </a>
+            <a class="category-chip" href="/Dang-Ky-Khoa-Hoc">
+                <span class="chip-icon-circle text-success bg-success bg-opacity-10"><i class="bi bi-mortarboard-fill"></i></span>
+                <span class="fw-bold">Khóa học</span>
+            </a>
+            <a class="category-chip" href="/Bang-Xep-Hang">
+                <span class="chip-icon-circle text-warning bg-warning bg-opacity-15"><i class="bi bi-award-fill"></i></span>
+                <span class="fw-bold">BXH VĐV &amp; Vợt</span>
             </a>
             <a class="category-chip" href="/Dich-Vu-Cang-Cuoc">
-                <span class="chip-icon"><i class="bi bi-tools"></i></span>
+                <span class="chip-icon-circle text-info bg-info bg-opacity-10"><i class="bi bi-tools"></i></span>
                 <span>Căng cước 4 nút</span>
             </a>
-            <a class="category-chip" href="/Huong-Dan-Size">
-                <span class="chip-icon"><i class="bi bi-rulers"></i></span>
-                <span>Hướng dẫn chọn Size</span>
-            </a>
             <a class="category-chip" href="/Tra-Cuu-Don-Hang">
-                <span class="chip-icon"><i class="bi bi-box-seam-fill"></i></span>
+                <span class="chip-icon-circle text-secondary bg-secondary bg-opacity-10"><i class="bi bi-box-seam-fill"></i></span>
                 <span>Tra cứu đơn hàng</span>
             </a>
         </div>
@@ -121,10 +195,10 @@
 
     <!-- 3. FLASH SALE COUNTDOWN SECTION -->
     <section class="flash-sale-wrap">
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
-            <div class="d-flex align-items-center gap-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 position-relative" style="z-index: 2;">
+            <div class="d-flex align-items-center flex-wrap gap-3">
                 <span class="flash-sale-badge"><i class="bi bi-lightning-charge-fill me-1"></i>FLASH SALE GIỜ VÀNG</span>
-                <span class="text-light opacity-75 small d-none d-sm-inline">Kết thúc trong:</span>
+                <span class="text-light opacity-75 small d-none d-sm-inline">Ưu đãi đặc quyền Tổ Buôn • Kết thúc sau:</span>
             </div>
 
             <!-- Countdown Timer Boxes -->
@@ -147,7 +221,7 @@
         </div>
 
         <!-- 4 Flash Sale Products Highlight -->
-        <div class="row g-3 g-md-4">
+        <div class="row g-3 g-md-4 position-relative" style="z-index: 2;">
             @foreach (var p in Model.BestSellers.Take(4))
             {
                 var discountPercent = 0;
@@ -160,51 +234,66 @@
                     discountPercent = 15;
                 }
 
+                var isFav = wishlistIds.Contains(p.Id);
+                var variantColors = (p.Variants ?? new List<tieudaobadminton.Models.ProductVariant>())
+                    .Where(v => !string.IsNullOrWhiteSpace(v.Color) && v.Color != "-")
+                    .Select(v => v.Color!.Trim())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .Take(4)
+                    .ToList();
+                var stockLeft = GetTotalStock(p);
+
                 <div class="col-6 col-lg-3">
                     <div class="pro-card h-100">
                         <div class="pro-card-media">
-                            <img class="pro-card-img" src="@(p.MainImageUrl ?? "/img/demo/placeholder.jpg")" alt="@p.Name" loading="lazy" />
+                            <a asp-controller="Products" asp-action="Detail" asp-route-id="@p.Id" class="d-block w-100 h-100">
+                                <img class="pro-card-img" src="@(p.MainImageUrl ?? "/img/demo/placeholder.jpg")" alt="@p.Name" loading="lazy" />
+                            </a>
                             <div class="pro-card-badges">
                                 <span class="badge-sale-pro"><i class="bi bi-lightning-charge-fill me-1"></i>GIẢM @discountPercent%</span>
                             </div>
-                            @{
-                                var isFav = wishlistIds.Contains(p.Id);
-                            }
                             <button type="button" class="pro-wishlist-btn @(isFav ? "active" : "")" onclick="toggleWishlist(@p.Id, this);" title="Yêu thích">
-                                @if (isFav)
-                                {
-                                    <i class="bi bi-heart-fill"></i>
-                                }
-                                else
-                                {
-                                    <i class="bi bi-heart"></i>
-                                }
+                                <i class="bi @(isFav ? "bi-heart-fill" : "bi-heart")"></i>
                             </button>
                             <div class="pro-quick-sizes">
-                                <span>3U | 4U | G5 • SẴN HÀNG</span>
+                                <span>@GetVariantSummary(p)</span>
                             </div>
                         </div>
 
                         <div class="pro-card-body">
-                            <div class="small text-muted mb-1">@(p.Brand?.Name ?? "CHÍNH HÃNG")</div>
-                            <h5 class="pro-card-title" title="@p.Name">@p.Name</h5>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="small fw-bold text-primary text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">@(p.Brand?.Name ?? "CHÍNH HÃNG")</span>
+                                @if (variantColors.Count > 0)
+                                {
+                                    <div class="d-flex align-items-center gap-1" title="Nhiều phiên bản màu sắc">
+                                        @foreach (var col in variantColors)
+                                        {
+                                            <span class="card-color-dot" style="background-color: @GetColorHexDot(col);"></span>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                            <a asp-controller="Products" asp-action="Detail" asp-route-id="@p.Id" class="text-decoration-none">
+                                <h5 class="pro-card-title" title="@p.Name">@p.Name</h5>
+                            </a>
 
                             <div class="pro-price-wrap mb-2">
                                 <span class="pro-price-current is-sale">@((p.SalePrice ?? p.Price).ToString("n0")) đ</span>
-                                <span class="pro-price-old">@((p.Price * 1.15m).ToString("n0")) đ</span>
+                                <span class="pro-price-old">@((p.SalePrice.HasValue ? p.Price : p.Price * 1.15m).ToString("n0")) đ</span>
                             </div>
 
                             <!-- Stock Progress -->
-                            <div class="stock-progress-wrap">
+                            <div class="stock-progress-wrap bg-danger bg-opacity-10">
                                 <div class="stock-progress-bar" style="width: 82%;"></div>
                             </div>
                             <div class="d-flex justify-content-between text-muted" style="font-size: 0.72rem;">
-                                <span>Đã bán 82%</span>
-                                <span class="text-danger fw-bold">Chỉ còn 3 suất</span>
+                                <span>Đang mở bán</span>
+                                <span class="text-danger fw-bold">@(stockLeft > 0 ? $"Còn {stockLeft} SP" : "Sắp về thêm")</span>
                             </div>
 
                             <a class="btn-pro-action mt-3" asp-controller="Products" asp-action="Detail" asp-route-id="@p.Id">
-                                Săn ngay →
+                                <span>Săn ngay</span>
+                                <i class="bi bi-arrow-right"></i>
                             </a>
                         </div>
                     </div>
@@ -213,20 +302,22 @@
         </div>
     </section>
 
-    <!-- 4. TOP BÁN CHẠY (PRODUCT CARDS 2.0) -->
+    <!-- 4. TOP BÁN CHẠY (PRODUCT CARDS 2.0 - BALANCED 4-COL GRID) -->
     <section class="mb-5">
-        <div class="d-flex justify-content-between align-items-end mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
             <div>
-                <span class="badge bg-primary bg-opacity-10 text-primary fw-bold px-3 py-1 mb-2 rounded-pill"><i class="bi bi-trophy-fill me-1"></i>BEST SELLERS 2026</span>
-                <h2 class="fw-bold mb-0">Sản phẩm được các tay vợt tin dùng</h2>
+                <span class="badge bg-primary bg-opacity-10 text-primary fw-bold px-3 py-1 mb-2 rounded-pill">
+                    <i class="bi bi-trophy-fill me-1 text-warning"></i>BEST SELLERS 2026
+                </span>
+                <h2 class="fw-black mb-0 text-dark">Sản phẩm được các tay vợt tin dùng</h2>
             </div>
-            <a class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold" href="/Danh-Muc">
-                Xem toàn bộ sản phẩm →
+            <a class="btn btn-outline-dark btn-sm rounded-pill px-4 py-2 fw-bold" href="/Danh-Muc">
+                Xem toàn bộ sản phẩm <i class="bi bi-arrow-right ms-1"></i>
             </a>
         </div>
 
         <div class="row g-3 g-md-4">
-            @foreach (var p in Model.BestSellers.Skip(4))
+            @foreach (var p in Model.BestSellers.Skip(4).Take(8))
             {
                 var discountPercent = 0;
                 if (p.SalePrice.HasValue && p.Price > 0 && p.SalePrice < p.Price)
@@ -234,11 +325,21 @@
                     discountPercent = (int)Math.Round((1 - (p.SalePrice.Value / p.Price)) * 100);
                 }
 
+                var isFav2 = wishlistIds.Contains(p.Id);
+                var variantColors2 = (p.Variants ?? new List<tieudaobadminton.Models.ProductVariant>())
+                    .Where(v => !string.IsNullOrWhiteSpace(v.Color) && v.Color != "-")
+                    .Select(v => v.Color!.Trim())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .Take(4)
+                    .ToList();
+
                 <div class="col-6 col-md-4 col-lg-3">
                     <div class="pro-card h-100">
                         <!-- Media & Wishlist & Quick Sizes -->
                         <div class="pro-card-media">
-                            <img class="pro-card-img" src="@(p.MainImageUrl ?? "/img/demo/placeholder.jpg")" alt="@p.Name" loading="lazy" />
+                            <a asp-controller="Products" asp-action="Detail" asp-route-id="@p.Id" class="d-block w-100 h-100">
+                                <img class="pro-card-img" src="@(p.MainImageUrl ?? "/img/demo/placeholder.jpg")" alt="@p.Name" loading="lazy" />
+                            </a>
 
                             <div class="pro-card-badges">
                                 @if (!string.IsNullOrWhiteSpace(p.Brand?.Name))
@@ -251,34 +352,37 @@
                                 }
                             </div>
 
-                            @{
-                                var isFav2 = wishlistIds.Contains(p.Id);
-                            }
                             <button type="button" class="pro-wishlist-btn @(isFav2 ? "active" : "")" onclick="toggleWishlist(@p.Id, this);" title="Yêu thích">
-                                @if (isFav2)
-                                {
-                                    <i class="bi bi-heart-fill"></i>
-                                }
-                                else
-                                {
-                                    <i class="bi bi-heart"></i>
-                                }
+                                <i class="bi @(isFav2 ? "bi-heart-fill" : "bi-heart")"></i>
                             </button>
 
                             <div class="pro-quick-sizes">
-                                <span>39 | 40 | 41 | 42 | 43</span>
+                                <span>@GetVariantSummary(p)</span>
                             </div>
                         </div>
 
-                        <!-- Body with Rating Stars -->
+                        <!-- Body with Rating Stars & Color Swatches -->
                         <div class="pro-card-body">
-                            <div class="pro-rating-row">
-                                <span><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></span>
-                                <span class="pro-rating-score">4.9</span>
-                                <span class="pro-rating-count">(86)</span>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <div class="pro-rating-row mb-0">
+                                    <span><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></span>
+                                    <span class="pro-rating-score">4.9</span>
+                                    <span class="pro-rating-count">(86)</span>
+                                </div>
+                                @if (variantColors2.Count > 0)
+                                {
+                                    <div class="d-flex align-items-center gap-1" title="Chọn màu sắc khi xem chi tiết">
+                                        @foreach (var col in variantColors2)
+                                        {
+                                            <span class="card-color-dot" style="background-color: @GetColorHexDot(col);"></span>
+                                        }
+                                    </div>
+                                }
                             </div>
 
-                            <h5 class="pro-card-title" title="@p.Name">@p.Name</h5>
+                            <a asp-controller="Products" asp-action="Detail" asp-route-id="@p.Id" class="text-decoration-none">
+                                <h5 class="pro-card-title" title="@p.Name">@p.Name</h5>
+                            </a>
 
                             <div class="pro-price-wrap">
                                 @if (p.SalePrice.HasValue)
@@ -293,8 +397,8 @@
                             </div>
 
                             <a class="btn-pro-action" asp-controller="Products" asp-action="Detail" asp-route-id="@p.Id">
-                                <span>Chi tiết</span>
-                                <span>→</span>
+                                <span>Xem chi tiết</span>
+                                <i class="bi bi-arrow-right"></i>
                             </a>
                         </div>
                     </div>
@@ -303,62 +407,107 @@
         </div>
     </section>
 
-    <!-- 4.5. TIỆN ÍCH & TRẢI NGHIỆM CHUYÊN NGHIỆP TẠI TIÊU ĐAO -->
+    <!-- 4.3. HỆ SINH THÁI ĐỘC QUYỀN: HỌC VIỆN ĐÀO TẠO & BẢNG XẾP HẠNG VĐV -->
+    <section class="mb-5">
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="spotlight-banner spotlight-academy h-100">
+                    <div class="spotlight-content">
+                        <span class="badge bg-warning text-dark fw-bold rounded-pill px-3 py-1 mb-3">
+                            <i class="bi bi-mortarboard-fill me-1"></i>HỌC VIỆN TỔ BUÔN BADMINTON
+                        </span>
+                        <h3 class="fw-black text-white mb-2">Khóa Học Cầu Lông Cơ Bản &amp; Nâng Cao</h3>
+                        <p class="text-light opacity-75 small mb-4" style="line-height: 1.7;">
+                            Lộ trình 12 buổi bài bản chuẩn giáo trình BWF cùng HLV cấp Quốc gia. Miễn phí vợt tập carbon, sân thảm giảm chấn chuẩn quốc tế.
+                        </p>
+                        <div class="d-flex align-items-center flex-wrap gap-3">
+                            <a href="/Dang-Ky-Khoa-Hoc" class="btn btn-warning text-dark fw-bold rounded-pill px-4 py-2 shadow-sm">
+                                Đăng ký khóa học <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+                            <span class="small text-white-50 fw-semibold">Chỉ từ 1.200.000đ / khóa</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="spotlight-banner spotlight-ranking h-100">
+                    <div class="spotlight-content">
+                        <span class="badge bg-info text-dark fw-bold rounded-pill px-3 py-1 mb-3">
+                            <i class="bi bi-award-fill me-1"></i>BWF &amp; VIETNAM PRO DATABASE
+                        </span>
+                        <h3 class="fw-black text-white mb-2">Bảng Xếp Hạng VĐV &amp; Hồ Sơ Vợt Thi Đấu</h3>
+                        <p class="text-light opacity-75 small mb-4" style="line-height: 1.7;">
+                            Khám phá Nguyễn Thùy Linh, Nguyễn Tiến Minh, Viktor Axelsen, Shi Yu Qi, Lin Dan, Lee Chong Wei từng dùng cây vợt nào &amp; mức căng bao nhiêu kg.
+                        </p>
+                        <div class="d-flex align-items-center flex-wrap gap-3">
+                            <a href="/Bang-Xep-Hang" class="btn btn-light text-dark fw-bold rounded-pill px-4 py-2 shadow-sm">
+                                Tra cứu BXH VĐV <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+                            <span class="small text-white-50 fw-semibold">16+ Hồ sơ tuyển thủ &amp; huyền thoại</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4.5. TIỆN ÍCH & TRẢI NGHIỆM CHUYÊN NGHIỆP TẠI TỔ BUÔN BADMINTON -->
     <section class="mb-5">
         <div class="row g-4">
             <!-- Feature 1: AI Advisor -->
             <div class="col-md-4">
-                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white d-flex flex-column justify-content-between position-relative overflow-hidden">
+                <div class="pro-feature-card pro-feature-danger h-100">
                     <div>
                         <div class="d-flex align-items-center justify-content-between mb-3">
-                            <span class="fs-1 text-danger"><i class="bi bi-lightning-charge-fill"></i></span>
-                            <span class="badge bg-danger rounded-pill px-3 py-1">THUẬT TOÁN AI</span>
+                            <span class="pro-feature-icon bg-danger bg-opacity-10 text-danger"><i class="bi bi-cpu-fill"></i></span>
+                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill px-3 py-1 fw-bold">THUẬT TOÁN AI</span>
                         </div>
                         <h4 class="fw-black mb-2 text-dark">Tư Vấn Chọn Vợt Thông Minh</h4>
-                        <p class="text-muted small mb-4">
+                        <p class="text-muted small mb-4" style="line-height: 1.65;">
                             Chỉ với 3 câu hỏi nhanh về lối đánh công thủ, thể lực cổ tay và ngân sách, hệ thống sẽ đề xuất ngay cây vợt tối ưu nhất cho bạn.
                         </p>
                     </div>
                     <a href="/Tu-Van-Chon-Vot" class="btn btn-outline-danger rounded-pill fw-bold w-100 py-2">
-                        Khám phá cây vợt của bạn →
+                        Khám phá cây vợt của bạn <i class="bi bi-arrow-right ms-1"></i>
                     </a>
                 </div>
             </div>
 
             <!-- Feature 2: Stringing Service -->
             <div class="col-md-4">
-                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white d-flex flex-column justify-content-between position-relative overflow-hidden">
+                <div class="pro-feature-card pro-feature-dark h-100">
                     <div>
                         <div class="d-flex align-items-center justify-content-between mb-3">
-                            <span class="fs-1 text-dark"><i class="bi bi-tools"></i></span>
-                            <span class="badge bg-dark text-white rounded-pill px-3 py-1">LẤY SAU 15 PHÚT</span>
+                            <span class="pro-feature-icon bg-dark bg-opacity-10 text-dark"><i class="bi bi-tools"></i></span>
+                            <span class="badge bg-dark text-white rounded-pill px-3 py-1 fw-bold">LẤY SAU 15 PHÚT</span>
                         </div>
                         <h4 class="fw-black mb-2 text-dark">Dịch Vụ Căng Cước 4 Nút</h4>
-                        <p class="text-muted small mb-4">
-                            Máy căng điện tử Victor cao cấp, kẹp 6 chấu kim loại bảo vệ khung, không lo móp méo đầu vợt. Hướng dẫn chọn số kg chuẩn tay.
+                        <p class="text-muted small mb-4" style="line-height: 1.65;">
+                            Máy căng điện tử cao cấp, kẹp 6 chấu kim loại bảo vệ khung, không lo móp méo đầu vợt. Hướng dẫn chọn số kg chuẩn lực tay.
                         </p>
                     </div>
                     <a href="/Dich-Vu-Cang-Cuoc" class="btn btn-outline-dark rounded-pill fw-bold w-100 py-2">
-                        Xem bảng giá cước →
+                        Xem bảng giá cước <i class="bi bi-arrow-right ms-1"></i>
                     </a>
                 </div>
             </div>
 
             <!-- Feature 3: Size & Grip Guide -->
             <div class="col-md-4">
-                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white d-flex flex-column justify-content-between position-relative overflow-hidden">
+                <div class="pro-feature-card pro-feature-primary h-100">
                     <div>
                         <div class="d-flex align-items-center justify-content-between mb-3">
-                            <span class="fs-1 text-primary"><i class="bi bi-rulers"></i></span>
-                            <span class="badge bg-primary rounded-pill px-3 py-1">CHUẨN TỪNG MM</span>
+                            <span class="pro-feature-icon bg-primary bg-opacity-10 text-primary"><i class="bi bi-rulers"></i></span>
+                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-3 py-1 fw-bold">CHUẨN TỪNG MM</span>
                         </div>
-                        <h4 class="fw-black mb-2 text-dark">Đo Chu Vi Cán Vợt & Size Giày</h4>
-                        <p class="text-muted small mb-4">
+                        <h4 class="fw-black mb-2 text-dark">Đo Chu Vi Cán Vợt &amp; Size Giày</h4>
+                        <p class="text-muted small mb-4" style="line-height: 1.65;">
                             Cẩm nang chi tiết phân biệt 3U/4U, cán G5/G6 và bảng quy đổi chiều dài bàn chân sang size giày thi đấu Yonex, Victor chuẩn xác.
                         </p>
                     </div>
                     <a href="/Huong-Dan-Size" class="btn btn-outline-primary rounded-pill fw-bold w-100 py-2">
-                        Xem bảng đo thông số →
+                        Xem bảng đo thông số <i class="bi bi-arrow-right ms-1"></i>
                     </a>
                 </div>
             </div>
@@ -369,9 +518,9 @@
     <section class="mb-5 brand-showcase-section">
         <div class="text-center mb-4">
             <span class="badge bg-primary bg-opacity-10 text-primary fw-bold px-3 py-1 mb-2 rounded-pill">
-                <i class="bi bi-trophy-fill me-1"></i>ĐỐI TÁC CHIẾN LƯỢC CHÍNH HÃNG
+                <i class="bi bi-trophy-fill text-warning me-1"></i>ĐỐI TÁC CHIẾN LƯỢC CHÍNH HÃNG
             </span>
-            <h2 class="fw-bold text-dark">Thương hiệu phân phối ủy quyền</h2>
+            <h2 class="fw-black text-dark">Thương hiệu phân phối ủy quyền</h2>
             <p class="text-muted small">Cam kết 100% nhập khẩu chính ngạch, nguyên seal quét mã QR bảo hành điện tử</p>
         </div>
 
@@ -436,12 +585,11 @@
                                 </div>
                                 <div class="brand-card-footer">
                                     <span class="brand-stock-pill">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                        <i class="bi bi-check-lg"></i>
                                         @(brand.ProductCount > 0 ? $"{brand.ProductCount}+ Mẫu tại shop" : "Chính hãng")
                                     </span>
                                     <span class="brand-link-arrow">
-                                        Xem ngay
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                                        Xem ngay <i class="bi bi-arrow-right ms-1"></i>
                                     </span>
                                 </div>
                             </a>
@@ -508,12 +656,11 @@
                                 </div>
                                 <div class="brand-card-footer">
                                     <span class="brand-stock-pill">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                        <i class="bi bi-check-lg"></i>
                                         @(brand.ProductCount > 0 ? $"{brand.ProductCount}+ Mẫu tại shop" : "Chính hãng")
                                     </span>
                                     <span class="brand-link-arrow">
-                                        Xem ngay
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                                        Xem ngay <i class="bi bi-arrow-right ms-1"></i>
                                     </span>
                                 </div>
                             </a>
@@ -527,7 +674,7 @@
         <div class="container mt-4">
             <div class="brand-trust-bar">
                 <div class="brand-trust-item">
-                    <span class="trust-icon"><i class="bi bi-shield-check"></i></span>
+                    <span class="trust-icon text-primary"><i class="bi bi-shield-check"></i></span>
                     <div>
                         <strong class="text-dark">100% Chính Hãng</strong>
                         <small class="text-muted d-block">Đền bù 200% nếu phát hiện giả mạo</small>
@@ -535,7 +682,7 @@
                 </div>
                 <div class="brand-trust-sep d-none d-md-block"></div>
                 <div class="brand-trust-item">
-                    <span class="trust-icon"><i class="bi bi-lightning-charge-fill"></i></span>
+                    <span class="trust-icon text-warning"><i class="bi bi-lightning-charge-fill"></i></span>
                     <div>
                         <strong class="text-dark">Căng Cước Điện Tử 4 Nút</strong>
                         <small class="text-muted d-block">Chuẩn kg thi đấu, lấy ngay 15 phút</small>
@@ -543,10 +690,10 @@
                 </div>
                 <div class="brand-trust-sep d-none d-md-block"></div>
                 <div class="brand-trust-item">
-                    <span class="trust-icon"><i class="bi bi-truck"></i></span>
+                    <span class="trust-icon text-success"><i class="bi bi-truck"></i></span>
                     <div>
                         <strong class="text-dark">Freeship Toàn Quốc</strong>
-                        <small class="text-muted d-block">Đơn từ 499k & Bảo hiểm vận chuyển</small>
+                        <small class="text-muted d-block">Đơn từ 499k &amp; Bảo hiểm vận chuyển</small>
                     </div>
                 </div>
             </div>
@@ -557,8 +704,8 @@
     <section class="mb-5">
         <div class="text-center mb-4">
             <span class="badge bg-success bg-opacity-10 text-success fw-bold px-3 py-1 mb-2 rounded-pill"><i class="bi bi-chat-dots-fill me-1"></i>CỘNG ĐỒNG SÂN CẦU</span>
-            <h2 class="fw-bold">Cảm nhận từ các tay vợt</h2>
-            <p class="text-muted small">Hơn 10,000+ người chơi phong trào và VĐV đã tin tưởng Tiêu Đao Badminton</p>
+            <h2 class="fw-black text-dark">Cảm nhận từ các tay vợt</h2>
+            <p class="text-muted small">Hơn 10,000+ người chơi phong trào và VĐV đã tin tưởng Tổ Buôn Badminton</p>
         </div>
 
         <div class="row g-4">
@@ -567,11 +714,11 @@
                     <div>
                         <div class="text-warning mb-2"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
                         <p class="text-dark small mb-3" style="line-height: 1.7;">
-                            "Vợt Yonex Astrox 100ZZ mua ở shop chuẩn chính hãng, bao check mã cào. Đan cước 11kg nổ cầu cực kỳ đã tay. Giao hàng hỏa tốc trong 2 tiếng rất ưng ý!"
+                            "Vợt Yonex Astrox 100ZZ mua ở Tổ Buôn Badminton chuẩn chính hãng, bao check mã cào. Đan cước 11kg nổ cầu cực kỳ đã tay. Giao hàng hỏa tốc trong 2 tiếng rất ưng ý!"
                         </p>
                     </div>
                     <div class="d-flex align-items-center gap-3 pt-3 border-top">
-                        <img src="~/img/tieudao.jpg" class="testimonial-avatar" alt="Avatar" />
+                        <div class="testimonial-avatar-initials" style="background: linear-gradient(135deg, #0284c7, #1e3a8a);">TA</div>
                         <div>
                             <div class="fw-bold text-dark fs-6">Trần Tuấn Anh</div>
                             <div class="verified-badge"><i class="bi bi-check-circle-fill me-1"></i>Đã mua hàng • CLB Cầu Lông Tân Bình</div>
@@ -585,11 +732,11 @@
                     <div>
                         <div class="text-warning mb-2"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
                         <p class="text-dark small mb-3" style="line-height: 1.7;">
-                            "Mình mua đôi giày Victor đệm êm tuyệt đối, đế bám sân gỗ rất tốt không hề bị trơn trượt. Shop tư vấn chuẩn size 42 vừa khít chân."
+                            "Mình mua đôi giày Victor đệm êm tuyệt đối, đế bám sân gỗ rất tốt không hề bị trơn trượt. Chọn màu trên web đổi ảnh trực tiếp rất dễ xem, tư vấn chuẩn size 42!"
                         </p>
                     </div>
                     <div class="d-flex align-items-center gap-3 pt-3 border-top">
-                        <img src="~/img/tieudao.jpg" class="testimonial-avatar" alt="Avatar" />
+                        <div class="testimonial-avatar-initials" style="background: linear-gradient(135deg, #f59e0b, #dc2626);">HL</div>
                         <div>
                             <div class="fw-bold text-dark fs-6">Nguyễn Hoàng Long</div>
                             <div class="verified-badge"><i class="bi bi-check-circle-fill me-1"></i>Đã mua hàng • Sân Cầu Lông Thủ Đức</div>
@@ -603,11 +750,11 @@
                     <div>
                         <div class="text-warning mb-2"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
                         <p class="text-dark small mb-3" style="line-height: 1.7;">
-                            "Áo đấu chất vải mè thể thao mặc thoáng nhẹ, thấm mồ hôi tốt. Dịch vụ chăm sóc khách hàng và chính sách bảo hành 7 ngày rất chuyên nghiệp."
+                            "Áo đấu chất vải mè thể thao mặc thoáng nhẹ, thấm mồ hôi tốt. Đăng ký khóa học nâng cao tại Tổ Buôn được HLV chỉnh kỹ thuật Smash lên trình rõ rệt."
                         </p>
                     </div>
                     <div class="d-flex align-items-center gap-3 pt-3 border-top">
-                        <img src="~/img/tieudao.jpg" class="testimonial-avatar" alt="Avatar" />
+                        <div class="testimonial-avatar-initials" style="background: linear-gradient(135deg, #10b981, #047857);">MT</div>
                         <div>
                             <div class="fw-bold text-dark fs-6">Lê Minh Trang</div>
                             <div class="verified-badge"><i class="bi bi-check-circle-fill me-1"></i>Đã mua hàng • VĐV Phong Trào Q.10</div>
@@ -622,13 +769,13 @@
     @if (Model.FeaturedNews != null && Model.FeaturedNews.Count > 0)
     {
         <section class="mb-5">
-            <div class="d-flex justify-content-between align-items-end mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
                 <div>
                     <span class="badge bg-primary bg-opacity-10 text-primary fw-bold px-3 py-1 mb-2 rounded-pill"><i class="bi bi-newspaper me-1"></i>CẨM NANG THI ĐẤU</span>
-                    <h2 class="fw-bold mb-0">Kiến thức & Mẹo chọn đồ cầu lông</h2>
+                    <h2 class="fw-black mb-0 text-dark">Kiến thức &amp; Mẹo chọn đồ cầu lông</h2>
                 </div>
-                <a class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold" asp-controller="News" asp-action="Index">
-                    Xem tất cả bài viết →
+                <a class="btn btn-outline-dark btn-sm rounded-pill px-4 py-2 fw-bold" asp-controller="News" asp-action="Index">
+                    Xem tất cả bài viết <i class="bi bi-arrow-right ms-1"></i>
                 </a>
             </div>
 
@@ -636,8 +783,8 @@
                 @foreach (var n in Model.FeaturedNews)
                 {
                     <div class="col-12 col-md-6 col-lg-4">
-                        <div class="card h-100 border-0 shadow-sm overflow-hidden" style="border-radius: 20px;">
-                            <div style="aspect-ratio: 16/9; overflow: hidden; background: #f1f5f9;">
+                        <div class="card pro-news-card h-100 border-0 shadow-sm overflow-hidden" style="border-radius: 20px;">
+                            <div class="pro-news-img-wrap" style="aspect-ratio: 16/9; overflow: hidden; background: #f1f5f9;">
                                 <img src="@(n.ThumbnailUrl ?? "/img/demo/placeholder.jpg")"
                                      class="w-100 h-100 object-fit-cover"
                                      alt="@n.Title" />
@@ -645,7 +792,7 @@
 
                             <div class="card-body p-4 d-flex flex-column">
                                 <div class="d-flex justify-content-between align-items-center text-muted small mb-2">
-                                    <span><i class="bi bi-calendar3 me-1"></i>@n.PublishedAt.ToLocalTime().ToString("dd/MM/yyyy")</span>
+                                    <span><i class="bi bi-calendar3 me-1 text-primary"></i>@n.PublishedAt.ToLocalTime().ToString("dd/MM/yyyy")</span>
                                     <span><i class="bi bi-clock me-1"></i>3 phút đọc</span>
                                 </div>
 
@@ -657,9 +804,9 @@
                                     @n.Summary
                                 </p>
 
-                                <a class="btn btn-outline-dark btn-sm rounded-pill mt-auto w-100 fw-bold"
+                                <a class="btn btn-outline-dark btn-sm rounded-pill mt-auto w-100 fw-bold py-2"
                                    asp-controller="News" asp-action="Detail" asp-route-id="@n.Id">
-                                    Đọc bài viết →
+                                    Đọc bài viết <i class="bi bi-arrow-right ms-1"></i>
                                 </a>
                             </div>
                         </div>

@@ -21,7 +21,7 @@ namespace tieudaobadminton.Models
 
         [Required(ErrorMessage = "Vui lòng nhập tên chủ tài khoản")]
         [StringLength(120)]
-        public string AccountHolder { get; set; } = "TIEU DAO BADMINTON";
+        public string AccountHolder { get; set; } = "TO BUON BADMINTON";
 
         [StringLength(150)]
         public string? Branch { get; set; } = "Chi nhánh Quận 7 - TP. Hồ Chí Minh";

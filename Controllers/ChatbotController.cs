@@ -129,7 +129,7 @@ namespace tieudaobadminton.Controllers
 
             if (q.Contains("liên hệ") || q.Contains("hotline") || q.Contains("nhân viên") || q.Contains("địa chỉ") || q.Contains("gọi") || q.Contains("sđt"))
             {
-                return @"<i class='bi bi-telephone-fill text-danger me-1'></i> <strong>Thông tin Liên hệ Tiêu Đao Badminton:</strong><br/>
+                return @"<i class='bi bi-telephone-fill text-danger me-1'></i> <strong>Thông tin Liên hệ Tổ Buôn Badminton:</strong><br/>
                 • <strong>Hotline Tư vấn 24/7:</strong> <a href='tel:0900000000' class='fw-bold text-danger'>0900 000 000</a><br/>
                 • <strong>Địa chỉ:</strong> 123 Đường Cầu Lông, TP. Hồ Chí Minh (8:00 - 21:30)<br/>
                 <a href='tel:0900000000' class='chat-action-link'><i class='bi bi-telephone-outbound-fill me-1'></i> Gọi ngay cho kỹ thuật viên →</a>";

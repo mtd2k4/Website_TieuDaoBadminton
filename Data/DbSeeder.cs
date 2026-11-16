@@ -146,7 +146,7 @@ END
                     db.Coupons.AddRange(
                         new Coupon
                         {
-                            Code = "TIEUDAO50",
+                            Code = "TOBUON50",
                             Description = "Giảm ngay 50.000đ cho mọi đơn hàng từ 500.000đ",
                             DiscountType = "Fixed",
                             DiscountValue = 50000,
@@ -200,6 +200,15 @@ END
                     );
                     await db.SaveChangesAsync();
                 }
+                else
+                {
+                    var oldSampleCoupon = await db.Coupons.FirstOrDefaultAsync(c => c.Code == "TIEUDAO50");
+                    if (oldSampleCoupon != null && !await db.Coupons.AnyAsync(c => c.Code == "TOBUON50"))
+                    {
+                        oldSampleCoupon.Code = "TOBUON50";
+                        await db.SaveChangesAsync();
+                    }
+                }
 
                 if (!await db.BankSettings.AnyAsync())
                 {
@@ -209,7 +218,7 @@ END
                             BankCode = "MB",
                             BankName = "MB Bank (Ngân hàng Quân Đội)",
                             AccountNumber = "0900000000",
-                            AccountHolder = "TIEU DAO BADMINTON",
+                            AccountHolder = "TO BUON BADMINTON",
                             Branch = "Chi nhánh Quận 7 - TP. Hồ Chí Minh",
                             QrTemplate = "compact2",
                             TransferPrefix = "DH",
@@ -222,16 +231,32 @@ END
                             BankCode = "VCB",
                             BankName = "Vietcombank (Ngân hàng Ngoại Thương)",
                             AccountNumber = "1028889999",
-                            AccountHolder = "CONG TY TNHH TIEU DAO SPORT",
+                            AccountHolder = "CONG TY TNHH TO BUON SPORT",
                             Branch = "Chi nhánh Nam Sài Gòn",
                             QrTemplate = "compact2",
-                            TransferPrefix = "TD",
+                            TransferPrefix = "TB",
                             Note = "Tài khoản doanh nghiệp nhận thanh toán đơn hàng sỉ & lẻ.",
                             IsActive = false,
                             UpdatedAt = DateTime.UtcNow
                         }
                     );
                     await db.SaveChangesAsync();
+                }
+                else
+                {
+                    var oldBanks = await db.BankSettings
+                        .Where(b => b.AccountHolder == "TIEU DAO BADMINTON" || b.AccountHolder == "CONG TY TNHH TIEU DAO SPORT")
+                        .ToListAsync();
+                    if (oldBanks.Count > 0)
+                    {
+                        foreach (var b in oldBanks)
+                        {
+                            if (b.AccountHolder == "TIEU DAO BADMINTON") b.AccountHolder = "TO BUON BADMINTON";
+                            if (b.AccountHolder == "CONG TY TNHH TIEU DAO SPORT") b.AccountHolder = "CONG TY TNHH TO BUON SPORT";
+                            if (b.TransferPrefix == "TD") b.TransferPrefix = "TB";
+                        }
+                        await db.SaveChangesAsync();
+                    }
                 }
             }
             catch { /* Không chặn luồng khởi động */ }
@@ -247,7 +272,7 @@ END
                         ("Trần Quốc Bảo (Hà Nội)", 5, "Đánh cực kỳ thoát cầu, smash siêu cắm!", "Hàng chuẩn chính hãng tem phân phối đầy đủ, đã quét mã check chuẩn 100%. Cước đan chuẩn máy điện tử 11kg nảy tiếng nổ rất đã tai. Shop đóng hộp cẩn thận, giao hỏa tốc rất nhanh.", 1),
                         ("Nguyễn Minh Tuấn", 5, "Cây vợt tuyệt vời nhất từng trải nghiệm", "Đầm đầu vừa phải, xoay sở trên lưới cực kỳ thanh thoát. Rất hợp cho lối chơi công thủ toàn diện và cầu đôi. Quà tặng bao nhung và quấn cán rất cao cấp.", 3),
                         ("Lê Hoàng Nam (Đà Nẵng)", 4, "Chất lượng gia công đỉnh cao", "Màu sơn tinh xảo không tì vết. Đũa vợt trợ lực tốt, độ cứng đầm tay yêu cầu cổ tay trung bình trở lên để phát huy tối đa lực smash. Rất đáng đồng tiền!", 6),
-                        ("Vũ Đức Thịnh", 5, "Dịch vụ của Tiêu Đao Badminton 10/10", "Được tư vấn mức đan cước rất nhiệt tình, kỹ thuật viên đan 4 nút không bị xô cước. Đóng gói bọc bóng khí 3 lớp chắc chắn. 5 sao ủng hộ shop dài dài.", 9),
+                        ("Vũ Đức Thịnh", 5, "Dịch vụ của Tổ Buôn Badminton 10/10", "Được tư vấn mức đan cước rất nhiệt tình, kỹ thuật viên đan 4 nút không bị xô cước. Đóng gói bọc bóng khí 3 lớp chắc chắn. 5 sao ủng hộ shop dài dài.", 9),
                         ("Phạm Thanh Tùng (TP.HCM)", 5, "Trợ lực phông cầu và bỏ nhỏ rất êm tay", "Cảm giác cầm nắm chắc chắn, triệt tiêu rung chấn tốt nên sau 4 set thi đấu cường độ cao không hề bị mỏi vai hay nhức cổ tay.", 14)
                     };
 

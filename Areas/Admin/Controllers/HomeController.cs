@@ -132,7 +132,7 @@ namespace tieudaobadminton.Areas.Admin.Controllers
                     TotalSold = item.TotalSold,
                     Price = matched?.SalePrice ?? matched?.Price ?? 0,
                     ImageUrl = matched?.MainImageUrl ?? "/img/demo/placeholder.jpg",
-                    BrandName = matched?.Brand?.Name ?? "Tiêu Đao",
+                    BrandName = matched?.Brand?.Name ?? "Tổ Buôn",
                     ProductId = matched?.Id ?? 0
                 });
             }
@@ -145,7 +145,7 @@ namespace tieudaobadminton.Areas.Admin.Controllers
                     ProductId = p.Id,
                     ProductName = p.Name,
                     ImageUrl = p.MainImageUrl ?? "/img/demo/placeholder.jpg",
-                    BrandName = p.Brand?.Name ?? "Tiêu Đao",
+                    BrandName = p.Brand?.Name ?? "Tổ Buôn",
                     Price = p.SalePrice ?? p.Price,
                     TotalSold = 8
                 }).ToList();

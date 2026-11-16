@@ -37,7 +37,7 @@
                     <span class="news-hero-pill"><i class="bi bi-book-half me-1"></i>TẠP CHÍ & BÍ QUYẾT SÂN CẦU</span>
                     <h1 class="news-hero-heading">Cẩm Nang & Kinh Nghiệm Cầu Lông</h1>
                     <p class="news-hero-sub">
-                        Cập nhật các bài viết phân tích vợt chuyên sâu, kỹ thuật đập cầu smash uy lực, bảng đo size chân chuẩn xác và kinh nghiệm đan cước điện tử từ chuyên gia Tiêu Đao.
+                        Cập nhật các bài viết phân tích vợt chuyên sâu, kỹ thuật đập cầu smash uy lực, bảng đo size chân chuẩn xác và kinh nghiệm đan cước điện tử từ chuyên gia Tổ Buôn.
                     </p>
 
                     @if (User?.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("Staff")))
@@ -116,15 +116,15 @@
                             </h2>
                             <p class="featured-desc">
                                 @(string.IsNullOrWhiteSpace(featuredPost.Summary) 
-                                    ? "Khám phá bài viết cẩm nang chi tiết từ đội ngũ kỹ thuật viên và chuyên gia cầu lông của Tiêu Đao Pro." 
+                                    ? "Khám phá bài viết cẩm nang chi tiết từ đội ngũ kỹ thuật viên và chuyên gia cầu lông của Tổ Buôn Pro." 
                                     : featuredPost.Summary)
                             </p>
                         </div>
                         <div class="featured-bottom-row pt-3">
                             <div class="author-info d-flex align-items-center gap-2">
-                                <div class="author-avatar-badge"><i class="bi bi-trophy-fill"></i></div>
+                                <div class="author-avatar-badge overflow-hidden p-0"><img src="~/img/tobuon-logo.jpg" alt="Tổ Buôn Editorial" class="w-100 h-100 object-fit-cover" /></div>
                                 <div>
-                                    <div class="author-name-text">Tiêu Đao Editorial</div>
+                                    <div class="author-name-text">Tổ Buôn Editorial</div>
                                     <small class="author-role text-muted">Ban Chuyên Môn</small>
                                 </div>
                             </div>
@@ -279,7 +279,7 @@
                     <div class="news-widget-box">
                         <h6 class="widget-heading"><i class="bi bi-envelope-paper-fill text-primary me-1"></i>Nhận mẹo chơi cầu hàng tuần</h6>
                         <p class="small text-muted mb-3">
-                            Nhận các bài hướng dẫn kỹ thuật mới nhất và ưu đãi đặc quyền từ Tiêu Đao Badminton.
+                            Nhận các bài hướng dẫn kỹ thuật mới nhất và ưu đãi đặc quyền từ Tổ Buôn Badminton.
                         </p>
                         <form onsubmit="event.preventDefault(); alert('Cảm ơn bạn đã đăng ký nhận cẩm nang!'); this.reset();">
                             <div class="newsletter-input-group">

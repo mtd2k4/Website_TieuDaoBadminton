@@ -7,7 +7,7 @@
     var orderCode = $"{prefix}{Model.Id:D5}";
     var cleanAccountNo = (bank.AccountNumber ?? "0900000000").Replace(" ", "").Trim();
     var template = string.IsNullOrWhiteSpace(bank.QrTemplate) ? "compact2" : bank.QrTemplate.Trim();
-    var encodedAccountName = Uri.EscapeDataString(bank.AccountHolder ?? "TIEU DAO BADMINTON");
+    var encodedAccountName = Uri.EscapeDataString(bank.AccountHolder ?? "TO BUON BADMINTON");
     var encodedOrderCode = Uri.EscapeDataString(orderCode);
     var vietQrUrl = $"https://img.vietqr.io/image/{bank.BankCode}-{cleanAccountNo}-{template}.png?amount={(long)Model.Total}&addInfo={encodedOrderCode}&accountName={encodedAccountName}";
 }
@@ -25,7 +25,7 @@
 
                 <h2 class="fw-bold text-dark mb-2">Đặt hàng thành công!</h2>
                 <p class="text-muted mb-4" style="max-width: 500px; margin: 0 auto;">
-                    Cảm ơn quý khách đã tin tưởng mua sắm tại <strong>Tiêu Đao Badminton</strong>. Đơn hàng của bạn đã được tiếp nhận và nhân viên sẽ liên hệ xác nhận trong thời gian sớm nhất.
+                    Cảm ơn quý khách đã tin tưởng mua sắm tại <strong>Tổ Buôn Badminton</strong>. Đơn hàng của bạn đã được tiếp nhận và nhân viên sẽ liên hệ xác nhận trong thời gian sớm nhất.
                 </p>
 
                 <div class="badge bg-light text-dark border px-3 py-2 fs-6 mb-3">

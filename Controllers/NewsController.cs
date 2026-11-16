@@ -41,7 +41,7 @@ namespace tieudaobadminton.Controllers
     <li><strong>288mm - 295mm (Cân bằng):</strong> Công thủ toàn diện, chuyển đổi linh hoạt.</li>
     <li><strong>Trên 295mm (Đầu nặng):</strong> Chuyên công smash, trợ lực đập cắm sân.</li>
 </ul>
-<blockquote>Lời khuyên từ HLV Tiêu Đao: Nếu bạn mới chơi dưới 1 năm, hãy bắt đầu bằng một cây vợt 4U thân dẻo vừa phải, điểm cân bằng khoảng 290mm. Cây vợt này sẽ trợ lực tốt và tha thứ cho các cú đánh lệch tâm.</blockquote>",
+<blockquote>Lời khuyên từ HLV Tổ Buôn Badminton: Nếu bạn mới chơi dưới 1 năm, hãy bắt đầu bằng một cây vợt 4U thân dẻo vừa phải, điểm cân bằng khoảng 290mm. Cây vợt này sẽ trợ lực tốt và tha thứ cho các cú đánh lệch tâm.</blockquote>",
                         ThumbnailUrl = "/img/banners/banner.jpg",
                         IsPublished = true,
                         PublishedAt = DateTime.UtcNow.AddDays(-1)

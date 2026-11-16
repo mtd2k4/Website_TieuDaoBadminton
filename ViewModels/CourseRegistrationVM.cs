@@ -26,7 +26,7 @@ namespace tieudaobadminton.ViewModels
         public string Schedule { get; set; } = "T2 - T4 - T6 Tối (18:30 - 20:30)";
 
         [Required(ErrorMessage = "Vui lòng chọn cơ sở sân tập")]
-        public string Facility { get; set; } = "Cơ sở Quận 7 - Sân Tiêu Đao Arena (123 Đường Cầu Lông)";
+        public string Facility { get; set; } = "Cơ sở Quận 7 - Sân Tổ Buôn Arena (123 Đường Cầu Lông)";
 
         [StringLength(500, ErrorMessage = "Ghi chú không vượt quá 500 ký tự")]
         public string? Note { get; set; }

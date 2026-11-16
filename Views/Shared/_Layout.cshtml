@@ -14,7 +14,8 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Tiêu Đao Badminton Pro</title>
+    <title>@ViewData["Title"] - Tổ Buôn Badminton</title>
+    <link rel="icon" type="image/jpeg" href="~/img/tobuon-logo.jpg" />
 
     <!-- Google Fonts: Be Vietnam Pro (Vietnamese Engineered) + Outfit (Sports Modern Display) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -34,18 +35,18 @@
     <div class="announcement-bar d-none d-md-block">
         <div class="container d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-2">
-                <span class="announcement-badge">ƯU ĐÃI KHAI MÙA</span>
-                <span class="announcement-text">Miễn phí căng cước 4 nút & quấn cán cho mọi đơn vợt • Freeship toàn quốc từ 499k</span>
+                <span class="announcement-badge"><i class="bi bi-stars me-1"></i>TỔ BUÔN PRO 2026</span>
+                <span class="announcement-text">Miễn phí căng cước máy điện tử 4 nút khi mua vợt • Freeship toàn quốc từ 499k • Cam kết 100% chính hãng</span>
             </div>
             <div class="d-flex align-items-center gap-3">
                 <a href="tel:0900000000" class="announcement-link">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                    <i class="bi bi-telephone-fill text-warning"></i>
                     <span>Hotline: 0900 000 000</span>
                 </a>
                 <span class="announcement-sep">|</span>
                 <a asp-controller="Contact" asp-action="Index" class="announcement-link">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                    <span>Cửa hàng & Sân cầu</span>
+                    <i class="bi bi-geo-alt-fill text-info"></i>
+                    <span>Cửa hàng &amp; Sân cầu</span>
                 </a>
             </div>
         </div>
@@ -59,11 +60,11 @@
                 <!-- Brand Logo (Left) -->
                 <a class="pro-brand text-decoration-none" asp-controller="Home" asp-action="Index">
                     <div class="pro-logo-badge">
-                        <img src="~/img/tieudao.jpg" alt="Tiêu Đao Badminton" class="pro-logo-img" />
+                        <img src="~/img/tobuon-logo.jpg" alt="Tổ Buôn Badminton Logo" class="pro-logo-img" />
                     </div>
                     <div>
-                        <div class="pro-brand-title">TIÊU ĐAO</div>
-                        <div class="pro-brand-tag">PRO BADMINTON</div>
+                        <div class="pro-brand-title">TỔ BUÔN <span class="pro-brand-accent">BADMINTON</span></div>
+                        <div class="pro-brand-tag"><i class="bi bi-patch-check-fill me-1 text-warning"></i>PRO BADMINTON CENTER</div>
                     </div>
                 </a>
 
@@ -72,11 +73,12 @@
                     <form method="get" action="/Danh-Muc">
                         <div class="pro-search-pill">
                             <span class="search-lead-icon">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                <i class="bi bi-search"></i>
                             </span>
-                            <input type="text" name="q" value="@Context.Request.Query["q"]" placeholder="Tìm kiếm vợt Yonex, Victor, giày bám sân..." />
+                            <input type="text" name="q" value="@Context.Request.Query["q"]" placeholder="Tìm kiếm vợt Yonex, Victor, giày 65Z3, quần áo thi đấu..." />
                             <button type="submit" class="pro-search-btn">
                                 <span>Tìm kiếm</span>
+                                <i class="bi bi-arrow-right-short fs-6"></i>
                             </button>
                         </div>
                     </form>
@@ -481,7 +483,7 @@
         </a>
 
         <!-- Nút Mở Chatbot -->
-        <button type="button" class="fw-btn fw-btn-chat" id="btnToggleChatbot" title="Chat với Trợ lý Tiêu Đao AI" aria-label="Mở Chatbot">
+        <button type="button" class="fw-btn fw-btn-chat" id="btnToggleChatbot" title="Chat với Trợ lý Tổ Buôn AI" aria-label="Mở Chatbot">
             <span class="fw-chat-badge" id="chatbotUnreadBadge">1</span>
             <i class="bi bi-chat-dots-fill fs-5" id="chatbotTriggerIcon"></i>
             <span class="fw-tooltip">Trợ lý AI 24/7</span>
@@ -493,12 +495,12 @@
         <!-- Header Chatbot -->
         <div class="chatbot-header">
             <div class="d-flex align-items-center gap-2">
-                <div class="chatbot-avatar">
-                    <span><i class="bi bi-robot"></i></span>
+                <div class="chatbot-avatar overflow-hidden p-0 border border-warning border-opacity-75">
+                    <img src="~/img/tobuon-logo.jpg" alt="Tổ Buôn AI" class="w-100 h-100 object-fit-cover" />
                     <span class="chatbot-online-dot"></span>
                 </div>
                 <div>
-                    <div class="chatbot-title">Trợ Lý Tiêu Đao AI</div>
+                    <div class="chatbot-title">Trợ Lý Tổ Buôn AI</div>
                     <div class="chatbot-status">Trực tuyến • Tư vấn tồn kho thực tế</div>
                 </div>
             </div>
@@ -516,7 +518,7 @@
         <div class="chatbot-messages" id="chatbotMessages">
             <div class="chat-msg bot">
                 <div class="chat-bubble">
-                    Xin chào! <i class="bi bi-stars text-warning"></i> Mình là <strong>Trợ lý AI của Tiêu Đao Badminton</strong>.<br/>
+                    Xin chào! <i class="bi bi-stars text-warning"></i> Mình là <strong>Trợ lý AI của Tổ Buôn Badminton</strong>.<br/>
                     Bạn đang cần tìm hiểu thông tin gì hôm nay? Hãy chọn chủ đề bên dưới hoặc nhập câu hỏi nhé!
                 </div>
                 <div class="chat-time">Vừa xong</div>
@@ -720,7 +722,7 @@
             }
 
             if (q.includes('liên hệ') || q.includes('hotline') || q.includes('nhân viên') || q.includes('địa chỉ') || q.includes('gọi') || q.includes('sđt')) {
-                return `<i class="bi bi-telephone-fill text-danger me-1"></i> <strong>Thông tin Liên hệ Tiêu Đao Badminton:</strong><br/>
+                return `<i class="bi bi-telephone-fill text-danger me-1"></i> <strong>Thông tin Liên hệ Tổ Buôn Badminton:</strong><br/>
                 • <strong>Hotline Tư vấn 24/7:</strong> <a href="tel:0900000000" class="fw-bold text-danger">0900 000 000</a><br/>
                 • <strong>Địa chỉ:</strong> 123 Đường Cầu Lông, TP. Hồ Chí Minh (8:00 - 21:30)<br/>
                 <a href="tel:0900000000" class="chat-action-link"><i class="bi bi-telephone-outbound-fill me-1"></i> Gọi ngay cho kỹ thuật viên →</a>

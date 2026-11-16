@@ -9,7 +9,7 @@ namespace tieudaobadminton.Models
 
         [Required(ErrorMessage = "Vui lòng nhập mã giảm giá")]
         [StringLength(30)]
-        public string Code { get; set; } = ""; // VD: TIEUDAO50, YONEX10
+        public string Code { get; set; } = ""; // VD: TOBUON50, YONEX10
 
         [Required(ErrorMessage = "Vui lòng nhập mô tả chương trình")]
         [StringLength(200)]

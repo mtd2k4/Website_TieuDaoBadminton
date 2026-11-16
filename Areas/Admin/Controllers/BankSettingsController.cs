@@ -44,7 +44,7 @@ namespace tieudaobadminton.Areas.Admin.Controllers
                     BankCode = "VCB",
                     BankName = "Vietcombank (Ngân hàng Ngoại Thương)",
                     AccountNumber = "",
-                    AccountHolder = "TIEU DAO BADMINTON",
+                    AccountHolder = "TO BUON BADMINTON",
                     Branch = "Chi nhánh TP. Hồ Chí Minh",
                     QrTemplate = "compact2",
                     TransferPrefix = "DH",

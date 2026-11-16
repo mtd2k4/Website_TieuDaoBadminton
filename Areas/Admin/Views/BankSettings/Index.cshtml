@@ -8,7 +8,7 @@
     var bankCode = string.IsNullOrWhiteSpace(Model.BankCode) ? "MB" : Model.BankCode.Trim();
     var tpl = string.IsNullOrWhiteSpace(Model.QrTemplate) ? "compact2" : Model.QrTemplate.Trim();
     var prefix = string.IsNullOrWhiteSpace(Model.TransferPrefix) ? "DH" : Model.TransferPrefix.Trim().ToUpperInvariant();
-    var holderEncoded = Uri.EscapeDataString(string.IsNullOrWhiteSpace(Model.AccountHolder) ? "TIEU DAO BADMINTON" : Model.AccountHolder);
+    var holderEncoded = Uri.EscapeDataString(string.IsNullOrWhiteSpace(Model.AccountHolder) ? "TO BUON BADMINTON" : Model.AccountHolder);
     var previewQrUrl = $"https://img.vietqr.io/image/{bankCode}-{cleanAcc}-{tpl}.png?amount=1500000&addInfo={prefix}00128&accountName={holderEncoded}";
 }
 
@@ -105,7 +105,7 @@
 
                         <div class="col-md-6">
                             <label asp-for="AccountHolder" class="form-label fw-bold small">Tên chủ tài khoản (Không dấu, in hoa) <span class="text-danger">*</span></label>
-                            <input asp-for="AccountHolder" id="accountHolderInput" class="form-control rounded-3 py-2 text-uppercase fw-bold" placeholder="VD: TIEU DAO BADMINTON" />
+                            <input asp-for="AccountHolder" id="accountHolderInput" class="form-control rounded-3 py-2 text-uppercase fw-bold" placeholder="VD: TO BUON BADMINTON" />
                             <span asp-validation-for="AccountHolder" class="text-danger small"></span>
                         </div>
                     </div>
@@ -311,7 +311,7 @@
             function updateQrPreview() {
                 const code = (bankSelect?.value || 'MB').trim();
                 const acc = (accNoInput?.value || '0900000000').replace(/\s+/g, '');
-                const holder = (holderInput?.value || 'TIEU DAO BADMINTON').trim().toUpperCase();
+                const holder = (holderInput?.value || 'TO BUON BADMINTON').trim().toUpperCase();
                 const tpl = (tplSelect?.value || 'compact2').trim();
                 const pfx = (prefixInput?.value || 'DH').trim().toUpperCase();
                 const orderSample = pfx + '00128';

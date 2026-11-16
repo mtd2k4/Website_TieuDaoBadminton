@@ -16,23 +16,23 @@ namespace tieudaobadminton.Controllers
 
         public async Task<IActionResult> Index()
         {
-            // ===== 1) TOP 15 BÁN CHẠY (dựa theo OrderItems thuộc đơn Done) =====
-            // Group theo ProductName (vì bạn đang seed OrderItems.ProductName)
+            // ===== 1) TOP 16 BÁN CHẠY (dựa theo OrderItems thuộc đơn Done) =====
             var topNames = await _db.OrderItems
                 .Include(oi => oi.Order)
                 .Where(oi => oi.Order.Status == "Done")
                 .GroupBy(oi => oi.ProductName)
                 .Select(g => new { Name = g.Key, Qty = g.Sum(x => x.Quantity) })
                 .OrderByDescending(x => x.Qty)
-                .Take(15)
+                .Take(16)
                 .ToListAsync();
 
             var nameList = topNames.Select(x => x.Name).ToList();
 
-            // Lấy Product theo Name để hiển thị card (kèm Category/Brand)
+            // Lấy Product theo Name để hiển thị card (kèm Category/Brand/Variants)
             var bestSellers = await _db.Products
                 .Include(p => p.Category)
                 .Include(p => p.Brand)
+                .Include(p => p.Variants)
                 .Where(p => p.IsActive && nameList.Contains(p.Name))
                 .ToListAsync();
 
@@ -40,6 +40,21 @@ namespace tieudaobadminton.Controllers
             bestSellers = bestSellers
                 .OrderBy(p => nameList.IndexOf(p.Name))
                 .ToList();
+
+            // Bổ sung thêm sản phẩm đang bán nếu dữ liệu đơn Done ít hơn 12 SP để bố cục luôn cân đối
+            if (bestSellers.Count < 12)
+            {
+                var existingIds = bestSellers.Select(p => p.Id).ToList();
+                var extras = await _db.Products
+                    .Include(p => p.Category)
+                    .Include(p => p.Brand)
+                    .Include(p => p.Variants)
+                    .Where(p => p.IsActive && !existingIds.Contains(p.Id))
+                    .OrderBy(p => p.Id)
+                    .Take(12 - bestSellers.Count)
+                    .ToListAsync();
+                bestSellers.AddRange(extras);
+            }
 
             // ===== 2) TIN NỔI BẬT: 6 bài mới nhất đã đăng =====
             var featuredNews = await _db.NewsPosts

@@ -32,7 +32,7 @@ namespace tieudaobadminton.Helpers
             var host = _config["SmtpSettings:Host"] ?? "smtp.gmail.com";
             var port = int.TryParse(_config["SmtpSettings:Port"], out var p) ? p : 587;
             var enableSsl = !bool.TryParse(_config["SmtpSettings:EnableSsl"], out var ssl) || ssl;
-            var senderName = _config["SmtpSettings:SenderName"] ?? "Tiêu Đao Badminton Pro";
+            var senderName = _config["SmtpSettings:SenderName"] ?? "Tổ Buôn Badminton Pro";
             var senderEmail = _config["SmtpSettings:SenderEmail"] ?? "";
             var appPassword = _config["SmtpSettings:AppPassword"] ?? "";
             var adminEmail = _config["SmtpSettings:AdminEmail"] ?? senderEmail;
@@ -66,7 +66,7 @@ namespace tieudaobadminton.Helpers
                 // 1. GỬI EMAIL XÁC NHẬN ĐẶT HÀNG THÀNH CÔNG VỀ CHO USER (KHÁCH HÀNG)
                 if (!string.IsNullOrWhiteSpace(customerEmail))
                 {
-                    var userSubject = $"[Tiêu Đao Badminton] Xác nhận đặt hàng thành công #{orderCode}";
+                    var userSubject = $"[Tổ Buôn Badminton] Xác nhận đặt hàng thành công #{orderCode}";
                     var userBody = BuildCustomerEmailHtml(order, items, orderCode, paymentDisplay, shippingFee);
 
                     using var userMail = new MailMessage
@@ -100,7 +100,7 @@ namespace tieudaobadminton.Helpers
                         BodyEncoding = Encoding.UTF8,
                         IsBodyHtml = true
                     };
-                    adminMail.To.Add(new MailAddress(adminEmail.Trim(), "Quản trị viên Tiêu Đao"));
+                    adminMail.To.Add(new MailAddress(adminEmail.Trim(), "Quản trị viên Tổ Buôn Badminton"));
 
                     await smtpClient.SendMailAsync(adminMail);
                     _logger.LogInformation("Đã gửi email thông báo đơn hàng mới #{OrderCode} tới Admin: {AdminEmail}", orderCode, adminEmail);
@@ -164,7 +164,7 @@ namespace tieudaobadminton.Helpers
     <div style='max-width:640px; margin:24px auto; background:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 8px 24px rgba(15,23,42,0.08); border:1px solid #e2e8f0;'>
         <!-- Header -->
         <div style='background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 100%); padding:28px 24px; text-align:center; color:#ffffff;'>
-            <div style='font-size:22px; font-weight:800; letter-spacing:0.5px;'>TIÊU ĐAO BADMINTON PRO</div>
+            <div style='font-size:22px; font-weight:800; letter-spacing:0.5px;'>TỔ BUÔN BADMINTON PRO</div>
             <div style='font-size:14px; color:#cbd5e1; margin-top:6px;'>Hệ thống Vợt, Giày & Dịch vụ Căng Cước Chuẩn Quốc Tế</div>
         </div>
 
@@ -227,7 +227,7 @@ namespace tieudaobadminton.Helpers
 
         <!-- Footer -->
         <div style='background:#f8fafc; border-top:1px solid #e2e8f0; padding:16px 24px; text-align:center; font-size:12px; color:#64748b;'>
-            © {DateTime.Now.Year} <strong>Tiêu Đao Badminton Pro</strong> • 123 Đường Cầu Lông, TP. Hồ Chí Minh
+            © {DateTime.Now.Year} <strong>Tổ Buôn Badminton Pro</strong> • 123 Đường Cầu Lông, TP. Hồ Chí Minh
         </div>
     </div>
 </body>
@@ -259,7 +259,7 @@ namespace tieudaobadminton.Helpers
         <!-- Header Admin -->
         <div style='background:linear-gradient(135deg,#dc2626 0%,#991b1b 100%); padding:24px; text-align:center; color:#ffffff;'>
             <div style='font-size:20px; font-weight:800;'>THÔNG BÁO ĐƠN HÀNG MỚI #{orderCode}</div>
-            <div style='font-size:13px; color:#fee2e2; margin-top:4px;'>Hệ thống Quản trị Tiêu Đao Badminton vừa tiếp nhận đơn đặt hàng mới</div>
+            <div style='font-size:13px; color:#fee2e2; margin-top:4px;'>Hệ thống Quản trị Tổ Buôn Badminton vừa tiếp nhận đơn đặt hàng mới</div>
         </div>
 
         <!-- Body -->
@@ -316,7 +316,7 @@ namespace tieudaobadminton.Helpers
             var host = _config["SmtpSettings:Host"] ?? "smtp.gmail.com";
             var port = int.TryParse(_config["SmtpSettings:Port"], out var p) ? p : 587;
             var enableSsl = !bool.TryParse(_config["SmtpSettings:EnableSsl"], out var ssl) || ssl;
-            var senderName = _config["SmtpSettings:SenderName"] ?? "Tiêu Đao Badminton Pro";
+            var senderName = _config["SmtpSettings:SenderName"] ?? "Tổ Buôn Badminton Pro";
             var senderEmail = _config["SmtpSettings:SenderEmail"] ?? "";
             var appPassword = _config["SmtpSettings:AppPassword"] ?? "";
             var adminEmail = _config["SmtpSettings:AdminEmail"] ?? senderEmail;
@@ -364,7 +364,7 @@ namespace tieudaobadminton.Helpers
                         BodyEncoding = Encoding.UTF8,
                         IsBodyHtml = true
                     };
-                    adminMail.To.Add(new MailAddress(adminEmail.Trim(), "Quản trị viên Học viện Tiêu Đao"));
+                    adminMail.To.Add(new MailAddress(adminEmail.Trim(), "Quản trị viên Học viện Tổ Buôn"));
                     if (!string.IsNullOrWhiteSpace(vm.Email))
                     {
                         adminMail.ReplyToList.Add(new MailAddress(vm.Email.Trim(), vm.FullName));
@@ -378,7 +378,7 @@ namespace tieudaobadminton.Helpers
                 // 2. GỬI EMAIL XÁC NHẬN ĐĂNG KÝ KHÓA HỌC CHO HỌC VIÊN
                 if (!string.IsNullOrWhiteSpace(vm.Email))
                 {
-                    var studentSubject = $"[Học Viện Tiêu Đao Badminton] Xác nhận đăng ký khóa học #{regCode} - {packageTitle}";
+                    var studentSubject = $"[Học Viện Tổ Buôn Badminton] Xác nhận đăng ký khóa học #{regCode} - {packageTitle}";
                     var studentBody = BuildCourseStudentEmailHtml(vm, regCode, packageTitle, tuitionFee);
 
                     using var studentMail = new MailMessage
@@ -418,7 +418,7 @@ namespace tieudaobadminton.Helpers
 <body style='margin:0; padding:0; background-color:#f1f5f9; font-family: Arial, Helvetica, sans-serif; color:#1e293b;'>
     <div style='max-width:640px; margin:24px auto; background:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 8px 24px rgba(15,23,42,0.08); border:1px solid #e2e8f0;'>
         <div style='background:linear-gradient(135deg,#0f172a 0%,#312e81 100%); padding:26px 24px; text-align:center; color:#ffffff;'>
-            <div style='display:inline-block; background:#4f46e5; color:#ffffff; font-weight:700; font-size:11px; padding:4px 12px; border-radius:999px; letter-spacing:0.08em; margin-bottom:8px;'>HỌC VIỆN CẦU LÔNG TIÊU ĐAO</div>
+            <div style='display:inline-block; background:#4f46e5; color:#ffffff; font-weight:700; font-size:11px; padding:4px 12px; border-radius:999px; letter-spacing:0.08em; margin-bottom:8px;'>HỌC VIỆN CẦU LÔNG TỔ BUÔN</div>
             <div style='font-size:20px; font-weight:800;'>ĐĂNG KÝ KHÓA HỌC MỚI #{regCode}</div>
             <div style='font-size:13px; color:#cbd5e1; margin-top:4px;'>Hệ thống vừa ghi nhận hồ sơ đăng ký khóa học từ website</div>
         </div>
@@ -493,7 +493,7 @@ namespace tieudaobadminton.Helpers
 <body style='margin:0; padding:0; background-color:#f1f5f9; font-family: Arial, Helvetica, sans-serif; color:#1e293b;'>
     <div style='max-width:640px; margin:24px auto; background:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 8px 24px rgba(15,23,42,0.08); border:1px solid #e2e8f0;'>
         <div style='background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 100%); padding:28px 24px; text-align:center; color:#ffffff;'>
-            <div style='font-size:22px; font-weight:800; letter-spacing:0.5px;'>HỌC VIỆN CẦU LÔNG TIÊU ĐAO</div>
+            <div style='font-size:22px; font-weight:800; letter-spacing:0.5px;'>HỌC VIỆN CẦU LÔNG TỔ BUÔN</div>
             <div style='font-size:14px; color:#cbd5e1; margin-top:6px;'>Đào tạo Cầu Lông Chuẩn Kỹ Thuật Quốc Tế BWF</div>
         </div>
 
@@ -504,7 +504,7 @@ namespace tieudaobadminton.Helpers
                 </div>
                 <h2 style='margin:12px 0 6px; color:#0f172a;'>Chào mừng học viên {WebUtility.HtmlEncode(vm.FullName)}!</h2>
                 <p style='margin:0; color:#64748b; font-size:14px;'>
-                    Hồ sơ đăng ký khóa học mã <strong>#{regCode}</strong> của bạn đã được gửi tới Ban Quản Trị Học Viện Tiêu Đao Badminton.
+                    Hồ sơ đăng ký khóa học mã <strong>#{regCode}</strong> của bạn đã được gửi tới Ban Quản Trị Học Viện Tổ Buôn Badminton.
                 </p>
             </div>
 
@@ -523,7 +523,7 @@ namespace tieudaobadminton.Helpers
         </div>
 
         <div style='background:#f8fafc; border-top:1px solid #e2e8f0; padding:16px 24px; text-align:center; font-size:12px; color:#64748b;'>
-            © {DateTime.Now.Year} <strong>Tiêu Đao Badminton Academy</strong> • 123 Đường Cầu Lông, Quận 7, TP. Hồ Chí Minh
+            © {DateTime.Now.Year} <strong>Tổ Buôn Badminton Academy</strong> • 123 Đường Cầu Lông, Quận 7, TP. Hồ Chí Minh
         </div>
     </div>
 </body>

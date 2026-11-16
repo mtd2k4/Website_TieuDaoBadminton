@@ -269,7 +269,7 @@ namespace tieudaobadminton.Controllers
                 BankCode = "MB",
                 BankName = "MB Bank (Ngân hàng Quân Đội)",
                 AccountNumber = "0900000000",
-                AccountHolder = "TIEU DAO BADMINTON",
+                AccountHolder = "TO BUON BADMINTON",
                 Branch = "Chi nhánh Quận 7 - TP. Hồ Chí Minh",
                 QrTemplate = "compact2",
                 TransferPrefix = "DH",
